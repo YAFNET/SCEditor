@@ -10,3 +10,4 @@ sceditor.sublime-workspace
 .DS_Store
 /codetests
 package-lock.json
+/.vs

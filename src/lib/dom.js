@@ -325,7 +325,7 @@ export function css(node, rule, value) {
 		}
 
 		utils.each(rule,
-			function(key, value) {
+			function (key, value) {
 				css(node, key, value);
 			});
 	} else {
@@ -356,7 +356,7 @@ export function data(node, key, value) {
 	if (node.nodeType === ELEMENT_NODE) {
 		if (argsLength === 1) {
 			utils.each(node.attributes,
-				function(_, attr) {
+				function (_, attr) {
 					if (/^data\-/i.test(attr.name)) {
 						data[attr.name.substr(5)] = attr.value;
 					}

@@ -9,7 +9,7 @@
  *
  * @author Sam Clarke
  */
-(function(sceditor) {
+(function (sceditor) {
 	'use strict';
 
 	/**
@@ -66,7 +66,7 @@
 		}
 	}
 
-	sceditor.plugins.dragdrop = function() {
+	sceditor.plugins.dragdrop = function () {
 		if (!isSupported) {
 			return;
 		}
@@ -125,7 +125,7 @@
 				}
 			}
 
-			return function() {
+			return function () {
 				if (toReplace) {
 					toReplace.parentNode.replaceChild(placeholder, toReplace);
 				} else {
@@ -133,7 +133,7 @@
 				}
 
 				return {
-					insert: function(html) {
+					insert: function (html) {
 						replace(html);
 					},
 					cancel: replace
@@ -176,7 +176,7 @@
 			e.preventDefault();
 		}
 
-		base.signalReady = function() {
+		base.signalReady = function () {
 			editor = this;
 			opts = editor.opts.dragdrop || {};
 			handleFile = opts.handleFile;
@@ -197,7 +197,7 @@
 			editor.getBody().addEventListener('drop', hideCover);
 		};
 
-		base.signalPasteHtml = function(paste) {
+		base.signalPasteHtml = function (paste) {
 			if (!('handlePaste' in opts) || opts.handlePaste) {
 				const div = document.createElement('div');
 				div.innerHTML = paste.val;

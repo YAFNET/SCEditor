@@ -19,7 +19,7 @@ export var ios = /iPhone|iPod|iPad| wosbrowser\//i.test(USER_AGENT);
  * @name isWysiwygSupported
  * @return {boolean}
  */
-export var isWysiwygSupported = (function() {
+export var isWysiwygSupported = (function () {
 	var match, isUnsupported;
 
 	// IE is the only browser to support documentMode

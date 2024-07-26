@@ -1,7 +1,7 @@
 {
   "name": "sceditor",
   "version": "3.2.0",
-  "description": "A lightweight HTML and BBCode WYSIWYG editor.",
+  "description": "Forked SCEditor for YAF.NET.",
   "homepage": "http://www.sceditor.com/",
   "bugs": "https://github.com/samclarke/SCEditor/issues",
   "license": "MIT",
@@ -26,14 +26,11 @@
     "url": "https://github.com/samclarke/SCEditor.git"
   },
   "keywords": [
-    "jquery-plugin",
     "WYSIWYG",
     "BBCode",
     "editor",
     "contenteditable",
-    "jquery",
-    "ui",
-    "ecosystem:jquery"
+    "ui"
   ],
   "engines": {
     "node": ">= 0.10.0"

@@ -11,29 +11,32 @@ const path = require('path');
 module.exports = (grunt) => {
 	require('time-grunt')(grunt);
 
-	grunt.event.on('qunit.coverage', function (data) {
-		const outputDir = __dirname + '/coverage';
+	grunt.event.on('qunit.coverage',
+		function(data) {
+			const outputDir = __dirname + '/coverage';
 
-		fs.rmSync(outputDir, { recursive: true, force: true });
+			fs.rmSync(outputDir, { recursive: true, force: true });
 
-		const coverageMap = libCoverage.createCoverageMap(data);
-		const context = libReport.createContext({
-			dir: outputDir,
-			defaultSummarizer: 'nested',
-			coverageMap: coverageMap
+			const coverageMap = libCoverage.createCoverageMap(data);
+			const context = libReport.createContext({
+				dir: outputDir,
+				defaultSummarizer: 'nested',
+				coverageMap: coverageMap
+			});
+
+			console.log('\n\n\nCoverage:');
+			reports.create('text').execute(context);
+			reports.create('html').execute(context);
+			console.log('\n');
 		});
 
-		console.log('\n\n\nCoverage:');
-		reports.create('text').execute(context);
-		reports.create('html').execute(context);
-		console.log('\n');
-	});
+	grunt.registerTask('dev-server',
+		'Dev server',
+		function() {
+			const done = this.async();
 
-	grunt.registerTask('dev-server', 'Dev server', function () {
-		const done = this.async();
-
-		require('./tests/dev-server').create(9001, true).then(done, done);
-	});
+			require('./tests/dev-server').create(9001, true).then(done, done);
+		});
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -114,7 +117,7 @@ module.exports = (grunt) => {
 						cwd: 'distributable/data/',
 						src: 'example.html',
 						dest: 'dist/'
-					},
+					}
 				]
 			},
 			build: {
@@ -132,8 +135,8 @@ module.exports = (grunt) => {
 						cwd: 'src/themes/',
 						src: 'content/**',
 						dest: 'minified/themes/',
-						rename: function (dest, src) {
-							return dest + src.replace('.css','.min.css');
+						rename: function(dest, src) {
+							return dest + src.replace('.css', '.min.css');
 						}
 					}
 				]
@@ -146,7 +149,7 @@ module.exports = (grunt) => {
 				globals: {
 					jquery: 'jQuery'
 				},
-				plugins: function () {
+				plugins: function() {
 					return [
 						nodeResolve({
 							module: true
@@ -178,7 +181,7 @@ module.exports = (grunt) => {
 					compress: true,
 					mangle: true,
 					banner: '/* SCEditor v<%= pkg.version %> | ' +
-					'(C) 2017, Sam Clarke | sceditor.com/license */\n'
+						'(C) 2017, Sam Clarke | sceditor.com/license */\n'
 				},
 				files: [
 					{
@@ -195,18 +198,18 @@ module.exports = (grunt) => {
 				]
 			}
 		},
-		
+
 		sass: {
-	options: {
-		implementation: sass,
-		sourceMap: false
-	},
-	build: {
-		files: {
-			"minified/themes/sceditor.min.css": 'src/themes/sceditor.scss'
-		}
-	}
-},
+			options: {
+				implementation: sass,
+				sourceMap: false
+			},
+			build: {
+				files: {
+					'minified/themes/sceditor.min.css': 'src/themes/sceditor.scss'
+				}
+			}
+		},
 
 		// Manage CSS vendor prefixes
 		postcss: {
@@ -273,30 +276,33 @@ module.exports = (grunt) => {
 	grunt.registerTask('test', ['eslint', 'dev-server', 'qunit']);
 
 	// Minifies the source
-	grunt.registerTask('build', [
-		'clean:build',
-		'sass', 
-		'copy:build',
-		'rollup:build',
-		'uglify:build',
-		'postcss:build'
-	]);
+	grunt.registerTask('build',
+		[
+			'clean:build',
+			'sass',
+			'copy:build',
+			'rollup:build',
+			'uglify:build',
+			'postcss:build'
+		]);
 
 	// Creates a directory containing the contents of
 	// the release ZIP but without compressing it
-	grunt.registerTask('dist', [
-		'test',
-		'build',
-		'clean:dist',
-		'rollup:dist',
-		'concat:dist',
-		'copy:dist',
-	]);
+	grunt.registerTask('dist',
+		[
+			'test',
+			'build',
+			'clean:dist',
+			'rollup:dist',
+			'concat:dist',
+			'copy:dist'
+		]);
 
 	// Creates the simplified distributable ZIP
-	grunt.registerTask('release', [
-		'dist',
-		'compress:dist',
-		'clean:dist'
-	]);
+	grunt.registerTask('release',
+		[
+			'dist',
+			'compress:dist',
+			'clean:dist'
+		]);
 };

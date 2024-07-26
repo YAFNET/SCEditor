@@ -9,8 +9,8 @@
  *
  * @author Sam Clarke
  */
-(function(document, sceditor) {
-
+(function (document, sceditor) {
+	'use strict';
 
 	var dom = sceditor.dom;
 
@@ -67,12 +67,12 @@
 		'youtube': '<i class="fa-brands fa-youtube"></i>'
 	};
 
-	sceditor.icons.fontawesome = function() {
+	sceditor.icons.fontawesome = function () {
 		var nodes = {};
 		var colorPath;
 
 		return {
-			create: function(command) {
+			create: function (command) {
 				if (command in icons) {
 					nodes[command] = sceditor.dom.parseHTML(
 						icons[command]
@@ -85,7 +85,7 @@
 
 				return nodes[command];
 			},
-			update: function(isSourceMode, currentNode) {
+			update: function (isSourceMode, currentNode) {
 				if (colorPath) {
 					let color = 'inherit';
 
@@ -97,7 +97,7 @@
 					dom.css(colorPath, 'color', color);
 				}
 			},
-			rtl: function(isRtl) {
+			rtl: function (isRtl) {
 				const gripNode = nodes.grip;
 
 				if (gripNode) {

@@ -33,7 +33,7 @@
     "max-params": ["error", 4],
     "max-depth": ["error", 4],
     "max-len": ["error", {
-      "code": 80,
+      "code": 200,
       "ignoreUrls": true,
       "ignoreRegExpLiterals": true
     }],
@@ -66,11 +66,6 @@
       "afterColon": true
     }],
     "space-unary-ops": "error",
-    "space-before-function-paren": ["error", {
-      "anonymous": "always",
-      "named": "never",
-      "asyncArrow": "never"
-    }],
     "no-spaced-func": "error",
     "array-bracket-spacing": ["error", "never"],
     "keyword-spacing": ["error", {

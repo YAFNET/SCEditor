@@ -52,7 +52,7 @@ export function entities(str, noQuotes) {
 	}
 
 	str = str.replace(/ {2}|\r\n|[&<>\r\n'"`]/g,
-		function(match) {
+		function (match) {
 			return replacements[match] || match;
 		});
 

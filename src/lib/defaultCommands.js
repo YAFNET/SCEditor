@@ -52,7 +52,7 @@ var defaultCmds = {
 
 	// START_COMMAND: albums
 	albums: {
-		exec: function(caller) {
+		exec: function (caller) {
 			const content = dom.createElement('div');
 			const editor = this;
 
@@ -77,7 +77,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Attachments
 	attachments: {
-		exec: function(caller) {
+		exec: function (caller) {
 			const content = dom.createElement('div');
 			const editor = this;
 
@@ -129,7 +129,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Mark
 	mark: {
-		exec: function() {
+		exec: function () {
 			this.wysiwygEditorInsertHtml(
 				'<mark>',
 				'</mark>'
@@ -142,7 +142,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Left
 	left: {
-		state: function(node) {
+		state: function (node) {
 			if (node && node.nodeType === 3) {
 				node = node.parentNode;
 			}
@@ -168,7 +168,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Right
 	right: {
-		state: function(node) {
+		state: function (node) {
 			if (node && node.nodeType === 3) {
 				node = node.parentNode;
 			}
@@ -195,19 +195,19 @@ var defaultCmds = {
 
 	// START_COMMAND: Font
 	font: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.on(content,
 				'click',
 				'a',
-				function(e) {
+				function (e) {
 					callback(dom.data(this, 'font'));
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
-			editor.opts.fonts.split(',').forEach(function(font) {
+			editor.opts.fonts.split(',').forEach(function (font) {
 				dom.appendChild(content,
 					_tmpl('fontOpt',
 						{
@@ -218,12 +218,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'font-picker', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.font._dropDown(editor,
 				caller,
-				function(fontName) {
+				function (fontName) {
 					editor.execCommand('fontname', fontName);
 				});
 		},
@@ -232,13 +232,13 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Size
 	size: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			const content = dom.createElement('div');
 
 			dom.on(content,
 				'click',
 				'a',
-				function(e) {
+				function (e) {
 					callback(dom.data(this, 'size'));
 					editor.closeDropDown(true);
 					e.preventDefault();
@@ -255,12 +255,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'fontsize-picker', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.size._dropDown(editor,
 				caller,
-				function(fontSize) {
+				function (fontSize) {
 					editor.execCommand('fontsize', fontSize);
 				});
 		},
@@ -269,16 +269,16 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Colour
 	color: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			const content = dom.createElement('div');
 			var html = '';
 			const cmd = defaultCmds.color;
 
 			if (!cmd._htmlCache) {
-				editor.opts.colors.split('|').forEach(function(column) {
+				editor.opts.colors.split('|').forEach(function (column) {
 					html += '<div class="sceditor-color-column">';
 
-					column.split(',').forEach(function(color) {
+					column.split(',').forEach(function (color) {
 						html +=
 							`<a href="#" class="sceditor-color-option" style="background-color: ${color}" data-color="${
 								color}"></a>`;
@@ -295,7 +295,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'a',
-				function(e) {
+				function (e) {
 					callback(dom.data(this, 'color'));
 					editor.closeDropDown(true);
 					e.preventDefault();
@@ -303,12 +303,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'color-picker', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.color._dropDown(editor,
 				caller,
-				function(color) {
+				function (color) {
 					editor.execCommand('forecolor', color);
 				});
 		},
@@ -348,7 +348,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Paste Text
 	pastetext: {
-		exec: function(caller) {
+		exec: function (caller) {
 			var val,
 				content = dom.createElement('div'),
 				editor = this;
@@ -366,7 +366,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					val = dom.find(content, '#txt')[0].value;
 
 					if (val) {
@@ -384,7 +384,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Bullet List
 	bulletlist: {
-		exec: function() {
+		exec: function () {
 			fixFirefoxListBug(this);
 			this.execCommand('insertunorderedlist');
 		},
@@ -393,7 +393,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Ordered List
 	orderedlist: {
-		exec: function() {
+		exec: function () {
 			fixFirefoxListBug(this);
 			this.execCommand('insertorderedlist');
 		},
@@ -402,7 +402,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Indent
 	indent: {
-		state: function(parent, firstBlock) {
+		state: function (parent, firstBlock) {
 			// Only works with lists, for now
 			var range, startParent, endParent;
 
@@ -437,7 +437,7 @@ var defaultCmds = {
 
 			return -1;
 		},
-		exec: function() {
+		exec: function () {
 			const editor = this;
 			const block = editor.getRangeHelper().getFirstBlockParent();
 
@@ -456,10 +456,10 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Outdent
 	outdent: {
-		state: function(parents, firstBlock) {
+		state: function (parents, firstBlock) {
 			return dom.closest(firstBlock, 'ul,ol,menu') ? 0 : -1;
 		},
-		exec: function() {
+		exec: function () {
 			const block = this.getRangeHelper().getFirstBlockParent();
 			if (dom.closest(block, 'ul,ol,menu')) {
 				this.execCommand('outdent');
@@ -471,7 +471,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Table
 	table: {
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this,
 				content = dom.createElement('div');
 
@@ -487,7 +487,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					var rows = Number(dom.find(content, '#rows')[0].value),
 						cols = Number(dom.find(content, '#cols')[0].value),
 						html = '<table class="table">';
@@ -517,19 +517,19 @@ var defaultCmds = {
 
 	// START_COMMAND: Code
 	code: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.on(content,
 				'click',
 				'a',
-				function(e) {
+				function (e) {
 					callback(dom.data(this, 'language'));
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
-			editor.opts.codeLanguages.forEach(function(language) {
+			editor.opts.codeLanguages.forEach(function (language) {
 				dom.appendChild(content,
 					_tmpl('codeOpt',
 						{
@@ -541,12 +541,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'codeLanguage-picker', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.code._dropDown(editor,
 				caller,
-				function(codeLanguageName) {
+				function (codeLanguageName) {
 
 					editor.wysiwygEditorInsertHtml(
 						`<pre class="border border-danger rounded m-2 p-2"><code class="language-${codeLanguageName}">`,
@@ -561,13 +561,13 @@ var defaultCmds = {
 
 	// START_COMMAND: Code
 	extensions: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.on(content,
 				'click',
 				'a',
-				function(e) {
+				function (e) {
 					callback(dom.data(this, 'language'));
 					editor.closeDropDown(true);
 					e.preventDefault();
@@ -577,7 +577,7 @@ var defaultCmds = {
 				{
 					method: 'GET'
 				}).then(res => res.json()).then(data => {
-				data.forEach(function(extension) {
+				data.forEach(function (extension) {
 					if (!extension.useToolbar) {
 						dom.appendChild(content,
 							_tmpl('extensionOpt',
@@ -591,12 +591,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'extensions-picker', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.extensions._dropDown(editor,
 				caller,
-				function(extension) {
+				function (extension) {
 
 					editor.wysiwygEditorInsertText(
 						`[${extension}]`,
@@ -612,7 +612,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Image
 	image: {
-		_dropDown: function(editor, caller, cb) {
+		_dropDown: function (editor, caller, cb) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -640,7 +640,7 @@ var defaultCmds = {
 			dom.on(content, 'click', '.button', insertUrl);
 			dom.on(content,
 				'keypress',
-				function(e) {
+				function (e) {
 					// 13 = enter key
 					if (e.which === 13 && linkInput.value) {
 						insertUrl(e);
@@ -650,13 +650,13 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertimage', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.image._dropDown(
 				editor,
 				caller,
-				function(url, text) {
+				function (url, text) {
 					var attrs = '';
 
 					if (text) {
@@ -677,7 +677,7 @@ var defaultCmds = {
 
 	// START_COMMAND: E-mail
 	email: {
-		_dropDown: function(editor, caller, cb) {
+		_dropDown: function (editor, caller, cb) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -692,7 +692,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const email = dom.find(content, '#email')[0].value;
 
 					if (email) {
@@ -705,13 +705,13 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertemail', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.email._dropDown(
 				editor,
 				caller,
-				function(email, text) {
+				function (email, text) {
 					if (!editor.getRangeHelper().selectedHtml() || text) {
 						editor.wysiwygEditorInsertHtml(
 							`<a href="mailto:${escape.entities(email)}">${escape.entities((text || email))}</a>`
@@ -728,7 +728,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Link
 	link: {
-		_dropDown: function(editor, caller, cb) {
+		_dropDown: function (editor, caller, cb) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -754,7 +754,7 @@ var defaultCmds = {
 			dom.on(content, 'click', '.button', insertUrl);
 			dom.on(content,
 				'keypress',
-				function(e) {
+				function (e) {
 					// 13 = enter key
 					if (e.which === 13 && linkInput.value) {
 						insertUrl(e);
@@ -764,12 +764,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
-		exec: function(caller) {
+		exec: function (caller) {
 			var editor = this;
 
 			defaultCmds.link._dropDown(editor,
 				caller,
-				function(url, text) {
+				function (url, text) {
 					if (text || !editor.getRangeHelper().selectedHtml()) {
 						editor.wysiwygEditorInsertHtml(
 							`<a href="${escape.entities(url)}">${escape.entities(text || url)}</a>`
@@ -785,10 +785,10 @@ var defaultCmds = {
 
 	// START_COMMAND: Unlink
 	unlink: {
-		state: function() {
+		state: function () {
 			return dom.closest(this.currentNode(), 'a') ? 0 : -1;
 		},
-		exec: function() {
+		exec: function () {
 			const anchor = dom.closest(this.currentNode(), 'a');
 
 			if (anchor) {
@@ -806,7 +806,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Quote
 	quote: {
-		exec: function(caller, html, author) {
+		exec: function (caller, html, author) {
 			var before =
 				'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>';
 			var end = '</div>';
@@ -833,7 +833,7 @@ var defaultCmds = {
 
 	// START_COMMAND: media
 	media: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -847,7 +847,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const url = dom.find(content, '#link')[0].value;
 
 					if (!url.startsWith('http')) {
@@ -863,12 +863,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertmedia', content);
 		},
-		exec: function(btn) {
+		exec: function (btn) {
 			var editor = this;
 
 			defaultCmds.media._dropDown(editor,
 				btn,
-				function(url) {
+				function (url) {
 					editor.wysiwygEditorInsertHtml(`[media]${url}[/media]`);
 				});
 		},
@@ -878,7 +878,7 @@ var defaultCmds = {
 
 	// START_COMMAND: vimeo
 	vimeo: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -892,7 +892,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const url = dom.find(content, '#link')[0].value;
 
 					if (url !== '') {
@@ -907,12 +907,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
-		exec: function(btn) {
+		exec: function (btn) {
 			var editor = this;
 
 			defaultCmds.vimeo._dropDown(editor,
 				btn,
-				function(url, id) {
+				function (url, id) {
 					editor.wysiwygEditorInsertHtml(_tmpl('vimeo',
 						{
 							url: url,
@@ -926,7 +926,7 @@ var defaultCmds = {
 
 	// START_COMMAND: instagram
 	instagram: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -940,7 +940,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const url = dom.find(content, '#link')[0].value;
 					var id = '';
 
@@ -959,12 +959,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
-		exec: function(btn) {
+		exec: function (btn) {
 			var editor = this;
 
 			defaultCmds.instagram._dropDown(editor,
 				btn,
-				function(url, id) {
+				function (url, id) {
 					editor.wysiwygEditorInsertHtml(_tmpl('instagram',
 						{
 							url: url,
@@ -978,7 +978,7 @@ var defaultCmds = {
 
 	// START_COMMAND: facebook
 	facebook: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -992,7 +992,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const url = dom.find(content, '#link')[0].value;
 
 					callback(url);
@@ -1003,12 +1003,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
-		exec: function(btn) {
+		exec: function (btn) {
 			var editor = this;
 
 			defaultCmds.facebook._dropDown(editor,
 				btn,
-				function(url) {
+				function (url) {
 					editor.wysiwygEditorInsertHtml(_tmpl('facebook',
 						{
 							url: url
@@ -1021,7 +1021,7 @@ var defaultCmds = {
 
 	// START_COMMAND: youtube
 	youtube: {
-		_dropDown: function(editor, caller, callback) {
+		_dropDown: function (editor, caller, callback) {
 			var content = dom.createElement('div');
 
 			dom.appendChild(content,
@@ -1035,7 +1035,7 @@ var defaultCmds = {
 			dom.on(content,
 				'click',
 				'.button',
-				function(e) {
+				function (e) {
 					const url = dom.find(content, '#link')[0].value;
 					const idMatch = url.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/);
 
@@ -1050,12 +1050,12 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
-		exec: function(btn) {
+		exec: function (btn) {
 			var editor = this;
 
 			defaultCmds.youtube._dropDown(editor,
 				btn,
-				function(url, id) {
+				function (url, id) {
 					editor.wysiwygEditorInsertHtml(_tmpl('youtube',
 						{
 							url: url,
@@ -1069,7 +1069,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Date
 	date: {
-		_date: function(editor) {
+		_date: function (editor) {
 			const now = new Date();
 			var year = now.getYear(),
 				month = now.getMonth() + 1,
@@ -1092,10 +1092,10 @@ var defaultCmds = {
 				.replace(/month/i, month)
 				.replace(/day/i, day);
 		},
-		exec: function() {
+		exec: function () {
 			this.insertText(defaultCmds.date._date(this));
 		},
-		txtExec: function() {
+		txtExec: function () {
 			this.insertText(defaultCmds.date._date(this));
 		},
 		tooltip: 'Insert current date'
@@ -1104,7 +1104,7 @@ var defaultCmds = {
 
 	// START_COMMAND: Time
 	time: {
-		_time: function() {
+		_time: function () {
 			const now = new Date();
 			var hours = now.getHours(),
 				mins = now.getMinutes(),
@@ -1124,10 +1124,10 @@ var defaultCmds = {
 
 			return hours + ':' + mins + ':' + secs;
 		},
-		exec: function() {
+		exec: function () {
 			this.insertText(defaultCmds.time._time());
 		},
-		txtExec: function() {
+		txtExec: function () {
 			this.insertText(defaultCmds.time._time());
 		},
 		tooltip: 'Insert current time'
@@ -1152,14 +1152,14 @@ var defaultCmds = {
 
 	// START_COMMAND: Maximize
 	maximize: {
-		state: function() {
+		state: function () {
 			return this.maximize();
 		},
-		exec: function() {
+		exec: function () {
 			this.maximize(!this.maximize());
 			this.focus();
 		},
-		txtExec: function() {
+		txtExec: function () {
 			this.maximize(!this.maximize());
 			this.focus();
 		},
@@ -1170,14 +1170,14 @@ var defaultCmds = {
 
 	// START_COMMAND: Source
 	source: {
-		state: function() {
+		state: function () {
 			return this.sourceMode();
 		},
-		exec: function() {
+		exec: function () {
 			this.toggleSourceMode();
 			this.focus();
 		},
-		txtExec: function() {
+		txtExec: function () {
 			this.toggleSourceMode();
 			this.focus();
 		},
@@ -1187,7 +1187,7 @@ var defaultCmds = {
 	// END_COMMAND
 	// START_COMMAND: Reply
 	reply: {
-		exec: function() {
+		exec: function () {
 			if (document.getElementById('QuickReplyDialog') !== null) {
 				document.querySelector('[data-bs-save*="modal"]').click();
 			} else if (document.querySelector('[formaction*="PostReply"]') !== null) {

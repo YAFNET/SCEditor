@@ -10,9 +10,9 @@
  * @fileoverview SCEditor BBCode Format
  * @author Sam Clarke
  */
-(function(sceditor) {
+(function (sceditor) {
 	/*eslint max-depth: off*/
-
+	'use strict';
 
 	var escapeEntities = sceditor.escapeEntities;
 	var escapeUriScheme = sceditor.escapeUriScheme;
@@ -79,13 +79,13 @@
 			txtExec: ['[justify]', '[/justify]']
 		},
 		font: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('font')._dropDown(
 					editor,
 					caller,
-					function(fontName) {
+					function (fontName) {
 						editor.insertText(
 							`[font=${fontName}]`,
 							'[/font]'
@@ -95,13 +95,13 @@
 			}
 		},
 		size: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('size')._dropDown(
 					editor,
 					caller,
-					function(fontSize) {
+					function (fontSize) {
 						editor.insertText(
 							`[size=${fontSize}]`,
 							'[/size]'
@@ -111,13 +111,13 @@
 			}
 		},
 		color: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('color')._dropDown(
 					editor,
 					caller,
-					function(color) {
+					function (color) {
 						editor.insertText(
 							`[color=${color}]`,
 							'[/color]'
@@ -127,14 +127,14 @@
 			}
 		},
 		bulletlist: {
-			txtExec: function(caller, selected) {
+			txtExec: function (caller, selected) {
 				this.insertText(
 					`[list]\n[list]${selected.split(/\r?\n/).join('[/li]\n[li]')}[/li]\n[/ul]`
 				);
 			}
 		},
 		orderedlist: {
-			txtExec: function(caller, selected) {
+			txtExec: function (caller, selected) {
 				this.insertText(
 					`[list=I]\n[li]${selected.split(/\r?\n/).join('[/li]\n[li]')}[/li]\n[/list]`
 				);
@@ -144,13 +144,13 @@
 			txtExec: ['[table][tr][td]', '[/td][/tr][/table]']
 		},
 		code: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('code')._dropDown(
 					editor,
 					caller,
-					function(language) {
+					function (language) {
 						editor.insertText(
 							`[code=${language}]`,
 							'[/code]'
@@ -160,13 +160,13 @@
 			}
 		},
 		extensions: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('extensions')._dropDown(
 					editor,
 					caller,
-					function(extension) {
+					function (extension) {
 						editor.insertText(
 							`[${extension}]`,
 							`[/${extension}]`
@@ -176,13 +176,13 @@
 			}
 		},
 		image: {
-			txtExec: function(caller, selected) {
+			txtExec: function (caller, selected) {
 				var editor = this;
 
 				getEditorCommand('image')._dropDown(
 					editor,
 					caller,
-					function(url, text) {
+					function (url, text) {
 						if (text || selected) {
 							editor.insertText(
 								`[img=${url}]${text || selected || url}[/img]`
@@ -195,13 +195,13 @@
 			}
 		},
 		email: {
-			txtExec: function(caller, selected) {
+			txtExec: function (caller, selected) {
 				var editor = this;
 
 				getEditorCommand('email')._dropDown(
 					editor,
 					caller,
-					function(url, text) {
+					function (url, text) {
 						editor.insertText(
 							`[email=${url}]${text || selected || url}[/email]`
 						);
@@ -210,13 +210,13 @@
 			}
 		},
 		link: {
-			txtExec: function(caller, selected) {
+			txtExec: function (caller, selected) {
 				var editor = this;
 
 				getEditorCommand('link')._dropDown(
 					editor,
 					caller,
-					function(url, text) {
+					function (url, text) {
 						if (selected || text) {
 							editor.insertText(
 								`[url=${url}]${text || selected || url}[/url]`
@@ -237,91 +237,91 @@
 			txtExec: ['[userlink]', '[/userlink]']
 		},
 		albums: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('albums')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[albumid]${url}[/albumid]`);
 					}
 				);
 			}
 		},
 		attachments: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('attachments')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[attach]${url}[/attach]`);
 					}
 				);
 			}
 		},
 		media: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('media')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[media]${url}[/media]`);
 					}
 				);
 			}
 		},
 		vimeo: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('vimeo')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[vimeo]${url}[/vimeo]`);
 					}
 				);
 			}
 		},
 		instagram: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('instagram')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[instagram]${url}[/instagram]`);
 					}
 				);
 			}
 		},
 		facebook: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('facebook')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[facebook]${url}[/facebook]`);
 					}
 				);
 			}
 		},
 		youtube: {
-			txtExec: function(caller) {
+			txtExec: function (caller) {
 				var editor = this;
 
 				getEditorCommand('youtube')._dropDown(
 					editor,
 					caller,
-					function(url) {
+					function (url) {
 						editor.insertText(`[youtube]${url}[/youtube]`);
 					}
 				);
@@ -429,7 +429,7 @@
 				'font-family': null
 			},
 			quoteType: QuoteType.never,
-			format: function(element, content) {
+			format: function (element, content) {
 				var font;
 
 				if (!is(element, 'font') || !(font = attr(element, 'face'))) {
@@ -452,7 +452,7 @@
 			styles: {
 				'font-size': null
 			},
-			format: function(element, content) {
+			format: function (element, content) {
 				var fontSize = attr(element, 'size'),
 					size = 2;
 
@@ -504,7 +504,7 @@
 				color: null
 			},
 			quoteType: QuoteType.never,
-			format: function(elm, content) {
+			format: function (elm, content) {
 				var color;
 
 				if (!is(elm, 'font') || !(color = attr(elm, 'color'))) {
@@ -513,7 +513,7 @@
 
 				return `[color=${_normaliseColour(color)}]${content}[/color]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				return `<font color="${escapeEntities(_normaliseColour(attrs.defaultattr), true)}">${content}</font>`;
 			}
 		},
@@ -627,7 +627,7 @@
 			},
 			allowedChildren: ['#'],
 			quoteType: QuoteType.never,
-			format: function(element) {
+			format: function (element) {
 				var desc;
 
 				desc = attr(element, 'alt');
@@ -638,7 +638,7 @@
 
 				return `[img]${attr(element, 'src')}[/img]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				attrs.defaultattr =
 					escapeEntities(attrs.defaultattr, true) || content;
 
@@ -656,10 +656,10 @@
 					class: 'badge rounded-pill text-bg-secondary fs-6'
 				}
 			},
-			format: function(element) {
+			format: function (element) {
 				return `[userlink]${attr(element, 'data-user')}[/userlink]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 
 				return `<span class="badge rounded-pill text-bg-secondary fs-6" data-user="${escapeEntities(content)
 				}">${escapeEntities(content)}</span>`;
@@ -678,10 +678,10 @@
 			},
 			allowedChildren: ['#'],
 			quoteType: QuoteType.never,
-			format: function(element) {
+			format: function (element) {
 				return `[albumimg]${attr(element, 'alt')}[/albumimg]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				attrs.defaultattr =
 					escapeEntities(attrs.defaultattr, true) || content;
 
@@ -701,7 +701,7 @@
 				}
 			},
 			quoteType: QuoteType.never,
-			format: function(element, content) {
+			format: function (element, content) {
 				const url = attr(element, 'href');
 
 				// make sure this link is not an e-mail,
@@ -712,7 +712,7 @@
 
 				return `[url=${url}]${content}[/url]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				attrs.defaultattr =
 					escapeEntities(attrs.defaultattr, true) || content;
 
@@ -724,7 +724,7 @@
 		// START_COMMAND: E-mail
 		email: {
 			quoteType: QuoteType.never,
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				return `<a href="mailto:${escapeEntities(attrs.defaultattr, true) || content}">${content}</a>`;
 			}
 		},
@@ -739,7 +739,7 @@
 			},
 			isInline: false,
 			quoteType: QuoteType.never,
-			format: function(element, content) {
+			format: function (element, content) {
 				var author = '';
 				var cite;
 				const children = element.children;
@@ -768,7 +768,7 @@
 
 				return `[quote${author}]${content}[/quote]`;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				if (attrs.defaultattr) {
 					content = content +
 						'<cite class="card-text text-end d-block text-body-secondary small">' +
@@ -791,7 +791,7 @@
 			},
 			isInline: false,
 			allowedChildren: ['#', '#newline'],
-			format: function(element, content) {
+			format: function (element, content) {
 				var codeLanguage;
 
 				if (!is(element, 'code') || !(codeLanguage = attr(element, 'class'))) {
@@ -883,12 +883,12 @@
 					'data-facebook-url': null
 				}
 			},
-			format: function(element, content) {
+			format: function (element, content) {
 				element = attr(element, 'data-facebook-url');
 
 				return element ? `[facebook]${element}[/facebook]` : content;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				const url = content;
 
 				return `<div class="ratio ratio-1x1" data-oembed-url="${url}" data-facebook-url="${url
@@ -905,12 +905,12 @@
 					'data-instagram-url': null
 				}
 			},
-			format: function(element, content) {
+			format: function (element, content) {
 				element = attr(element, 'data-instagram-url');
 
 				return element ? `[instagram]${element}[/instagram]` : content;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				var id = content;
 
 				const url = content;
@@ -932,12 +932,12 @@
 					'data-vimeo-url': null
 				}
 			},
-			format: function(element, content) {
+			format: function (element, content) {
 				element = attr(element, 'data-vimeo-url');
 
 				return element ? `[vimeo]${element}[/vimeo]` : content;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				const url = content;
 
 				const id = url.match(/vimeo\..*\/(\d+)(?:$|\/)/)[1];
@@ -958,12 +958,12 @@
 					'data-youtube-url': null
 				}
 			},
-			format: function(element, content) {
+			format: function (element, content) {
 				element = attr(element, 'data-youtube-url');
 
 				return element ? `[youtube]${element}[/youtube]` : content;
 			},
-			html: function(token, attrs, content) {
+			html: function (token, attrs, content) {
 				const url = content;
 
 				const id = content.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/)[1];
@@ -1018,7 +1018,7 @@
 	 */
 	function formatBBCodeString(str, obj) {
 		return str.replace(/\{([^}]+)\}/g,
-			function(match, group) {
+			function (match, group) {
 				var undef,
 					escape = true;
 
@@ -1067,7 +1067,7 @@
 		var args = arguments;
 
 		return str.replace(/\{(\d+)\}/g,
-			function(_, matchNum) {
+			function (_, matchNum) {
 				return args[matchNum - 0 + 1] !== undef ? args[matchNum - 0 + 1] : `{${matchNum}}`;
 			});
 	}
@@ -1123,7 +1123,7 @@
 		 *
 		 * @return {TokenizeToken}
 		 */
-		clone: function() {
+		clone: function () {
 			const base = this;
 
 			return new TokenizeToken(
@@ -1142,7 +1142,7 @@
 		 * @return {TokenizeToken} The right half of the split token or
 		 *                         empty clone if invalid splitAt lcoation
 		 */
-		splitAt: function(splitAt) {
+		splitAt: function (splitAt) {
 			var offsetLength;
 			const base = this;
 			const clone = base.clone();
@@ -1186,7 +1186,7 @@
 		 * @return {array}
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.tokenize = function(str) {
+		base.tokenize = function (str) {
 			var matches, type, i;
 			const tokens = [];
 			// The token types in reverse order of precedence
@@ -1354,7 +1354,7 @@
 		 * @return {array}                    Array of BBCode objects
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.parse = function(str, preserveNewLines) {
+		base.parse = function (str, preserveNewLines) {
 			const ret = parseTokens(base.tokenize(str));
 			const opts = base.opts;
 
@@ -1439,7 +1439,7 @@
 				 * Returns the currently open tag or undefined
 				 * @return {TokenizeToken}
 				 */
-				currentTag = function() {
+				currentTag = function () {
 					return last(openTags);
 				},
 				/**
@@ -1448,7 +1448,7 @@
 				 * @param {TokenizeToken} token
 				 * @private
 				 */
-				addTag = function(token) {
+				addTag = function (token) {
 					if (currentTag()) {
 						currentTag().children.push(token);
 					} else {
@@ -1460,7 +1460,7 @@
 				 * @param  {string} name
 				 * @return {Void}
 				 */
-				closesCurrentTag = function(name) {
+				closesCurrentTag = function (name) {
 					return currentTag() &&
 						(bbcode = bbcodeHandlers[currentTag().name]) &&
 						bbcode.closedBy &&
@@ -1803,7 +1803,7 @@
 		function fixNesting(children, parents, insideInline, rootArr) {
 			var token, i, parent, parentIndex, parentParentChildren, right;
 
-			const isInline = function(token) {
+			const isInline = function (token) {
 				const bbcode = bbcodeHandlers[token.name];
 
 				return !bbcode || bbcode.isInline !== false;
@@ -1897,7 +1897,7 @@
 			 * Checks if all children are whitespace or not
 			 * @private
 			 */
-			const isTokenWhiteSpace = function(children) {
+			const isTokenWhiteSpace = function (children) {
 				var j = children.length;
 
 				while (j--) {
@@ -1949,11 +1949,11 @@
 		 * @return {string}
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.toHTML = function(str, preserveNewLines) {
+		base.toHTML = function (str, preserveNewLines) {
 			return convertToHTML(base.parse(str, preserveNewLines), true);
 		};
 
-		base.toHTMLFragment = function(str, preserveNewLines) {
+		base.toHTMLFragment = function (str, preserveNewLines) {
 			return convertToHTML(base.parse(str, preserveNewLines), false);
 		};
 
@@ -1972,7 +1972,7 @@
 				lastChild,
 				ret = '';
 
-			isInline = function(bbcode) {
+			isInline = function (bbcode) {
 				return (!bbcode || (bbcode.isHtmlInline !== undef ? bbcode.isHtmlInline : bbcode.isInline)) !== false;
 			};
 
@@ -2079,7 +2079,7 @@
 		 * @return {string}
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.toBBCode = function(str, preserveNewLines) {
+		base.toBBCode = function (str, preserveNewLines) {
 			return convertToBBCode(base.parse(str, preserveNewLines));
 		};
 
@@ -2442,7 +2442,7 @@
 		 */
 		function buildBbcodeCache() {
 			each(bbcodeHandlers,
-				function(bbcode, handler) {
+				function (bbcode, handler) {
 					var
 						isBlock = handler.isInline === false;
 					const tags = bbcodeHandlers[bbcode].tags;
@@ -2459,7 +2459,7 @@
 
 					if (tags) {
 						each(tags,
-							function(tag, values) {
+							function (tag, values) {
 								if (values && values.style) {
 									values.style = Object.entries(values.style);
 								}
@@ -2562,7 +2562,7 @@
 			}
 
 			function createAttributeMatch(isStrict) {
-				return function(attribute) {
+				return function (attribute) {
 					const name = attribute[0];
 					const value = attribute[1];
 
@@ -2588,7 +2588,7 @@
 
 				// loop all bbcodes for this tag
 				each(tagsToBBCodes[tag][blockLevel],
-					function(bbcode, attrs) {
+					function (bbcode, attrs) {
 						var fn,
 							format,
 							isStrict = bbcodeHandlers[bbcode].strictMatch;
@@ -2630,11 +2630,11 @@
 		 * @memberOf SCEditor.plugins.bbcode.prototype
 		 */
 		function elementToBbcode(element, hasCodeParent) {
-			var toBBCode = function(node, hasCodeParent, vChildren) {
+			var toBBCode = function (node, hasCodeParent, vChildren) {
 				var ret = '';
 
 				dom.traverse(node,
-					function(node) {
+					function (node) {
 						var content = '';
 						const nodeType = node.nodeType;
 						const tag = node.nodeName.toLowerCase();
@@ -2706,7 +2706,7 @@
 		 * Initializer
 		 * @private
 		 */
-		base.init = function() {
+		base.init = function () {
 			base.opts = this.opts;
 			base.elementToBbcode = elementToBbcode;
 
@@ -2814,7 +2814,7 @@
 	 * @return {Object|null}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.get = function(name) {
+	bbcodeFormat.get = function (name) {
 		return bbcodeHandlers[name] || null;
 	};
 
@@ -2827,12 +2827,12 @@
 	 * @return {this}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.set = function(name, bbcode) {
+	bbcodeFormat.set = function (name, bbcode) {
 		if (name && bbcode) {
 			// merge any existing command properties
 			bbcode = extend(bbcodeHandlers[name] || {}, bbcode);
 
-			bbcode.remove = function() {
+			bbcode.remove = function () {
 				delete bbcodeHandlers[name];
 			};
 
@@ -2853,7 +2853,7 @@
 	 * @return {this|false}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.rename = function(name, newName) {
+	bbcodeFormat.rename = function (name, newName) {
 		if (name in bbcodeHandlers) {
 			bbcodeHandlers[newName] = bbcodeHandlers[name];
 
@@ -2870,7 +2870,7 @@
 	 * @return {this}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.remove = function(name) {
+	bbcodeFormat.remove = function (name) {
 		if (name in bbcodeHandlers) {
 			delete bbcodeHandlers[name];
 		}

@@ -131,7 +131,7 @@ export function each(obj, fn) {
 			fn(i, obj[i]);
 		}
 	} else {
-		Object.keys(obj).forEach(function(key) {
+		Object.keys(obj).forEach(function (key) {
 			fn(key, obj[key]);
 		});
 	}

@@ -3238,7 +3238,7 @@ export default function SCEditor(original, userOptions) {
 		while (!dom.hasStyling(block) || dom.isInline(block, true)) {
 			if (!(block = block.parentNode) || dom.is(block, 'body')) {
 				return;
-				
+
 			}
 		}
 

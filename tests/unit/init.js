@@ -65,7 +65,5 @@
 		};
 	});
 
-	less.pageLoadFinished.then(() => {
-		QUnit.start();
-	});
+	QUnit.start();
 }());
