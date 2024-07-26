@@ -11,3 +11,4 @@ sceditor.sublime-workspace
 /codetests
 package-lock.json
 /.vs
+npm-publish.bat

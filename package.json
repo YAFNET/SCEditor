@@ -1,5 +1,5 @@
 {
-  "name": "sceditor",
+  "name": "@yafnet/sceditor",
   "version": "3.2.0",
   "description": "Forked SCEditor for YAF.NET.",
   "homepage": "http://www.sceditor.com/",
@@ -23,7 +23,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/samclarke/SCEditor.git"
+    "url": "https://github.com/yafnet/SCEditor.git"
   },
   "keywords": [
     "WYSIWYG",
