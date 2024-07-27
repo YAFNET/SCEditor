@@ -266,6 +266,7 @@ module.exports = (grunt) => {
 
 
 	grunt.loadNpmTasks('@lodder/grunt-postcss');
+	grunt.loadNpmTasks('@w8tcha/grunt-dev-update');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-compress');
 	grunt.loadNpmTasks('grunt-contrib-concat');
