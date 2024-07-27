@@ -194,6 +194,12 @@ module.exports = (grunt) => {
 						cwd: 'src/',
 						src: ['plugins/**.js', 'formats/**.js', 'icons/**.js'],
 						dest: 'minified/'
+					},
+					{
+						expand: true,
+						filter: 'isFile',
+						src: 'languages/**.js',
+						dest: 'minified/'
 					}
 				]
 			}
