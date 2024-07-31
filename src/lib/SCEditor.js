@@ -1605,7 +1605,7 @@ export default function SCEditor(original, userOptions) {
 		const paste = {
 			val: pasteArea.innerHTML
 		};
-
+		
 		if ('fragmentToSource' in format) {
 			paste.val = format
 				.fragmentToSource(paste.val, wysiwygDocument, currentNode);
@@ -2363,15 +2363,14 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (backSpaceHandled) {
-			const spanNode = currentBlockNode.querySelector('span[style]');
-
-			if (spanNode) {
-				dom.removeAttr(spanNode, 'style');
-			}
+			currentBlockNode.querySelectorAll('span[style]').forEach(span => {
+				if (span) {
+					span.outerHTML = span.innerHTML
+				}
+			});
 
 			backSpaceHandled = false;
 		}
-
 	};
 
 	/**
@@ -3190,10 +3189,14 @@ export default function SCEditor(original, userOptions) {
 	handleBackSpace = function (e) {
 		var node, offset, range, parent;
 
+		// 8 is the backspace key
+		if (e.which !== 8) {
+			return;
+		}
+
 		backSpaceHandled = true;
 
-		// 8 is the backspace key
-		if (options.disableBlockRemove || e.which !== 8 ||
+		if (options.disableBlockRemove ||
 			!(range = rangeHelper.selectedRange())) {
 			return;
 		}

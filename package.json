@@ -1,6 +1,6 @@
 {
   "name": "@yafnet/sceditor",
-  "version": "3.2.0",
+  "version": "3.2.0.1",
   "description": "Forked SCEditor for YAF.NET.",
   "homepage": "http://www.sceditor.com/",
   "bugs": "https://github.com/samclarke/SCEditor/issues",
@@ -48,6 +48,7 @@
   "devDependencies": {
     "@lodder/grunt-postcss": "^3.1.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "@w8tcha/grunt-dev-update": "^2.3.4",
     "autoprefixer": "^10.4.19",
     "cssnano": "^7.0.4",
     "grunt": "~1.6.1",
@@ -75,7 +76,6 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "@w8tcha/grunt-dev-update": "^2.3.3",
     "dompurify": "^3.0.5"
   }
 }

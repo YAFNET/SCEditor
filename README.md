@@ -1,10 +1,9 @@
 # [SCEditor](http://www.sceditor.com/)
 
 [![Build Status](https://github.com/samclarke/SCEditor/workflows/Node.js%20CI/badge.svg)](https://travis-ci.org/samclarke/SCEditor)
-[![SemVer](http://img.shields.io/:semver-✓-brightgreen.svg)](http://semver.org)
 [![License](http://img.shields.io/npm/l/sceditor.svg)](https://github.com/samclarke/SCEditor/blob/master/LICENSE.md)
 
-A lightweight WYSIWYG BBCode and XHTML editor.
+Forked SCEditor for [YAF.NET](https://github.com/YAFNET/YAFNET)
 
 [![SCEditor preview](https://cdn.rawgit.com/samclarke/SCEditor/49c696b8/preview.svg)](https://www.sceditor.com/)
 
