@@ -5,7 +5,7 @@
 
 Forked SCEditor for [YAF.NET](https://github.com/YAFNET/YAFNET)
 
-[![SCEditor preview](https://cdn.rawgit.com/samclarke/SCEditor/49c696b8/preview.svg)](https://www.sceditor.com/)
+[![SCEditor preview](https://github.com/YAFNET/SCEditor/blob/master/preview.png)](https://www.sceditor.com/)
 
 For more information visit [sceditor.com](http://www.sceditor.com/)
 
