@@ -61,7 +61,7 @@
 
 		try {
 			return new Blob([binary], { type: mime });
-		} catch (e) {
+		} catch (_) {
 			return null;
 		}
 	}
@@ -184,7 +184,6 @@
 			container = editor.getContentAreaContainer().parentNode;
 
 			cover = container.appendChild(sceditor.dom.parseHTML(
-				// eslint-disable-next-line quotes
 				`<div class="sceditor-dnd-cover" style="display: none"></div>`
 			).firstChild);
 

@@ -58,12 +58,39 @@ module.exports = (grunt) => {
 		// Style checking of JS code using ESLint
 		eslint: {
 			source: {
-				src: ['src/**/*.js']
+				src: ['src/*.js']
+			},
+			formats: {
+				options: {
+                    overrideConfigFile: 'src/formats/eslint.config.mjs'
+                },
+				src: ['src/formats/**/*.js']
+			},
+			icons: {
+				options: {
+                    overrideConfigFile: 'src/icons/eslint.config.mjs'
+                },
+				src: ['src/icons/**/*.js']
+			},
+			lib: {
+				src: ['src/lib/**/*.js']
+			},
+			plugins: {
+				options: {
+                    overrideConfigFile: 'src/plugins/eslint.config.mjs'
+                },
+				src: ['src/plugins/**/*.js']
 			},
 			tests: {
+				options: {
+                    overrideConfigFile: 'tests/eslint.config.mjs'
+                },
 				src: ['tests/**/*.js']
 			},
 			translations: {
+				options: {
+                    overrideConfigFile: 'languages/eslint.config.mjs'
+                },
 				src: 'languages/**/*.js'
 			}
 		},

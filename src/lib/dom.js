@@ -685,7 +685,7 @@ export function convertElement(element, toTagName) {
 		// ignore these.
 		try {
 			attr(newElement, attribute.name, attribute.value);
-		} catch (ex) {}
+		} catch (_) {}
 	});
 
 	while (element.firstChild) {

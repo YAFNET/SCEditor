@@ -1605,7 +1605,7 @@ export default function SCEditor(original, userOptions) {
 		const paste = {
 			val: pasteArea.innerHTML
 		};
-		
+
 		if ('fragmentToSource' in format) {
 			paste.val = format
 				.fragmentToSource(paste.val, wysiwygDocument, currentNode);
@@ -2268,7 +2268,7 @@ export default function SCEditor(original, userOptions) {
 
 		try {
 			executed = wysiwygDocument.execCommand(command, false, param);
-		} catch (ex) { }
+		} catch (_) { }
 
 		// show error if execution failed and an error message exists
 		if (!executed && commandObj && commandObj.errorMessage) {
@@ -2365,7 +2365,7 @@ export default function SCEditor(original, userOptions) {
 		if (backSpaceHandled) {
 			currentBlockNode.querySelectorAll('span[style]').forEach(span => {
 				if (span) {
-					span.outerHTML = span.innerHTML
+					span.outerHTML = span.innerHTML;
 				}
 			});
 
@@ -2442,7 +2442,7 @@ export default function SCEditor(original, userOptions) {
 						if (state > -1) {
 							state = doc.queryCommandState(stateFn) ? 1 : 0;
 						}
-					} catch (ex) {}
+					} catch (_) {}
 				}
 			} else if (!isDisabled) {
 				state = stateFn.call(base, parent, firstBlock);
@@ -3132,7 +3132,7 @@ export default function SCEditor(original, userOptions) {
 
 			try {
 				tagName = before.match(/\[([^\]]+)$/)[1].match(/^([a-z1-6]+)/)[1];
-			} catch (e) {
+			} catch (_) {
 				// ignore
 			}
 

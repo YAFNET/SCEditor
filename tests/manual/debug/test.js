@@ -7,8 +7,7 @@
 			var code = codeInput.value;
 
 			console.info('> ' + code);
-
-			// eslint-disable-next-line no-eval
+			
 			eval.call(window, code);
 		} catch (ex) {
 			console.error(ex);
@@ -24,7 +23,6 @@
 		}
 
 		try {
-			// eslint-disable-next-line no-new-func
 			var options = (new Function('return ' + optionsStr))();
 			var textarea = document.getElementById('testarea');
 

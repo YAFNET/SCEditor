@@ -1104,7 +1104,6 @@
 	 * @name {TokenizeToken}
 	 * @memberOf BBCodeParser.prototype
 	 */
-	// eslint-disable-next-line max-params
 	function TokenizeToken(type, name, val, attrs, children, closing) {
 		const base = this;
 

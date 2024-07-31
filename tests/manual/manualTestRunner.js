@@ -11,7 +11,6 @@
 		},
 		equal: function (actual, expected, description) {
 			_assert.ok(
-				// eslint-disable-next-line eqeqeq
 				actual == expected,
 				description,
 				'Expected "' + actual + '" == "' + expected + '"'
@@ -26,7 +25,6 @@
 		},
 		notEqual: function (actual, expected, description) {
 			_assert.ok(
-				// eslint-disable-next-line eqeqeq
 				actual != expected,
 				description,
 				'Expected "' + actual + '" != "' + expected + '"'
@@ -62,7 +60,6 @@
 				);
 			} else {
 				_assert.ok(
-					// eslint-disable-next-line eqeqeq
 					exception == expected,
 					description,
 					'Expected exception and actual exception did not match.'

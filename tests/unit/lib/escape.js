@@ -104,7 +104,6 @@ QUnit.test('uriScheme() - Invalid schmes', function (assert) {
 
 	/*jshint scripturl:true*/
 	var urls = [
-		// eslint-disable-next-line no-script-url
 		'javascript:alert("XSS");',
 		'jav	ascript:alert(\'XSS\');',
 		'vbscript:msgbox("XSS")',
