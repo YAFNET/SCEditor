@@ -4,13 +4,13 @@ import * as utils from 'tests/unit/utils.js';
 QUnit.module('lib/dom');
 
 QUnit.test('createElement() - Simple', function (assert) {
-	var node = dom.createElement('div');
+	const node = dom.createElement('div');
 	assert.ok(node, 'Is defined');
 	assert.equal(node.tagName.toLowerCase(), 'div', 'TagName');
 });
 
 QUnit.test('createElement() - Attributes', function (assert) {
-	var node = dom.createElement('div', {
+	const node = dom.createElement('div', {
 		contentEditable: true,
 		'data-test': 'value'
 	});
@@ -22,7 +22,7 @@ QUnit.test('createElement() - Attributes', function (assert) {
 });
 
 QUnit.test('createElement() - Style', function (assert) {
-	var node = dom.createElement('div', {
+	const node = dom.createElement('div', {
 		style: 'font-size: 100px; font-weight: bold'
 	});
 
@@ -32,9 +32,9 @@ QUnit.test('createElement() - Style', function (assert) {
 });
 
 QUnit.test('parents()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
-	var a = document.createElement('a');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
+	const a = document.createElement('a');
 
 	div.appendChild(p);
 	p.appendChild(a);
@@ -45,8 +45,8 @@ QUnit.test('parents()', function (assert) {
 });
 
 QUnit.test('parent()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 
 	div.appendChild(p);
 
@@ -55,8 +55,8 @@ QUnit.test('parent()', function (assert) {
 });
 
 QUnit.test('closest()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 
 	div.appendChild(p);
 
@@ -66,8 +66,8 @@ QUnit.test('closest()', function (assert) {
 });
 
 QUnit.test('appendChild()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 
 	div.appendChild(p);
 
@@ -78,8 +78,8 @@ QUnit.test('appendChild()', function (assert) {
 });
 
 QUnit.test('appendChild()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 
 	dom.appendChild(div, p);
 
@@ -87,24 +87,24 @@ QUnit.test('appendChild()', function (assert) {
 });
 
 QUnit.test('find()', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
-	var a = document.createElement('a');
-	var text = document.createTextNode('');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
+	const a = document.createElement('a');
+	const text = document.createTextNode('');
 
 	div.appendChild(p);
 	div.appendChild(a);
 	div.appendChild(text);
 
-	var paragraphs = dom.find(div, 'p');
+	const paragraphs = dom.find(div, 'p');
 	assert.equal(paragraphs.length, 1, 'Select paragraphs');
 
-	var nodes = dom.find(div, '*');
+	const nodes = dom.find(div, '*');
 	assert.equal(nodes.length, 2, 'Select all');
 });
 
 QUnit.test('on()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 	var called = false;
 
 	dom.on(div, 'test', function () {
@@ -116,8 +116,8 @@ QUnit.test('on()', function (assert) {
 });
 
 QUnit.test('on() - Selector', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 	var called = false;
 
 	div.appendChild(p);
@@ -134,9 +134,9 @@ QUnit.test('on() - Selector', function (assert) {
 });
 
 QUnit.test('off()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 	var called = false;
-	var fn = function () {
+	const fn = function () {
 		called = true;
 	};
 
@@ -148,10 +148,10 @@ QUnit.test('off()', function (assert) {
 });
 
 QUnit.test('off() - Selector', function (assert) {
-	var div = document.createElement('div');
-	var p = document.createElement('p');
+	const div = document.createElement('div');
+	const p = document.createElement('p');
 	var called = false;
-	var fn = function () {
+	const fn = function () {
 		called = true;
 	};
 
@@ -168,7 +168,7 @@ QUnit.test('off() - Selector', function (assert) {
 });
 
 QUnit.test('attr()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	dom.attr(div, 'test', 'value');
 	assert.ok(div.hasAttribute('test'), 'Add attribute');
@@ -183,7 +183,7 @@ QUnit.test('attr()', function (assert) {
 });
 
 QUnit.test('removeAttr()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	div.setAttribute('test', 'test');
 
@@ -193,14 +193,14 @@ QUnit.test('removeAttr()', function (assert) {
 });
 
 QUnit.test('show()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	dom.hide(div);
 	assert.equal(div.style.display, 'none', 'Should hide node');
 });
 
 QUnit.test('show()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	div.style.display = 'none';
 
@@ -209,8 +209,8 @@ QUnit.test('show()', function (assert) {
 });
 
 QUnit.test('toggle()', function (assert) {
-	var div = document.createElement('div');
-	var fixture = document.getElementById('qunit-fixture');
+	const div = document.createElement('div');
+	const fixture = document.getElementById('qunit-fixture');
 
 	fixture.appendChild(div);
 
@@ -222,8 +222,8 @@ QUnit.test('toggle()', function (assert) {
 });
 
 QUnit.test('css()', function (assert) {
-	var div = document.createElement('div');
-	var fixture = document.getElementById('qunit-fixture');
+	const div = document.createElement('div');
+	const fixture = document.getElementById('qunit-fixture');
 
 	fixture.appendChild(div);
 
@@ -257,8 +257,8 @@ QUnit.test('css()', function (assert) {
 });
 
 QUnit.test('data()', function (assert) {
-	var text = document.createTextNode('');
-	var div = document.createElement('div');
+	const text = document.createTextNode('');
+	const div = document.createElement('div');
 	div.setAttribute('data-test', 'test');
 	div.setAttribute('data-another-test', 'test');
 	div.setAttribute('ignored', 'test');
@@ -281,7 +281,7 @@ QUnit.test('data()', function (assert) {
 });
 
 QUnit.test('is()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 	div.className = 'test';
 
 	assert.ok(dom.is(div, 'div'));
@@ -293,8 +293,8 @@ QUnit.test('is()', function (assert) {
 });
 
 QUnit.test('remove()', function (assert) {
-	var parent = document.createElement('div');
-	var child = document.createElement('div');
+	const parent = document.createElement('div');
+	const child = document.createElement('div');
 
 	parent.appendChild(child);
 	dom.remove(child);
@@ -306,8 +306,8 @@ QUnit.test('remove()', function (assert) {
 });
 
 QUnit.test('contains()', function (assert) {
-	var parent = document.createElement('div');
-	var child = document.createElement('div');
+	const parent = document.createElement('div');
+	const child = document.createElement('div');
 
 	parent.appendChild(child);
 
@@ -317,9 +317,9 @@ QUnit.test('contains()', function (assert) {
 });
 
 QUnit.test('insertBefore()', function (assert) {
-	var parent = document.createElement('div');
-	var first = document.createElement('div');
-	var last = document.createElement('div');
+	const parent = document.createElement('div');
+	const first = document.createElement('div');
+	const last = document.createElement('div');
 
 	parent.appendChild(first);
 	parent.appendChild(last);
@@ -331,9 +331,9 @@ QUnit.test('insertBefore()', function (assert) {
 });
 
 QUnit.test('insertBefore()', function (assert) {
-	var parent = document.createElement('div');
-	var ref = document.createElement('div');
-	var first = document.createElement('div');
+	const parent = document.createElement('div');
+	const ref = document.createElement('div');
+	const first = document.createElement('div');
 
 	parent.appendChild(ref);
 
@@ -343,7 +343,7 @@ QUnit.test('insertBefore()', function (assert) {
 });
 
 QUnit.test('hasClass()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	div.className = 'test';
 
@@ -352,7 +352,7 @@ QUnit.test('hasClass()', function (assert) {
 });
 
 QUnit.test('removeClass()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	div.className = 'test another-test';
 
@@ -364,7 +364,7 @@ QUnit.test('removeClass()', function (assert) {
 });
 
 QUnit.test('addClass()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	dom.addClass(div, 'test');
 	assert.equal(div.className.trim(), 'test');
@@ -374,7 +374,7 @@ QUnit.test('addClass()', function (assert) {
 });
 
 QUnit.test('toggleClass()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 
 	dom.toggleClass(div, 'test');
 	assert.equal(div.className.trim(), 'test', 'Add class');
@@ -392,8 +392,8 @@ QUnit.test('toggleClass()', function (assert) {
 });
 
 QUnit.test('width()', function (assert) {
-	var div = document.createElement('div');
-	var fixture = document.getElementById('qunit-fixture');
+	const div = document.createElement('div');
+	const fixture = document.getElementById('qunit-fixture');
 
 	fixture.appendChild(div);
 
@@ -408,8 +408,8 @@ QUnit.test('width()', function (assert) {
 });
 
 QUnit.test('height()', function (assert) {
-	var div = document.createElement('div');
-	var fixture = document.getElementById('qunit-fixture');
+	const div = document.createElement('div');
+	const fixture = document.getElementById('qunit-fixture');
 
 	fixture.appendChild(div);
 
@@ -424,7 +424,7 @@ QUnit.test('height()', function (assert) {
 });
 
 QUnit.test('trigger()', function (assert) {
-	var div = document.createElement('div');
+	const div = document.createElement('div');
 	var detail = {};
 
 	div.addEventListener('custom-event', function (e) {
@@ -435,8 +435,8 @@ QUnit.test('trigger()', function (assert) {
 });
 
 QUnit.test('isVisible()', function (assert) {
-	var div = document.createElement('div');
-	var fixture = document.getElementById('qunit-fixture');
+	const div = document.createElement('div');
+	const fixture = document.getElementById('qunit-fixture');
 
 	fixture.appendChild(div);
 	dom.hide(div);
@@ -451,7 +451,7 @@ QUnit.test('isVisible()', function (assert) {
 
 QUnit.test('traverse()', function (assert) {
 	var result = '';
-	var node   = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<code><b>1</b><b>2</b><b>3</b><span><b>4</b><b>5</b></span></code>'
 	);
 
@@ -466,7 +466,7 @@ QUnit.test('traverse()', function (assert) {
 
 QUnit.test('traverse() - Innermost first', function (assert) {
 	var result = '';
-	var node   = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<code><span><b></b></span><span><b></b><b></b></span></code>'
 	);
 
@@ -479,7 +479,7 @@ QUnit.test('traverse() - Innermost first', function (assert) {
 
 QUnit.test('traverse() - Siblings only', function (assert) {
 	var result = '';
-	var node   = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'1<span>ignore</span>2<span>ignore</span>3'
 	);
 
@@ -494,7 +494,7 @@ QUnit.test('traverse() - Siblings only', function (assert) {
 
 QUnit.test('rTraverse()', function (assert) {
 	var result = '';
-	var node   = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<code><b>1</b><b>2</b><b>3</b><span><b>4</b><b>5</b></span></code>'
 	);
 
@@ -509,7 +509,7 @@ QUnit.test('rTraverse()', function (assert) {
 
 
 QUnit.test('parseHTML()', function (assert) {
-	var result = dom.parseHTML(
+	const result = dom.parseHTML(
 		'<span>span<div style="font-weight: bold;">div</div>span</span>'
 	);
 
@@ -524,7 +524,7 @@ QUnit.test('parseHTML()', function (assert) {
 });
 
 QUnit.test('parseHTML() - Parse multiple', function (assert) {
-	var result = dom.parseHTML(
+	const result = dom.parseHTML(
 		'<span>one</span><span>two</span><span>three</span>'
 	);
 
@@ -534,42 +534,42 @@ QUnit.test('parseHTML() - Parse multiple', function (assert) {
 
 
 QUnit.test('hasStyling()', function (assert) {
-	var node = utils.htmlToNode('<pre></pre>');
+	const node = utils.htmlToNode('<pre></pre>');
 
 	assert.ok(dom.hasStyling(node));
 });
 
 QUnit.test('hasStyling() - Non-styled div', function (assert) {
-	var node = utils.htmlToNode('<div></div>');
+	const node = utils.htmlToNode('<div></div>');
 
 	assert.ok(!dom.hasStyling(node));
 });
 
 QUnit.test('hasStyling() - Div with class', function (assert) {
-	var node = utils.htmlToNode('<div class="test"></div>');
+	const node = utils.htmlToNode('<div class="test"></div>');
 
 	assert.ok(dom.hasStyling(node));
 });
 
 QUnit.test('hasStyling() - Div with style attribute', function (assert) {
-	var node = utils.htmlToNode('<div style="color: red;"></div>');
+	const node = utils.htmlToNode('<div style="color: red;"></div>');
 
 	assert.ok(dom.hasStyling(node));
 });
 
 
 QUnit.test('convertElement()', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<i style="font-weight: bold;">' +
-			'span' +
-			'<div>' +
-				'div' +
-			'</div>' +
-			'span' +
+		'span' +
+		'<div>' +
+		'div' +
+		'</div>' +
+		'span' +
 		'</i>'
 	);
 
-	var newNode = dom.convertElement(node.firstChild, 'em');
+	const newNode = dom.convertElement(node.firstChild, 'em');
 
 	assert.equal(newNode, node.firstChild);
 
@@ -588,11 +588,11 @@ QUnit.test('convertElement()', function (assert) {
 });
 
 QUnit.test('convertElement() - Invalid attribute name', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<i size"2"="" good="attr">test</i>'
 	);
 
-	var newNode = dom.convertElement(node.firstChild, 'em');
+	const newNode = dom.convertElement(node.firstChild, 'em');
 
 	assert.equal(newNode, node.firstChild);
 
@@ -606,13 +606,13 @@ QUnit.test('convertElement() - Invalid attribute name', function (assert) {
 
 
 QUnit.test('fixNesting() - With styling', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<span style="font-weight: bold;">' +
-			'span' +
-			'<div>' +
-				'div' +
-			'</div>' +
-			'span' +
+		'span' +
+		'<div>' +
+		'div' +
+		'</div>' +
+		'span' +
 		'</span>'
 	);
 
@@ -636,186 +636,18 @@ QUnit.test('fixNesting() - With styling', function (assert) {
 	);
 });
 
-QUnit.test('fixNesting() - Paragraph with blockquote', function (assert) {
-	var quote = document.createElement('blockquote');
-	quote.appendChild(document.createTextNode('2'));
-
-	var p = document.createElement('p');
-	p.appendChild(document.createTextNode('1'));
-	p.appendChild(quote);
-	p.appendChild(document.createTextNode('3'));
-
-	var root = document.createElement('div');
-	root.appendChild(p);
-
-	dom.fixNesting(root);
-
-	assert.nodesEqual(
-		root,
-		utils.htmlToDiv(
-			'<p>1</p><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>2</div><p>3</p>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Do not create empty nodes', function (assert) {
-	var node = utils.htmlToDiv(
-		'<span><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test</div></span>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><span>test</span></div>'
-		)
-	);
-});
-QUnit.test('fixNesting() - Create nodes with a child that cannot have children', function (assert) {
-	var node = utils.htmlToDiv(
-		'<span><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test</div><br></span>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><span>test</span></div><span><br /></span>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Do not create empty nodes when deeply nested', function (assert) {
-	var node = utils.htmlToDiv(
-		'<em><span><strong><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test</div></strong></span></em>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><em><span><strong>test</strong></span></em></div>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Do not create empty nodes when inline styling nested', function (assert) {
-	var node = utils.htmlToDiv(
-		'<em><div><strong><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>4</div></strong></div></em>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<div><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><em><strong>4</strong></em></div></div>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Preserve inline styling', function (assert) {
-	// Below is the following HTML (have to do it manually due to <p> being
-	// closed by the <blockquote> when using innerHTML):
-	//  <p>1</p><strong><p>2</p><p><div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>3</div>4</p></strong><p>5</p>
-	var p1 = document.createElement('p');
-	p1.appendChild(document.createTextNode('1'));
-
-	var p2 = document.createElement('p');
-	p2.appendChild(document.createTextNode('2'));
-
-	var quote = document.createElement('blockquote');
-	quote.appendChild(document.createTextNode('3'));
-
-	var p3 = document.createElement('p');
-	p3.appendChild(quote);
-	p3.appendChild(document.createTextNode('4'));
-
-	var strong = document.createElement('strong');
-	strong.appendChild(p2);
-	strong.appendChild(p3);
-
-	var p5 = document.createElement('p');
-	p5.appendChild(document.createTextNode('5'));
-
-	var node = document.createElement('div');
-	node.appendChild(p1);
-	node.appendChild(strong);
-	node.appendChild(p5);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<p>1</p>' +
-			'<p><strong>2</strong></p>' +
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><strong>3</strong></div>' +
-			'<p><strong>4</strong></p>' +
-			'<p>5</p>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Preserve inline styling', function (assert) {
-	var node = utils.htmlToDiv(
-		'<em><span><strong>1<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><p>2</p></div>3</strong></span></em>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<em><span><strong>1</strong></span></em>' +
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><p><em><span><strong>2</strong></span></em></p></div>' +
-			'<em><span><strong>3</strong></span></em>'
-		)
-	);
-});
-
-QUnit.test('fixNesting() - Preserve inline styling nested', function (assert) {
-	var node = utils.htmlToDiv(
-		'<em>1<div>2<strong>3<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>4</div>5</strong>6</div>7</em>'
-	);
-
-	dom.fixNesting(node);
-
-	assert.nodesEqual(
-		node,
-		utils.htmlToDiv(
-			'<em>1</em>' +
-			'<div>' +
-				'<em>' +
-					'2' +
-					'<strong>3</strong>' +
-				'</em>' +
-				'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span><em><strong>4</strong></em></div>' +
-				'<em>' +
-					'<strong>5</strong>' +
-					'6' +
-				'</em>' +
-			'</div>' +
-			'<em>7</em>'
-		)
-	);
-});
-
 QUnit.test('fixNesting() - Deeply nested', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<span>' +
-			'span' +
-			'<span>' +
-				'span' +
-				'<div style="font-weight: bold;">' +
-					'div' +
-				'</div>' +
-				'span' +
-			'</span>' +
-			'span' +
+		'span' +
+		'<span>' +
+		'span' +
+		'<div style="font-weight: bold;">' +
+		'div' +
+		'</div>' +
+		'span' +
+		'</span>' +
+		'span' +
 		'</span>'
 	);
 
@@ -848,11 +680,11 @@ QUnit.test('fixNesting() - Deeply nested', function (assert) {
 });
 
 QUnit.test('fixNesting() - Nested list', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<ul>' +
-			'<li>first</li>' +
-			'<ol><li>middle</li></ol>' +
-			'<li>second</li>' +
+		'<li>first</li>' +
+		'<ol><li>middle</li></ol>' +
+		'<li>second</li>' +
 		'</ul>'
 	);
 
@@ -872,10 +704,10 @@ QUnit.test('fixNesting() - Nested list', function (assert) {
 });
 
 QUnit.test('fixNesting() - Nested list, no previous item', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<ul>' +
-			'<ol><li>middle</li></ol>' +
-			'<li>first</li>' +
+		'<ol><li>middle</li></ol>' +
+		'<li>first</li>' +
 		'</ul>'
 	);
 
@@ -895,15 +727,15 @@ QUnit.test('fixNesting() - Nested list, no previous item', function (assert) {
 });
 
 QUnit.test('fixNesting() - Deeply nested list', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<ul>' +
-			'<li>one</li>' +
-			'<ul>' +
-				'<li>two</li>' +
-				'<ul>' +
-					'<li>three</li>' +
-				'</ul>' +
-			'</ul>' +
+		'<li>one</li>' +
+		'<ul>' +
+		'<li>two</li>' +
+		'<ul>' +
+		'<li>three</li>' +
+		'</ul>' +
+		'</ul>' +
 		'</ul>'
 	);
 
@@ -928,11 +760,11 @@ QUnit.test('fixNesting() - Deeply nested list', function (assert) {
 });
 
 QUnit.test('fixNesting() - With comments', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<p>' +
-			'<strong>' +
-				'a<!-- test -->b' +
-			'</strong>' +
+		'<strong>' +
+		'a<!-- test -->b' +
+		'</strong>' +
 		'</p>'
 	);
 
@@ -951,10 +783,10 @@ QUnit.test('fixNesting() - With comments', function (assert) {
 });
 
 QUnit.test('fixNesting() - <details> block', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<details>' +
-			'<summary>test</summary>' +
-			'<div>test</div>' +
+		'<summary>test</summary>' +
+		'<div>test</div>' +
 		'</details>'
 	);
 
@@ -972,9 +804,9 @@ QUnit.test('fixNesting() - <details> block', function (assert) {
 });
 
 QUnit.test('fixNesting() - <section/article/aside> block', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<section><article><aside>' +
-			'<div>test</div>' +
+		'<div>test</div>' +
 		'</aside></section></section>'
 	);
 
@@ -992,9 +824,9 @@ QUnit.test('fixNesting() - <section/article/aside> block', function (assert) {
 
 
 QUnit.test('removeWhiteSpace() - Preserve line breaks', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<div style="white-space: pre-line">    ' +
-			'<span>  \n\ncontent\n\n  </span>\n\n  ' +
+		'<span>  \n\ncontent\n\n  </span>\n\n  ' +
 		'</div><div></div>'
 	);
 
@@ -1011,16 +843,16 @@ QUnit.test('removeWhiteSpace() - Preserve line breaks', function (assert) {
 });
 
 QUnit.test('removeWhiteSpace() - Ignore marker spaces', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'aa ' +
-			'<b>bb' +
-				'<span id="sceditor-start-marker" ' +
-					'class="sceditor-selection sceditor-ignore" ' +
-					'style="display: none; line-height: 0;"> </span>' +
-				'<span id="sceditor-end-marker" ' +
-					'class="sceditor-selection sceditor-ignore" ' +
-					'style="display: none; line-height: 0;"> </span>' +
-			'</b>' +
+		'<b>bb' +
+		'<span id="sceditor-start-marker" ' +
+		'class="sceditor-selection sceditor-ignore" ' +
+		'style="display: none; line-height: 0;"> </span>' +
+		'<span id="sceditor-end-marker" ' +
+		'class="sceditor-selection sceditor-ignore" ' +
+		'style="display: none; line-height: 0;"> </span>' +
+		'</b>' +
 		' aa'
 	);
 
@@ -1046,12 +878,12 @@ QUnit.test('removeWhiteSpace() - Ignore marker spaces', function (assert) {
 QUnit.test(
 	'removeWhiteSpace() - Siblings with start and end spaces',
 	function (assert) {
-		var html = '<span>  test</span><span>  test  </span>';
-		var node = utils.htmlToDiv(html);
+		const html = '<span>  test</span><span>  test  </span>';
+		const node = utils.htmlToDiv(html);
 
 		// Must move to a fragment as the other HTML on the QUnit test page
 		// interferes with this test
-		var frag = document.createDocumentFragment();
+		const frag = document.createDocumentFragment();
 		frag.appendChild(node);
 
 		dom.removeWhiteSpace(node);
@@ -1066,12 +898,12 @@ QUnit.test(
 QUnit.test(
 	'removeWhiteSpace() - Block then span with start spaces',
 	function (assert) {
-		var html = '<div>test</div><span>  test  </span>';
-		var node = utils.htmlToDiv(html);
+		const html = '<div>test</div><span>  test  </span>';
+		const node = utils.htmlToDiv(html);
 
 		// Must move to a fragment as the other HTML on the QUnit test page
 		// interferes with this test
-		var frag = document.createDocumentFragment();
+		const frag = document.createDocumentFragment();
 		frag.appendChild(node);
 
 		dom.removeWhiteSpace(node);
@@ -1086,12 +918,12 @@ QUnit.test(
 QUnit.test(
 	'removeWhiteSpace() - Divs with start and end spaces',
 	function (assert) {
-		var html = '<div>  test  </div><div>  test  </div>';
-		var node = utils.htmlToDiv(html);
+		const html = '<div>  test  </div><div>  test  </div>';
+		const node = utils.htmlToDiv(html);
 
 		// Must move to a fragment as the other HTML on the QUnit test page
 		// interferes with this test
-		var frag = document.createDocumentFragment();
+		const frag = document.createDocumentFragment();
 		frag.appendChild(node);
 
 		dom.removeWhiteSpace(node);
@@ -1104,12 +936,12 @@ QUnit.test(
 );
 
 QUnit.test('removeWhiteSpace() - New line chars', function (assert) {
-	var html = '<span>\ntest\n\n</span><span>\n\ntest\n</span>';
-	var node = utils.htmlToDiv(html);
+	const html = '<span>\ntest\n\n</span><span>\n\ntest\n</span>';
+	const node = utils.htmlToDiv(html);
 
 	// Must move to a fragment as the other HTML on the QUnit test page
 	// interferes with this test
-	var frag = document.createDocumentFragment();
+	const frag = document.createDocumentFragment();
 	frag.appendChild(node);
 
 	dom.removeWhiteSpace(node);
@@ -1122,7 +954,7 @@ QUnit.test('removeWhiteSpace() - New line chars', function (assert) {
 });
 
 QUnit.test('removeWhiteSpace() - With .sceditor-ignore siblings', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<span>test</span>' +
 		'<span class="sceditor-ignore">  test  </span>' +
 		'<span>  test</span>'
@@ -1139,10 +971,10 @@ QUnit.test('removeWhiteSpace() - With .sceditor-ignore siblings', function (asse
 });
 
 QUnit.test('removeWhiteSpace() - Nested span space', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<div>    <span>  \t\t\t\t </span>\t\t\t</div> ' +
-			'<div>  </div>' +
+		'<div>    <span>  \t\t\t\t </span>\t\t\t</div> ' +
+		'<div>  </div>' +
 		'</div>'
 	);
 
@@ -1155,7 +987,7 @@ QUnit.test('removeWhiteSpace() - Nested span space', function (assert) {
 });
 
 QUnit.test('removeWhiteSpace() - Pre tag', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<pre>    <span>  \t\tcontent\t\t </span>\t\t\t</pre>'
 	);
 
@@ -1168,22 +1000,22 @@ QUnit.test('removeWhiteSpace() - Pre tag', function (assert) {
 });
 
 QUnit.test('removeWhiteSpace() - Deeply nested siblings', function (assert) {
-	var node = utils.htmlToDiv(
+	const node = utils.htmlToDiv(
 		'<span>' +
-			'<span>' +
-				'<span>' +
-					'<span>test  </span>' +
-				'</span>' +
-			'</span>' +
+		'<span>' +
+		'<span>' +
+		'<span>test  </span>' +
+		'</span>' +
+		'</span>' +
 		'</span>' +
 		'<span>' +
-			'<span>' +
-				'<span>' +
-					'<span>' +
-						'<span>  test  </span>' +
-					'</span>' +
-				'</span>' +
-			'</span>' +
+		'<span>' +
+		'<span>' +
+		'<span>' +
+		'<span>  test  </span>' +
+		'</span>' +
+		'</span>' +
+		'</span>' +
 		'</span>' +
 		'<span>  test</span>'
 	);
@@ -1213,7 +1045,7 @@ QUnit.test('removeWhiteSpace() - Deeply nested siblings', function (assert) {
 });
 
 QUnit.test('removeWhiteSpace() - Text next to image', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>test  <img src="../../emoticons/smile.png">  test.</div>'
 	);
 
@@ -1229,19 +1061,19 @@ QUnit.test('removeWhiteSpace() - Text next to image', function (assert) {
 
 
 QUnit.test('extractContents()', function (assert) {
-	var node  = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span>ignored</span>' +
-			'<div id="start">' +
-				'<span>test</span>' +
-			'</div>' +
-			'<span>test</span>' +
-			'<span id="end">end</span>' +
-			'<span>ignored</span>' +
+		'<span>ignored</span>' +
+		'<div id="start">' +
+		'<span>test</span>' +
+		'</div>' +
+		'<span>test</span>' +
+		'<span id="end">end</span>' +
+		'<span>ignored</span>' +
 		'</div>'
 	);
-	var start = $(node).find('#start').get(0);
-	var end   = $(node).find('#end').get(0);
+	const start = $(node).find('#start').get(0);
+	const end = $(node).find('#end').get(0);
 
 	assert.nodesEqual(
 		dom.extractContents(start, end),
@@ -1255,20 +1087,20 @@ QUnit.test('extractContents()', function (assert) {
 });
 
 QUnit.test('extractContents() - End inside start', function (assert) {
-	var node  = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span>ignored</span>' +
-			'<div id="start">' +
-				'<span>test</span>' +
-				'<span>test</span>' +
-				'<span id="end">end</span>' +
-				'<span>ignored</span>' +
-			'</div>' +
-			'<span>ignored</span>' +
+		'<span>ignored</span>' +
+		'<div id="start">' +
+		'<span>test</span>' +
+		'<span>test</span>' +
+		'<span id="end">end</span>' +
+		'<span>ignored</span>' +
+		'</div>' +
+		'<span>ignored</span>' +
 		'</div>'
 	);
-	var start = $(node).find('#start').get(0);
-	var end   = $(node).find('#end').get(0);
+	const start = $(node).find('#start').get(0);
+	const end = $(node).find('#end').get(0);
 
 	assert.nodesEqual(
 		dom.extractContents(start, end),
@@ -1282,20 +1114,20 @@ QUnit.test('extractContents() - End inside start', function (assert) {
 });
 
 QUnit.test('extractContents() - Start inside end', function (assert) {
-	var node  = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span>ignored</span>' +
-			'<div id="end">' +
-				'<span>ignored</span>' +
-				'<span>ignored</span>' +
-				'<span id="start">start</span>' +
-				'<span>test</span>' +
-			'</div>' +
-			'<span>ignored</span>' +
+		'<span>ignored</span>' +
+		'<div id="end">' +
+		'<span>ignored</span>' +
+		'<span>ignored</span>' +
+		'<span id="start">start</span>' +
+		'<span>test</span>' +
+		'</div>' +
+		'<span>ignored</span>' +
 		'</div>'
 	);
-	var start = $(node).find('#start').get(0);
-	var end   = $(node).find('#end').get(0);
+	const start = $(node).find('#start').get(0);
+	const end = $(node).find('#end').get(0);
 
 	assert.htmlEqual(
 		utils.nodeToHtml(dom.extractContents(start, end)),
@@ -1317,7 +1149,7 @@ QUnit.test('extractContents() - Start inside end', function (assert) {
 
 
 QUnit.test('getStyle()', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="font-weight: bold; font-size: 10px;' +
 		'text-align: right;">test</div>'
 	);
@@ -1348,7 +1180,7 @@ QUnit.test('getStyle()', function (assert) {
 });
 
 QUnit.test('getStyle() - Normalise text-align', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="direction: rtl;">test</div>'
 	);
 
@@ -1358,14 +1190,14 @@ QUnit.test('getStyle() - Normalise text-align', function (assert) {
 });
 
 QUnit.test('getStyle() - No style attribute', function (assert) {
-	var node = utils.htmlToNode('<div>test</div>');
+	const node = utils.htmlToNode('<div>test</div>');
 
 	assert.strictEqual(dom.getStyle(node, 'color'), '');
 });
 
 
 QUnit.test('hasStyle()', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="font-weight: bold;">test</div>'
 	);
 
@@ -1391,7 +1223,7 @@ QUnit.test('hasStyle()', function (assert) {
 });
 
 QUnit.test('hasStyle() - Invalid', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="font-weight: bold;">test</div>'
 	);
 
@@ -1413,24 +1245,24 @@ QUnit.test('hasStyle() - Invalid', function (assert) {
 
 
 QUnit.test('hasStyle() - No style attribute', function (assert) {
-	var node = utils.htmlToNode('<div>test</div>');
+	const node = utils.htmlToNode('<div>test</div>');
 
 	assert.ok(!dom.hasStyle(node, 'color'));
 });
 
 
 QUnit.test('merge() - parent matching style', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span style="font-weight: bold; font-size: 12px">' +
-				'2' +
-				'<span style="font-weight: bold;">' +
-					'3' +
-				'</span>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span style="font-weight: bold; font-size: 12px">' +
+		'2' +
+		'<span style="font-weight: bold;">' +
+		'3' +
+		'</span>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1451,19 +1283,19 @@ QUnit.test('merge() - parent matching style', function (assert) {
 });
 
 QUnit.test('merge() - nested parent matching style', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span style="font-weight: bold; font-size: 12px">' +
-				'2' +
-				'<b>' +
-					'<span style="font-size: 12px; font-style: italic">' +
-						'3' +
-					'</span>' +
-				'</b>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span style="font-weight: bold; font-size: 12px">' +
+		'2' +
+		'<b>' +
+		'<span style="font-size: 12px; font-style: italic">' +
+		'3' +
+		'</span>' +
+		'</b>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1490,15 +1322,15 @@ QUnit.test('merge() - nested parent matching style', function (assert) {
 });
 
 QUnit.test('merge() - nested span merge attribute', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span data-sce-test="2">' +
-				'2' +
-				'<span data-sce-test="2">3</span>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span data-sce-test="2">' +
+		'2' +
+		'<span data-sce-test="2">3</span>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1519,15 +1351,15 @@ QUnit.test('merge() - nested span merge attribute', function (assert) {
 });
 
 QUnit.test('merge() - nested span merge multiple attributes', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span data-sce-a="1" data-sce-b="2">' +
-				'2' +
-				'<span data-sce-a="1" data-sce-b="2">3</span>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span data-sce-a="1" data-sce-b="2">' +
+		'2' +
+		'<span data-sce-a="1" data-sce-b="2">3</span>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1548,15 +1380,15 @@ QUnit.test('merge() - nested span merge multiple attributes', function (assert) 
 });
 
 QUnit.test('merge() - nested span attribute different', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span data-sce-test>' +
-				'2' +
-				'<span data-sce-test="2">3</span>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span data-sce-test>' +
+		'2' +
+		'<span data-sce-test="2">3</span>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1579,15 +1411,15 @@ QUnit.test('merge() - nested span attribute different', function (assert) {
 });
 
 QUnit.test('merge() - nested span multiple attributes no match', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<span data-sce-a="1" data-sce-b="1">' +
-				'2' +
-				'<span data-sce-a="1" data-sce-b="2">3</span>' +
-				'4' +
-			'</span>' +
-			'5' +
+		'1' +
+		'<span data-sce-a="1" data-sce-b="1">' +
+		'2' +
+		'<span data-sce-a="1" data-sce-b="2">3</span>' +
+		'4' +
+		'</span>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1610,7 +1442,7 @@ QUnit.test('merge() - nested span multiple attributes no match', function (asser
 });
 
 QUnit.test('merge() - nested strong can merge', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>1<strong>2<strong>3</strong>4</strong>5</div>'
 	);
 
@@ -1625,15 +1457,15 @@ QUnit.test('merge() - nested strong can merge', function (assert) {
 });
 
 QUnit.test('merge() - nested strong cannot merge', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'1' +
-			'<strong>' +
-				'<span style="font-weight: normal;">' +
-					'2<strong>3</strong>4' +
-				'</span>' +
-			'</strong>' +
-			'5' +
+		'1' +
+		'<strong>' +
+		'<span style="font-weight: normal;">' +
+		'2<strong>3</strong>4' +
+		'</span>' +
+		'</strong>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1656,14 +1488,14 @@ QUnit.test('merge() - nested strong cannot merge', function (assert) {
 });
 
 QUnit.test('merge() - siblings can merge', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span style="font-weight: bold;">' +
-				'1' +
-			'</span>' +
-			'<span style="font-weight: bold;">' +
-				'2' +
-			'</span>' +
+		'<span style="font-weight: bold;">' +
+		'1' +
+		'</span>' +
+		'<span style="font-weight: bold;">' +
+		'2' +
+		'</span>' +
 		'</div>'
 	);
 
@@ -1682,14 +1514,14 @@ QUnit.test('merge() - siblings can merge', function (assert) {
 });
 
 QUnit.test('merge() - siblings can merge mixed style', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span style="font-size: 12px; font-weight: bold;">' +
-				'1' +
-			'</span>' +
-			'<span style="font-weight: bold;font-size: 12px;">' +
-				'2' +
-			'</span>' +
+		'<span style="font-size: 12px; font-weight: bold;">' +
+		'1' +
+		'</span>' +
+		'<span style="font-weight: bold;font-size: 12px;">' +
+		'2' +
+		'</span>' +
 		'</div>'
 	);
 
@@ -1708,14 +1540,14 @@ QUnit.test('merge() - siblings can merge mixed style', function (assert) {
 });
 
 QUnit.test('merge() - siblings cannot merge', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<span style="font-weight: bold;">' +
-				'1' +
-			'</span>' +
-			'<span style="font-weight: 900;">' +
-				'2' +
-			'</span>' +
+		'<span style="font-weight: bold;">' +
+		'1' +
+		'</span>' +
+		'<span style="font-weight: 900;">' +
+		'2' +
+		'</span>' +
 		'</div>'
 	);
 
@@ -1737,13 +1569,13 @@ QUnit.test('merge() - siblings cannot merge', function (assert) {
 });
 
 QUnit.test('merge() - font tags', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="font-family: arial; color: #ffff00;">' +
-			'1' +
-			'<font face="Arial" color="#ffff00">' +
-				'2' +
-			'</font>' +
-			'3' +
+		'1' +
+		'<font face="Arial" color="#ffff00">' +
+		'2' +
+		'</font>' +
+		'3' +
 		'</div>'
 	);
 
@@ -1760,17 +1592,17 @@ QUnit.test('merge() - font tags', function (assert) {
 });
 
 QUnit.test('merge() - font tags nested', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div style="font-family: arial; color: #ffff00;">' +
-			'1' +
-			'<font face="arial">' +
-				'2' +
-				'<font color="#ffff00">' +
-					'3' +
-				'</font>' +
-				'4' +
-			'</font>' +
-			'5' +
+		'1' +
+		'<font face="arial">' +
+		'2' +
+		'<font color="#ffff00">' +
+		'3' +
+		'</font>' +
+		'4' +
+		'</font>' +
+		'5' +
 		'</div>'
 	);
 
@@ -1787,15 +1619,15 @@ QUnit.test('merge() - font tags nested', function (assert) {
 });
 
 QUnit.test('merge() - deep with siblings', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<em><em><em>1</em></em></em>' +
-			'<strong>' +
-				'<em><em><em>2</em></em></em>' +
-				'<em><em><em>3</em></em></em>' +
-				'<em><em><strong>4</strong></em></em>' +
-				'<em><em><em>5</em></em></em>' +
-			'</strong>' +
+		'<em><em><em>1</em></em></em>' +
+		'<strong>' +
+		'<em><em><em>2</em></em></em>' +
+		'<em><em><em>3</em></em></em>' +
+		'<em><em><strong>4</strong></em></em>' +
+		'<em><em><em>5</em></em></em>' +
+		'</strong>' +
 		'</div>'
 	);
 
@@ -1815,9 +1647,9 @@ QUnit.test('merge() - deep with siblings', function (assert) {
 });
 
 QUnit.test('merge() - <br> tags should not merge', function (assert) {
-	var node = utils.htmlToNode(
+	const node = utils.htmlToNode(
 		'<div>' +
-			'<br><br><br>' +
+		'<br><br><br>' +
 		'</div>'
 	);
 
