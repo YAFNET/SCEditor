@@ -1,6 +1,5 @@
 # [SCEditor](http://www.sceditor.com/)
 
-[![Build Status](https://github.com/yafnet/sceditor/workflows/Node.js%20CI/badge.svg)](https://travis-ci.org/yafnet/sceditor)
 [![NPM Version](http://img.shields.io/npm/v/@yafnet/sceditor.svg?style=flat)](https://npmjs.org/package/@yafnet/sceditor)
 [![Built with Grunt](http://img.shields.io/badge/BUILT_WITH-GRUNT-orange.svg?style=flat)](http://gruntjs.com/)
 [![License](http://img.shields.io/npm/l/sceditor.svg)](https://github.com/samclarke/SCEditor/blob/master/LICENSE.md)
