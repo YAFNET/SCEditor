@@ -55,7 +55,7 @@ var _templates = {
 			'<div id="PostAttachmentLoader" class="text-center"><div class="fa-3x"><i class="fas fa-spinner fa-pulse"></i>' +
 			'</div></div>' +
 			'<div id="AttachmentsListBox" class="content">' +
-			'<div id="PostAttachmentListPlaceholder" data-url="{root}" style="clear: both; ">' +
+			'<div id="PostAttachmentListPlaceholder" data-notext="{root}" style="clear: both; ">' +
 			'<ul class="AttachmentList list-group"></ul>' +
 			'</div>' +
 			'<div class="OpenUploadDialog mt-1 d-grid gap-2">' +

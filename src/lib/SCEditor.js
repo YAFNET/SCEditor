@@ -1518,7 +1518,7 @@ export default function SCEditor(original, userOptions) {
 			const reader = new FileReader();
 			reader.onload = function (e) {
 				handlePasteData({
-					html: '<img src="' + e.target.result + '" />'
+					html: e.target.result
 				});
 			};
 			reader.readAsDataURL(file);
@@ -1541,7 +1541,8 @@ export default function SCEditor(original, userOptions) {
 					// Normalise image pasting to paste as a data-uri
 					if (globalWin.FileReader && items &&
 						IMAGE_MIME_REGEX.test(items[i].type)) {
-						return loadImage(clipboard.items[i].getAsFile());
+						pluginManager.call('pasteHtml', items[i].getAsFile());
+						return;
 					}
 				}
 

@@ -180,6 +180,11 @@
 			editor = this;
 			opts = editor.opts.dragdrop || {};
 			handleFile = opts.handleFile;
+			
+			if (!handleFile)
+			{
+				return;
+			}
 
 			container = editor.getContentAreaContainer().parentNode;
 
@@ -196,26 +201,19 @@
 			editor.getBody().addEventListener('drop', hideCover);
 		};
 
-		base.signalPasteHtml = function (paste) {
+		base.signalPasteHtml = function (file) {
+			
+			if (!opts.handleFile)
+			{
+				return;
+			}
+			
+			hideCover();
+			
 			if (!('handlePaste' in opts) || opts.handlePaste) {
-				const div = document.createElement('div');
-				div.innerHTML = paste.val;
-
-				const images = div.querySelectorAll('img');
-				for (let i = 0; i < images.length; i++) {
-					const image = images[i];
-
-					if (base64DataUri.test(image.src)) {
-						const file = base64DataUriToBlob(image.src);
-						if (file && isAllowed(file)) {
-							handleFile(file, createHolder(image));
-						} else {
-							image.parentNode.removeChild(image);
-						}
-					}
+				if (isAllowed(file)) {
+					handleFile(file, createHolder());
 				}
-
-				paste.val = div.innerHTML;
 			}
 		};
 	};
