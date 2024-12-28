@@ -1514,16 +1514,7 @@ export default function SCEditor(original, userOptions) {
 	handlePasteEvt = function (e) {
 		var editable = wysiwygBody;
 		const clipboard = e.clipboardData;
-		const loadImage = function (file) {
-			const reader = new FileReader();
-			reader.onload = function (e) {
-				handlePasteData({
-					html: e.target.result
-				});
-			};
-			reader.readAsDataURL(file);
-		};
-
+		
 		// Modern browsers with clipboard API - everything other than _very_
 		// old android web views and UC browser which doesn't support the
 		// paste event at all.
