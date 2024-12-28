@@ -12,7 +12,7 @@ import DOMPurify from 'dompurify';
 var globalWin  = window;
 var globalDoc  = document;
 
-var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
+//var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
 
 /**
  * Wrap inlines that are in the root in paragraphs.
