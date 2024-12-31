@@ -1,6 +1,6 @@
 {
   "name": "@yafnet/sceditor",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "description": "Forked SCEditor for YAF.NET.",
   "homepage": "http://www.sceditor.com/",
   "bugs": "https://github.com/samclarke/SCEditor/issues",
@@ -8,7 +8,8 @@
   "author": "Sam Clarke <sam@samclarke.com>",
   "contributors": [
     {
-      "name": "brunoais"
+      "name": "brunoais",
+	  "name": "w8tcha",
     }
   ],
   "files": [

@@ -15,7 +15,7 @@ export default {
 	toolbar: 'bold,italic,underline,strike|' +
 		'font,size,color|mark|' +
 		'email,link,unlink,quote,code|image|' +
-		'bulletlist,orderedlist|left,center,right|indent,outdent|' +
+		'bulletlist,orderedlist|left,center,right|' +
 		'cut,copy,pastetext,removeformat|' +
 		'undo,redo|' +
 		'youtube,vimeo,instagram,facebook,media,extensions|source|reply',

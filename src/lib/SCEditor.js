@@ -2970,7 +2970,7 @@ export default function SCEditor(original, userOptions) {
 	handleKeyDown = function (e) {
 		var autoClosingTags = [
 			'b', 'i', 'u', 'h', 'code', 'img', 'quote', 'left', 'center', 'right',
-			'indent', 'list', 'color',
+			'list', 'color',
 			'size', 'albumimg', 'attach', 'youtube', 'vimeo',
 			'instagram', 'twitter', 'facebook', 'googlewidget', 'spoiler', 'userlink', 'googlemaps',
 			'hide', 'group-hide', 'hide-thanks', 'hide-reply-thanks', 'hide-reply', 'hide-posts', 'dailymotion',
