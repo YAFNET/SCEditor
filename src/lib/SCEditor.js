@@ -12,7 +12,7 @@ import DOMPurify from 'dompurify';
 var globalWin  = window;
 var globalDoc  = document;
 
-//var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
+var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
 
 /**
  * Wrap inlines that are in the root in paragraphs.
@@ -1530,8 +1530,8 @@ export default function SCEditor(original, userOptions) {
 				// exists prefer that over images
 				if (types.indexOf('text/html') < 0) {
 					// Normalise image pasting to paste as a data-uri
-					if (globalWin.FileReader && items/* &&
-						IMAGE_MIME_REGEX.test(items[i].type)*/) {
+					if (globalWin.FileReader && items &&
+						IMAGE_MIME_REGEX.test(items[i].type)) {
 						pluginManager.call('pasteHtml', items[i].getAsFile());
 						return;
 					}
