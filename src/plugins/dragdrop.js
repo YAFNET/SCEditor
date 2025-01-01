@@ -202,6 +202,11 @@
 		};
 
 		base.signalPasteHtml = function (file) {
+
+			if (!file)
+			{
+				return;
+			}
 			
 			if (!opts.handleFile)
 			{

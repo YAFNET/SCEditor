@@ -1523,8 +1523,6 @@ export default function SCEditor(original, userOptions) {
 			const types = clipboard.types;
 			const items = clipboard.items;
 
-			e.preventDefault();
-
 			for (let i = 0; i < types.length; i++) {
 				// Word sometimes adds copied text as an image so if HTML
 				// exists prefer that over images
