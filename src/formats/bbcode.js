@@ -795,13 +795,13 @@
 				var codeLanguage;
 
 				if (!is(element, 'code') || !(codeLanguage = attr(element, 'class'))) {
-					codeLanguage = element.className.replace('language-', '');
+					codeLanguage = element.className.replace('lang-', '');
 				}
 
-				return `[code=${codeLanguage.replace('language-', '')}]${content}[/code]`;
+				return `[code=${codeLanguage.replace('lang-', '')}]${content}[/code]`;
 			},
 			html:
-				'<pre class="border border-danger rounded m-2 p-2"><code class="language-{defaultattr}">{0}</code></pre>'
+				'<pre class="border border-danger rounded m-2 p-2"><code class="lang-{defaultattr}">{0}</code></pre>'
 		},
 
 		// END_COMMAND

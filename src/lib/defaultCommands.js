@@ -481,7 +481,7 @@ var defaultCmds = {
 				function (codeLanguageName) {
 
 					editor.wysiwygEditorInsertHtml(
-						`<pre class="border border-danger rounded m-2 p-2"><code class="language-${codeLanguageName}">`,
+						`<pre class="border border-danger rounded m-2 p-2"><code class="lang-${codeLanguageName}">`,
 						'</code></pre>'
 					);
 				});
