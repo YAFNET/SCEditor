@@ -276,7 +276,7 @@ QUnit.test('New Line Handling', function (assert) {
 
 	assert.htmlEqual(
 		this.parser.toHTML('[code=markup]test\nline\n[/code]'),
-		'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">test<br />line<br /></code></pre>',
+		'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">test<br />line<br /></code></pre>',
 		'Code test'
 	);
 
@@ -872,13 +872,13 @@ QUnit.test('Quote', function (assert) {
 QUnit.test('Code', function (assert) {
 	assert.htmlEqual(
 		this.parser.toHTML('[code=markup]Testing 1.2.3....[/code]'),
-		'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">Testing 1.2.3....</code></pre>',
+		'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">Testing 1.2.3....</code></pre>',
 		'Normal'
 	);
 
 	assert.htmlEqual(
 		this.parser.toHTML('[code=markup]Testing [b]test[/b][/code]'),
-		'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">Testing [b]test[/b]</code></pre>',
+		'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">Testing [b]test[/b]</code></pre>',
 		'Normal'
 	);
 });

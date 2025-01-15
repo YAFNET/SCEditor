@@ -211,7 +211,7 @@ QUnit.test('Remove empty', function (assert) {
 
 QUnit.test('Should not remove whitespace in code tags', function (assert) {
 	var result = this.htmlToBBCode(
-		'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">Some    White \n   \n   space</code></pre>'
+		'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">Some    White \n   \n   space</code></pre>'
 	);
 
 	assert.equal(result, '[code=markup]Some    White \n   \n   space[/code]\n', 'Should not remove whitespace in code tags');
