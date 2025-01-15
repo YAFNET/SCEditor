@@ -338,7 +338,7 @@ QUnit.test('New line handling', function (assert) {
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">newline<br /></code></pre>' +
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">newline<br /></code></pre>' +
 			'<div>newline</div>'
 		),
 		'[code=markup]newline[/code]\nnewline',
@@ -815,14 +815,14 @@ QUnit.test('Quote', function (assert) {
 
 QUnit.test('Code', function (assert) {
 	assert.equal(
-		this.htmlToBBCode('<pre class="border border-danger rounded m-2 p-2"><code class="language-markup">Testing 1.2.3....</code></pre>'),
+		this.htmlToBBCode('<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">Testing 1.2.3....</code></pre>'),
 		'[code=markup]Testing 1.2.3....[/code]\n',
 		'Simple code'
 	);
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup"><b>ignore this</b> Testing 1.2.3....</code></pre>'
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup"><b>ignore this</b> Testing 1.2.3....</code></pre>'
 		),
 		'[code=markup]ignore this Testing 1.2.3....[/code]\n',
 		'Code with styling'
@@ -830,7 +830,7 @@ QUnit.test('Code', function (assert) {
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup"><span style="color:#ff0000">test</span></code></pre>'
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup"><span style="color:#ff0000">test</span></code></pre>'
 		),
 		'[code=markup]test[/code]\n',
 		'Code with inline styling'
@@ -838,7 +838,7 @@ QUnit.test('Code', function (assert) {
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup"><div style="color:#ff0000">test</div></code></pre>'
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup"><div style="color:#ff0000">test</div></code></pre>'
 		),
 		'[code=markup]test[/code]\n',
 		'Code with block styling'
@@ -847,7 +847,7 @@ QUnit.test('Code', function (assert) {
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup"><div><div style="color:#ff0000">test</div></div></code></pre>'
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup"><div><div style="color:#ff0000">test</div></div></code></pre>'
 		),
 		'[code=markup]test[/code]\n',
 		'Code with nested block styling'
@@ -855,7 +855,7 @@ QUnit.test('Code', function (assert) {
 
 	assert.equal(
 		this.htmlToBBCode(
-			'<pre class="border border-danger rounded m-2 p-2"><code class="language-markup"><div>line 1</div><div>line 2</div></code></pre>'
+			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup"><div>line 1</div><div>line 2</div></code></pre>'
 		),
 		'[code=markup]line 1\nline 2[/code]\n',
 		'Code with block lines'
