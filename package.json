@@ -1,6 +1,6 @@
 {
   "name": "@yafnet/sceditor",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "Forked SCEditor for YAF.NET.",
   "homepage": "http://www.sceditor.com/",
   "bugs": "https://github.com/samclarke/SCEditor/issues",
@@ -67,7 +67,7 @@
     "istanbul-reports": "^3.1.7",
     "jquery": "^3.7.1",
     "loader-utils": "^3.3.1",
-    "qunit": "^2.23.1",
+    "qunit": "^2.24.0",
     "rangy": "^1.3.2",
     "sass": "^1.83.4",
     "sinon": "^19.0.2",

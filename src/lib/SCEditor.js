@@ -522,6 +522,8 @@ export default function SCEditor(original, userOptions) {
 			allowfullscreen: true
 		});
 
+		dom.attr(wysiwygEditor, 'role', 'none');
+
 		footer = dom.createElement('div');
 		dom.addClass(footer, 'card-footer');
 		dom.addClass(footer, 'text-body-secondary');

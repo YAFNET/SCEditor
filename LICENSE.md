@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (C) 2011-2016 by Sam Clarke and contributors
+Copyright (C) 2011-2025 by Sam Clarke and contributors
 http://www.sceditor.com/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

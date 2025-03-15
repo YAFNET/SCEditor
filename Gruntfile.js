@@ -328,7 +328,6 @@ module.exports = (grunt) => {
 			'build',
 			'clean:dist',
 			'rollup:dist',
-			'concat:dist',
 			'copy:dist'
 		]);
 
