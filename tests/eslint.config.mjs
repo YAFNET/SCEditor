@@ -1,4 +1,4 @@
-import globals from "globals";
+import globals from 'globals';
 
 export default [{
     languageOptions: {
@@ -17,10 +17,10 @@ export default [{
     },
 
     rules: {
-        "new-cap": "off",
-        strict: "off",
-        "max-params": "off",
-        "max-depth": ["error", 6],
-        "max-len": "off",
+        "new-cap": 'off',
+        strict: 'off',
+        "max-params": 'off',
+        "max-depth": ['error', 6],
+        "max-len": 'off',
     },
 }];

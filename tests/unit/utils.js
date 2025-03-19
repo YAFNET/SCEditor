@@ -1,5 +1,5 @@
 export function htmlToDiv(html) {
-	var container = document.createElement('div');
+	const container = document.createElement('div');
 
 	container.innerHTML = html;
 
@@ -9,10 +9,10 @@ export function htmlToDiv(html) {
 };
 
 export function htmlToNode(html) {
-	var container  = htmlToDiv(html);
-	var childNodes = [];
+	const container = htmlToDiv(html);
+	const childNodes = [];
 
-	for (var i = 0; i < container.childNodes.length; i++) {
+	for (let i = 0; i < container.childNodes.length; i++) {
 		childNodes.push(container.childNodes[i]);
 	}
 
@@ -20,8 +20,8 @@ export function htmlToNode(html) {
 };
 
 export function htmlToFragment(html) {
-	var container = htmlToDiv(html);
-	var frag      = document.createDocumentFragment();
+	const container = htmlToDiv(html);
+	const frag = document.createDocumentFragment();
 
 	while (container.firstChild) {
 		frag.appendChild(container.firstChild);
@@ -31,7 +31,7 @@ export function htmlToFragment(html) {
 }
 
 export function nodeToHtml(node) {
-	var container = document.createElement('div');
+	const container = document.createElement('div');
 	container.appendChild(node);
 
 	return container.innerHTML;

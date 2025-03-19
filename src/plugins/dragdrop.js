@@ -46,25 +46,6 @@
 	 * @private
 	 */
 	var isSupported = typeof window.FileReader !== 'undefined';
-	var base64DataUri = /data:[^;]+;base64,/i;
-
-	function base64DataUriToBlob(url) {
-		// 5 is length of "data:" prefix
-		const mime = url.substr(5, url.indexOf(';') - 5);
-		const data = atob(url.substr(url.indexOf(',') + 1));
-		/* global Uint8Array */
-		const binary = new Uint8Array(data.length);
-
-		for (let i = 0; i < data.length; i++) {
-			binary[i] = data[i].charCodeAt(0);
-		}
-
-		try {
-			return new Blob([binary], { type: mime });
-		} catch (_) {
-			return null;
-		}
-	}
 
 	sceditor.plugins.dragdrop = function () {
 		if (!isSupported) {
@@ -210,6 +191,10 @@
 			
 			if (!opts.handleFile)
 			{
+				return;
+			}
+
+			if (file.val) {
 				return;
 			}
 			

@@ -5,10 +5,10 @@
 	QUnit.config.autostart = false;
 
 	QUnit.on('runEnd', function (testResults) {
-		var tests = [];
+		const tests = [];
 
 		for (var i = 0, len = log.length; i < len; i++) {
-			var details = log[i];
+			const details = log[i];
 			tests.push({
 				name: details.name,
 				result: details.result,

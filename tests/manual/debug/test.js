@@ -3,8 +3,8 @@
 
 	var evalConsoleInput = function () {
 		try {
-			var codeInput = document.querySelector('#console-input textarea');
-			var code = codeInput.value;
+			const codeInput = document.querySelector('#console-input textarea');
+			const code = codeInput.value;
 
 			console.info('> ' + code);
 			
@@ -15,16 +15,16 @@
 	};
 
 	var createEditor = function () {
-		var coptionsInput = document.querySelector('#debug-options textarea');
-		var optionsStr = coptionsInput.value;
+		const coptionsInput = document.querySelector('#debug-options textarea');
+		const optionsStr = coptionsInput.value;
 
 		if (window.instance) {
 			window.instance.destroy();
 		}
 
 		try {
-			var options = (new Function('return ' + optionsStr))();
-			var textarea = document.getElementById('testarea');
+			const options = (new Function('return ' + optionsStr))();
+			const textarea = document.getElementById('testarea');
 
 			sceditor.create(textarea, options);
 			window.instance = sceditor.instance(textarea);

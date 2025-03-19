@@ -34,8 +34,8 @@ var compareNodes = function (nodeA, nodeB) {
 			nodeA.childNodes.length !== nodeB.childNodes.length) {
 			return false;
 		}
-		for (var attrIdx = 0; attrIdx < nodeA.attributes.length; attrIdx++) {
-			var aAttr = nodeA.attributes[attrIdx];
+		for (let attrIdx = 0; attrIdx < nodeA.attributes.length; attrIdx++) {
+			const aAttr = nodeA.attributes[attrIdx];
 
 			if (typeof aAttr.specified === 'undefined' || aAttr.specified) {
 				if (aAttr.name === 'style') {
@@ -48,7 +48,7 @@ var compareNodes = function (nodeA, nodeB) {
 			}
 		}
 
-		for (var i = 0; i < nodeA.childNodes.length; i++) {
+		for (let i = 0; i < nodeA.childNodes.length; i++) {
 			if (!compareNodes(nodeA.childNodes[i], nodeB.childNodes[i])) {
 				return false;
 			}
@@ -68,8 +68,8 @@ var compareHtml = function (actual, expected) {
 		return false;
 	}
 
-	var nodeA = utils.htmlToDiv(actual);
-	var nodeB = utils.htmlToDiv(expected);
+	const nodeA = utils.htmlToDiv(actual);
+	const nodeB = utils.htmlToDiv(expected);
 
 	if (nodeA.innerHTML === nodeB.innerHTML) {
 		return true;

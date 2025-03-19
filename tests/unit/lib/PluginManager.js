@@ -21,9 +21,9 @@ QUnit.module('lib/PluginManager', {
 
 
 QUnit.test('call()', function (assert) {
-	var arg = {};
-	var firstSpy = sinon.spy();
-	var secondSpy = sinon.spy();
+	const arg = {};
+	const firstSpy = sinon.spy();
+	const secondSpy = sinon.spy();
 
 	fakePlugin.prototype.signalTest = firstSpy;
 	fakePluginTwo.prototype.signalTest = secondSpy;
@@ -45,9 +45,9 @@ QUnit.test('call()', function (assert) {
 
 
 QUnit.test('callOnlyFirst()', function (assert) {
-	var arg = {};
+	const arg = {};
 
-	var stub = sinon.stub();
+	const stub = sinon.stub();
 	stub.returns(1);
 
 	fakePlugin.prototype.signalTest = stub;

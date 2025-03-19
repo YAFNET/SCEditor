@@ -75,7 +75,7 @@
 	};
 
 
-	var TestRunner = function () {
+	const TestRunner = function () {
 		this.assert = _assert;
 		this._tests = [];
 
@@ -94,9 +94,9 @@
 	};
 
 	TestRunner.prototype._failedTests = function () {
-		var failed = [];
+		const failed = [];
 
-		for (var i = 0; i < this._tests.length; i++) {
+		for (let i = 0; i < this._tests.length; i++) {
 			if (this._tests[i].passed === false) {
 				failed.push(this._tests[i]);
 			}
@@ -106,9 +106,9 @@
 	};
 
 	TestRunner.prototype._skippedTests = function () {
-		var skipped = [];
+		const skipped = [];
 
-		for (var i = 0; i < this._tests.length; i++) {
+		for (let i = 0; i < this._tests.length; i++) {
 			if (this._tests[i].skipped) {
 				skipped.push(this._tests[i]);
 			}
@@ -119,7 +119,7 @@
 
 	TestRunner.prototype._incrementTest = function () {
 		var title, instructions, totalFailed;
-		var $currentTestDisplay = $('.current-test');
+		const $currentTestDisplay = $('.current-test');
 
 		this._currentTestIndex++;
 		this._updateProgress();
@@ -143,8 +143,7 @@
 	};
 
 	TestRunner.prototype._updateProgress = function () {
-		var currentPercent =
-			(this._currentPosition() / this._totalTests()) * 100;
+		const currentPercent = (this._currentPosition() / this._totalTests()) * 100;
 
 		$('#progress-info').text(
 			this._currentPosition() + ' / ' + this._totalTests()
@@ -186,7 +185,7 @@
 	};
 
 	TestRunner.prototype._done = function (passed) {
-		var currentTest = this._currentTest();
+		const currentTest = this._currentTest();
 
 		if (currentTest) {
 			currentTest.display.addClass(passed ? 'passed' : 'failed');
@@ -204,7 +203,7 @@
 	};
 
 	TestRunner.prototype._skipTest = function () {
-		var currentTest = this._currentTest();
+		const currentTest = this._currentTest();
 
 		if (!currentTest) {
 			return;
@@ -220,7 +219,7 @@
 
 	TestRunner.prototype._runNext = function () {
 		var currentTest;
-		var $testsContainer = $('#tests');
+		const $testsContainer = $('#tests');
 
 		currentTest = this._currentTest();
 		if (currentTest) {

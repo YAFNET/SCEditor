@@ -7,7 +7,7 @@ QUnit.module('jquery.sceditor', {
 	beforeEach: function () {
 		$.sceditor.defaultOptions.emoticonsRoot = '../../';
 
-		var fixture = document.getElementById('qunit-fixture');
+		const fixture = document.getElementById('qunit-fixture');
 
 		textarea = document.createElement('textarea');
 		fixture.appendChild(textarea);

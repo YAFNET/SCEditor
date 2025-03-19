@@ -12,22 +12,22 @@ QUnit.test('isEmptyObject()', function (assert) {
 });
 
 QUnit.test('extend() - merge', function (assert) {
-	var a = { a: 'foo' };
-	var b = { b: 'bar' };
+	const a = { a: 'foo' };
+	const b = { b: 'bar' };
 
 	assert.deepEqual(utils.extend(a, b), { a: 'foo', b: 'bar' });
 });
 
 QUnit.test('extend() - replace', function (assert) {
-	var a = { a: 'foo' };
-	var b = { a: 'bar' };
+	const a = { a: 'foo' };
+	const b = { a: 'bar' };
 
 	assert.deepEqual(utils.extend(a, b), { a: 'bar' });
 });
 
 QUnit.test('extend() - null', function (assert) {
-	var a = { a: null };
-	var b = { b: null, c: null };
+	const a = { a: null };
+	const b = { b: null, c: null };
 
 	assert.deepEqual(utils.extend(a, a), { a: null });
 	assert.deepEqual(utils.extend(a, b), { a: null, b: null, c: null });
@@ -35,35 +35,35 @@ QUnit.test('extend() - null', function (assert) {
 });
 
 QUnit.test('extend() - is immutable', function (assert) {
-	var record = {};
+	const record = {};
 
 	utils.extend({}, record, { foo: 'bar' });
 	assert.equal(record.foo, undefined);
 });
 
 QUnit.test('extend() - is mutable', function (assert) {
-	var record = {};
+	const record = {};
 
 	utils.extend(record, { foo: 'bar' });
 	assert.equal(record.foo, 'bar');
 });
 
 QUnit.test('extend() - null as argument', function (assert) {
-	var a = { foo: 'bar' };
-	var b = null;
-	var c = void 0;
+	const a = { foo: 'bar' };
+	const b = null;
+	const c = void 0;
 
 	assert.deepEqual(utils.extend({}, b, a, c), { foo: 'bar' });
 });
 
 QUnit.test('extend() - mixed types', function (assert) {
-	var target = {};
-	var child = {};
-	var childOverriden = {};
-	var childArray = [1, 2, 3];
-	var childArrayOverriden = [1];
+	const target = {};
+	const child = {};
+	const childOverriden = {};
+	const childArray = [1, 2, 3];
+	const childArrayOverriden = [1];
 
-	var result = utils.extend(target, {
+	const result = utils.extend(target, {
 		key: childOverriden,
 		ignore: undefined,
 		array: childArrayOverriden,
@@ -88,10 +88,10 @@ QUnit.test('extend() - mixed types', function (assert) {
 });
 
 QUnit.test('extend() - deep with mixed types', function (assert) {
-	var target = {};
-	var child = {};
+	const target = {};
+	const child = {};
 
-	var result = utils.extend(true, target, {
+	const result = utils.extend(true, target, {
 		child: child,
 		ignore: undefined,
 		key: {
@@ -125,8 +125,8 @@ QUnit.test('extend() - deep with mixed types', function (assert) {
 });
 
 QUnit.test('extend() - prototype pollution', function (assert) {
-	var a = {};
-	var maliciousPayload = '{"__proto__":{"oops":"It works!"}}';
+	const a = {};
+	const maliciousPayload = '{"__proto__":{"oops":"It works!"}}';
 
 	assert.strictEqual(a.oops, undefined);
 	utils.extend({}, maliciousPayload);
@@ -140,29 +140,29 @@ QUnit.test('extend() - prototype pollution', function (assert) {
 });
 
 QUnit.test('extend() - deep string', function (assert) {
-	var a = { a: {foo: 'bar' } };
-	var b = { a: {foo: { 'bar': 'baz' } } };
+	const a = { a: {foo: 'bar' } };
+	const b = { a: {foo: { 'bar': 'baz' } } };
 
 	assert.deepEqual(utils.extend(true, {}, a, b), { a: {foo: { 'bar': 'baz' } } });
 });
 
 QUnit.test('extend() - deep number', function (assert) {
-	var a = { a: {foo: 123 } };
-	var b = { a: {foo: { 'bar': 'baz' } } };
+	const a = { a: {foo: 123 } };
+	const b = { a: {foo: { 'bar': 'baz' } } };
 
 	assert.deepEqual(utils.extend(true, {}, a, b), { a: {foo: { 'bar': 'baz' } } });
 });
 
 QUnit.test('extend() - deep false', function (assert) {
-	var a = { a: {foo: false } };
-	var b = { a: {foo: { 'bar': 'baz' } } };
+	const a = { a: {foo: false } };
+	const b = { a: {foo: { 'bar': 'baz' } } };
 
 	assert.deepEqual(utils.extend(true, {}, a, b), { a: {foo: { 'bar': 'baz' } } });
 });
 
 
 QUnit.test('arrayRemove()', function (assert) {
-	var array = [1, 2, 3, 3, 4, 5];
+	const array = [1, 2, 3, 3, 4, 5];
 
 	utils.arrayRemove(array, 1);
 	assert.equal(array.length, 5);
@@ -179,7 +179,7 @@ QUnit.test('each() - Array', function (assert) {
 	var count = 0;
 	var validValues = ['idx0', 'idx1', 'idx4', 'idx5'];
 	var validKeys = [0, 1, 2, 3, 4];
-	var array = ['idx0', 'idx1', 'idx4', 'idx5'];
+	const array = ['idx0', 'idx1', 'idx4', 'idx5'];
 
 	utils.each(array, function (index, value) {
 		count++;
@@ -194,7 +194,7 @@ QUnit.test('each() - Object', function (assert) {
 	var count = 0;
 	var validValues = ['idx0', 'idx1', 'idx4', 'idx5'];
 	var validKeys = ['0', '1', '4', '5'];
-	var object = {
+	const object = {
 		0: 'idx0',
 		1: 'idx1',
 		4: 'idx4',
@@ -214,7 +214,7 @@ QUnit.test('each() - Array like', function (assert) {
 	var count = 0;
 	var validValues = ['idx0', 'idx1', undefined, undefined, 'idx4'];
 	var validKeys = [0, 1, 2, 3, 4];
-	var arrayLike = {
+	const arrayLike = {
 		length: 5,
 		0: 'idx0',
 		1: 'idx1',

@@ -15,7 +15,7 @@ QUnit.test('Should match only if all attributes match when strict matching', fun
 		format: 'match'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -57,7 +57,7 @@ QUnit.test('Should match if any attributes match when not strict matching', func
 		format: 'match'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -99,7 +99,7 @@ QUnit.test('Should default to matching if any attributes match', function (asser
 		format: 'match'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -143,7 +143,7 @@ QUnit.test('Should match twice if tag and styles match', function (assert) {
 		format: 'match{0}'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -168,7 +168,7 @@ QUnit.test('Should only match if all styles match when strict matching', functio
 		strictMatch: true
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -196,7 +196,7 @@ QUnit.test('Should match if any styles match when not strict matching', function
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -229,7 +229,7 @@ QUnit.test('Should default to matching if any styles match', function (assert) {
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -261,7 +261,7 @@ QUnit.test('Should support matching wildcard tags', function (assert) {
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -288,7 +288,7 @@ QUnit.test('Should wildcard matching styles or attributes', function (assert) {
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -317,7 +317,7 @@ QUnit.test('Should only match when styles and attributes match if strict matchin
 		strictMatch: true
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -354,7 +354,7 @@ QUnit.test('Should match when any style or attribute matches if not strict match
 		format: 'match{0}'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -389,7 +389,7 @@ QUnit.test('Should support style attribute', function (assert) {
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -413,7 +413,7 @@ QUnit.test('Should match null style only if style attribute is specified', funct
 		strictMatch: false
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);
@@ -448,7 +448,7 @@ QUnit.test('Should match styles first', function (assert) {
 		format: 'tag({0})'
 	});
 
-	var mockEditor = {
+	const mockEditor = {
 		opts: defaultOptions
 	};
 	(new sceditor.formats.bbcode()).init.call(mockEditor);

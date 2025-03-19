@@ -14,7 +14,7 @@ var KEYWORDS = [
 
 QUnit.module('lib/RangeHelper', {
 	beforeEach: function () {
-		var fixture = document.getElementById('qunit-fixture');
+		const fixture = document.getElementById('qunit-fixture');
 
 		editableDiv = document.createElement('div');
 		editableDiv.contentEditable = true;
@@ -27,13 +27,13 @@ QUnit.module('lib/RangeHelper', {
 
 
 QUnit.test('insertHTML() - Text with node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -47,13 +47,13 @@ QUnit.test('insertHTML() - Text with node', function (assert) {
 });
 
 QUnit.test('insertHTML() - Single node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -70,13 +70,13 @@ QUnit.test('insertHTML() - Single node', function (assert) {
 });
 
 QUnit.test('insertHTML() - Before and after', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -91,13 +91,13 @@ QUnit.test('insertHTML() - Before and after', function (assert) {
 
 
 QUnit.test('insertNode() - Text node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -111,13 +111,13 @@ QUnit.test('insertNode() - Text node', function (assert) {
 });
 
 QUnit.test('insertNode() - Text node with another node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -131,13 +131,13 @@ QUnit.test('insertNode() - Text node with another node', function (assert) {
 });
 
 QUnit.test('insertNode() - Before and after', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -155,13 +155,13 @@ QUnit.test('insertNode() - Before and after', function (assert) {
 });
 
 QUnit.test('insertNode() - Remove created empty tags', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p>text</p><p>text</p>';
 
-	var p1 = editableDiv.firstChild;
-	var p2 = editableDiv.lastChild;
+	const p1 = editableDiv.firstChild;
+	const p2 = editableDiv.lastChild;
 	range.setStart(p1.firstChild, 0);
 	range.setEnd(p2.firstChild, 4);
 
@@ -175,8 +175,8 @@ QUnit.test('insertNode() - Remove created empty tags', function (assert) {
 });
 
 QUnit.test('insertNode() - Do not remove existing empty tags', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>test<p></p>';
 
@@ -190,8 +190,8 @@ QUnit.test('insertNode() - Do not remove existing empty tags', function (assert)
 });
 
 QUnit.test('insertNode() - Do not remove existing empty tags', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>test<p></p><p></p>';
 
@@ -206,8 +206,8 @@ QUnit.test('insertNode() - Do not remove existing empty tags', function (assert)
 
 
 QUnit.test('hasSelection() - With selection', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
@@ -227,13 +227,13 @@ QUnit.test('hasSelection() - No selection', function (assert) {
 
 
 QUnit.test('selectedHtml() - Text only', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -246,13 +246,13 @@ QUnit.test('selectedHtml() - Text only', function (assert) {
 });
 
 QUnit.test('selectedHtml() - Text plus part of node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown <span>fox jumps</span> over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.childNodes[1].firstChild, 3);
 
@@ -272,13 +272,13 @@ QUnit.test('selectedHtml() - No selection', function (assert) {
 
 
 QUnit.test('parentNode() - Text only', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 30);
 
@@ -288,13 +288,13 @@ QUnit.test('parentNode() - Text only', function (assert) {
 });
 
 QUnit.test('parentNode() - Text plus part of node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown <span>fox jumps</span> over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.childNodes[1].firstChild, 3);
 
@@ -305,13 +305,13 @@ QUnit.test('parentNode() - Text plus part of node', function (assert) {
 
 
 QUnit.test('getFirstBlockParent() - Text only', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 30);
 
@@ -321,13 +321,13 @@ QUnit.test('getFirstBlockParent() - Text only', function (assert) {
 });
 
 QUnit.test('getFirstBlockParent() - Text plus part of node', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown <span>fox jumps</span> over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.childNodes[1].firstChild, 3);
 
@@ -338,13 +338,13 @@ QUnit.test('getFirstBlockParent() - Text plus part of node', function (assert) {
 
 
 QUnit.test('insertNodeAt() - End', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -358,13 +358,13 @@ QUnit.test('insertNodeAt() - End', function (assert) {
 });
 
 QUnit.test('insertNodeAt() - Start', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
 
@@ -379,13 +379,13 @@ QUnit.test('insertNodeAt() - Start', function (assert) {
 
 
 QUnit.test('restoreRange()', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	range.setStart(para.firstChild, 20);
 	sel.setSingleRange(range);
@@ -404,33 +404,33 @@ QUnit.test('restoreRange()', function (assert) {
 
 
 QUnit.test('saveRange() - Start is before end marker', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox <br />jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	range.setStart(para.firstChild, 20);
 	sel.setSingleRange(range);
 
 	rangeHelper.saveRange();
 
-	var $markers = $(editableDiv).find('.sceditor-selection');
+	const $markers = $(editableDiv).find('.sceditor-selection');
 
 	assert.ok($($markers[0]).is('#sceditor-start-marker'));
 	assert.ok($($markers[1]).is('#sceditor-end-marker'));
 });
 
 QUnit.test('saveRange() - Start is before end in selection', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	range.setStart(para.firstChild, 4);
 	range.setEnd(para.firstChild, 39);
@@ -438,7 +438,7 @@ QUnit.test('saveRange() - Start is before end in selection', function (assert) {
 
 	rangeHelper.saveRange();
 
-	var $markers = $(editableDiv).find('.sceditor-selection');
+	const $markers = $(editableDiv).find('.sceditor-selection');
 
 	assert.ok($($markers[0]).is('#sceditor-start-marker'));
 	assert.ok($($markers[1]).is('#sceditor-end-marker'));
@@ -446,19 +446,19 @@ QUnit.test('saveRange() - Start is before end in selection', function (assert) {
 
 
 QUnit.test('selectOuterText() - Left only', function (assert) {
-	var range = rangy.createRangyRange();
+	const range = rangy.createRangyRange();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 	range.setEnd(para.firstChild, 20);
 
 	rangy.getSelection().setSingleRange(range);
 	rangeHelper.selectOuterText(10);
 
-	var selectedRange = rangy.getSelection().getRangeAt(0);
+	const selectedRange = rangy.getSelection().getRangeAt(0);
 
 	range.setStart(para.firstChild, 10);
 	range.setEnd(para.firstChild, 20);
@@ -473,19 +473,19 @@ QUnit.test('selectOuterText() - Left only', function (assert) {
 });
 
 QUnit.test('selectOuterText() - Left & Right', function (assert) {
-	var range = rangy.createRangyRange();
+	const range = rangy.createRangyRange();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 	range.setEnd(para.firstChild, 20);
 
 	rangy.getSelection().setSingleRange(range);
 
 	rangeHelper.selectOuterText(10, 10);
-	var selectedRange = rangy.getSelection().getRangeAt(0);
+	const selectedRange = rangy.getSelection().getRangeAt(0);
 
 	range.setStart(para.firstChild, 10);
 	range.setEnd(para.firstChild, 30);
@@ -500,13 +500,13 @@ QUnit.test('selectOuterText() - Left & Right', function (assert) {
 });
 
 QUnit.test('selectOuterText() - Left & Right over adjacent nodes', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>';
 
-	var para = editableDiv.firstChild;
-	var doc = para.ownerDocument;
+	const para = editableDiv.firstChild;
+	const doc = para.ownerDocument;
 
 	para.appendChild(doc.createTextNode('The quick brown '));
 	para.appendChild(doc.createTextNode('fox '));
@@ -533,13 +533,13 @@ QUnit.test('selectOuterText() - Left & Right over adjacent nodes', function (ass
 
 
 QUnit.test('getOuterText() - Before', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -548,13 +548,13 @@ QUnit.test('getOuterText() - Before', function (assert) {
 });
 
 QUnit.test('getOuterText() - Before split nodes', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>';
 
-	var para = editableDiv.firstChild;
-	var doc = para.ownerDocument;
+	const para = editableDiv.firstChild;
+	const doc = para.ownerDocument;
 
 	para.appendChild(doc.createTextNode('The quick brown '));
 	para.appendChild(doc.createTextNode('fox '));
@@ -568,13 +568,13 @@ QUnit.test('getOuterText() - Before split nodes', function (assert) {
 });
 
 QUnit.test('getOuterText() - Before with paragraph as start', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>';
 
-	var para = editableDiv.firstChild;
-	var doc = para.ownerDocument;
+	const para = editableDiv.firstChild;
+	const doc = para.ownerDocument;
 
 	para.appendChild(doc.createTextNode('The quick brown '));
 	para.appendChild(doc.createTextNode('fox '));
@@ -588,13 +588,13 @@ QUnit.test('getOuterText() - Before with paragraph as start', function (assert) 
 });
 
 QUnit.test('getOuterText() - After', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -603,13 +603,13 @@ QUnit.test('getOuterText() - After', function (assert) {
 });
 
 QUnit.test('getOuterText() - After split nodes', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>';
 
-	var para = editableDiv.firstChild;
-	var doc = para.ownerDocument;
+	const para = editableDiv.firstChild;
+	const doc = para.ownerDocument;
 
 	para.appendChild(doc.createTextNode('The quick brown '));
 	para.appendChild(doc.createTextNode('fox '));
@@ -623,13 +623,13 @@ QUnit.test('getOuterText() - After split nodes', function (assert) {
 });
 
 QUnit.test('getOuterText() - After with paragraph as start', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML = '<p></p>';
 
-	var para = editableDiv.firstChild;
-	var doc = para.ownerDocument;
+	const para = editableDiv.firstChild;
+	const doc = para.ownerDocument;
 
 	para.appendChild(doc.createTextNode('The quick brown '));
 	para.appendChild(doc.createTextNode('fox '));
@@ -647,13 +647,13 @@ QUnit.test('getOuterText() - After with paragraph as start', function (assert) {
 
 
 QUnit.test('replaceKeyword() - No matches', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -671,13 +671,13 @@ QUnit.test('replaceKeyword() - No matches', function (assert) {
 });
 
 QUnit.test('replaceKeyword() - Match after', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox boldjumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -700,13 +700,13 @@ QUnit.test('replaceKeyword() - Match after', function (assert) {
 });
 
 QUnit.test('replaceKeyword() - Match before', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown foxbold jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 23);
 
 	sel.setSingleRange(range);
@@ -729,13 +729,13 @@ QUnit.test('replaceKeyword() - Match before', function (assert) {
 });
 
 QUnit.test('replaceKeyword() - Match after with current char', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox oldjumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -759,13 +759,13 @@ QUnit.test('replaceKeyword() - Match after with current char', function (assert)
 });
 
 QUnit.test('replaceKeyword() - Match before with current char', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown foxbol jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 22);
 
 	sel.setSingleRange(range);
@@ -789,13 +789,13 @@ QUnit.test('replaceKeyword() - Match before with current char', function (assert
 });
 
 QUnit.test('replaceKeyword() - Match that is too far behind', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown foxbold jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 24);
 
 	sel.setSingleRange(range);
@@ -814,13 +814,13 @@ QUnit.test('replaceKeyword() - Match that is too far behind', function (assert) 
 });
 
 QUnit.test('replaceKeyword() - Match that is too far forward', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox boldjumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 20);
 
 	sel.setSingleRange(range);
@@ -839,13 +839,13 @@ QUnit.test('replaceKeyword() - Match that is too far forward', function (assert)
 });
 
 QUnit.test('replaceKeyword() - Match in middle', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown foxkeyord jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 22);
 
 	sel.setSingleRange(range);
@@ -869,13 +869,13 @@ QUnit.test('replaceKeyword() - Match in middle', function (assert) {
 });
 
 QUnit.test('replaceKeyword() - Middle with spaces required', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox keyord jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 23);
 
 	sel.setSingleRange(range);
@@ -899,13 +899,13 @@ QUnit.test('replaceKeyword() - Middle with spaces required', function (assert) {
 });
 
 QUnit.test('replaceKeyword() - No match space required', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown foxkeyord jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 	range.setStart(para.firstChild, 22);
 
 	sel.setSingleRange(range);
@@ -926,13 +926,13 @@ QUnit.test('replaceKeyword() - No match space required', function (assert) {
 QUnit.test(
 	'replaceKeyword() - Current char space when spaces required',
 	function (assert) {
-		var range = rangy.createRangyRange();
-		var sel   = rangy.getSelection();
+		const range = rangy.createRangyRange();
+		const sel = rangy.getSelection();
 
 		editableDiv.innerHTML =
 			'<p>The quick brown fox keywordjumps over the lazy dog.</p>';
 
-		var para = editableDiv.firstChild;
+		const para = editableDiv.firstChild;
 		range.setStart(para.firstChild, 27);
 
 		sel.setSingleRange(range);
@@ -958,14 +958,14 @@ QUnit.test(
 
 
 QUnit.test('compare() - To current selection', function (assert) {
-	var rangeA = rangy.createNativeRange();
-	var rangeB = rangy.createNativeRange();
-	var sel    = rangy.getSelection();
+	const rangeA = rangy.createNativeRange();
+	const rangeB = rangy.createNativeRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	if (rangeA.moveToElementText) {
 		rangeA.moveToElementText(para);
@@ -986,13 +986,13 @@ QUnit.test('compare() - To current selection', function (assert) {
 });
 
 QUnit.test('compare() - Equal', function (assert) {
-	var rangeA = rangy.createNativeRange();
-	var rangeB = rangy.createNativeRange();
+	const rangeA = rangy.createNativeRange();
+	const rangeB = rangy.createNativeRange();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	if (rangeA.moveToElementText) {
 		rangeA.moveToElementText(para);
@@ -1014,13 +1014,13 @@ QUnit.test('compare() - Equal', function (assert) {
 });
 
 QUnit.test('compare() - Not equal', function (assert) {
-	var rangeA = rangy.createNativeRange();
-	var rangeB = rangy.createNativeRange();
+	const rangeA = rangy.createNativeRange();
+	const rangeB = rangy.createNativeRange();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';
 
-	var para = editableDiv.firstChild;
+	const para = editableDiv.firstChild;
 
 	if (rangeA.moveToElementText) {
 		rangeA.moveToElementText(para);
@@ -1043,8 +1043,8 @@ QUnit.test('compare() - Not equal', function (assert) {
 
 
 QUnit.test('clear()', function (assert) {
-	var range = rangy.createRangyRange();
-	var sel   = rangy.getSelection();
+	const range = rangy.createRangyRange();
+	const sel = rangy.getSelection();
 
 	editableDiv.innerHTML =
 		'<p>The quick brown fox jumps over the lazy dog.</p>';

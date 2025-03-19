@@ -28,8 +28,8 @@
 		var plainTextEnabled = true;
 
 		this.init = function () {
-			var commands = this.commands;
-			var opts = this.opts;
+			const commands = this.commands;
+			const opts = this.opts;
 
 			if (opts && opts.plaintext && opts.plaintext.addButton) {
 				plainTextEnabled = opts.plaintext.enabled;
@@ -48,7 +48,7 @@
 		this.signalPasteRaw = function (data) {
 			if (plainTextEnabled) {
 				if (data.html && !data.text) {
-					var div = document.createElement('div');
+					const div = document.createElement('div');
 					div.innerHTML = data.html;
 
 					// TODO: Refactor into private shared module with editor

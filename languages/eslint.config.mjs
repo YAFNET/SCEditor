@@ -1,13 +1,13 @@
 export default [{
     languageOptions: {
         ecmaVersion: 5,
-        sourceType: "script",
+        sourceType: 'script',
     },
 
     rules: {
-        "dot-notation": "off",
+        "dot-notation": 'off',
 
-        "max-len": ["error", {
+        "max-len": ['error', {
             code: 400,
             ignoreUrls: true,
             ignoreRegExpLiterals: true,

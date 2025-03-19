@@ -7,7 +7,7 @@
 		}
 
 		if (obj instanceof Error) {
-			var errorMsg = 'Error: ' + (obj.message || obj.description);
+			let errorMsg = 'Error: ' + (obj.message || obj.description);
 
 			if (obj.stack) {
 				errorMsg += '\n' + obj.stack;
@@ -23,7 +23,7 @@
 		var originalMethod = console[method];
 
 		return function (msg) {
-			var div = document.createElement('div');
+			const div = document.createElement('div');
 			div.className = method;
 			div.textContent = _formatObject(msg);
 
@@ -50,7 +50,7 @@
 			assertion.textContent = assertion ? 'Assertion passed: ' :
 				'Assertion failed: ';
 
-			var div = document.createElement('div');
+			const div = document.createElement('div');
 			div.className = 'assert';
 			div.className += assertion ? ' assert-passed' : ' assert-failed';
 
@@ -91,7 +91,7 @@
 	};
 
 	window.patchConsole = function (outputDiv) {
-		var output = outputDiv || document.getElementById('console-output');
+		const output = outputDiv || document.getElementById('console-output');
 
 		console.info   = _patchConsoleMethod(output, 'info');
 		console.warn   = _patchConsoleMethod(output, 'warn');

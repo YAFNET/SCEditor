@@ -90,7 +90,7 @@ runner.test({
 		this.editor.removeShortcut('ctrl+j');
 	}
 }, function (done) {
-	var handler = function () {
+	const handler = function () {
 		done(true);
 
 		return false;
@@ -106,7 +106,7 @@ runner.test({
 		this.editor.removeShortcut('ctrl+shift+f3');
 	}
 }, function (done) {
-	var handler = function () {
+	const handler = function () {
 		done(true);
 
 		return false;
@@ -132,7 +132,7 @@ runner.test({
 
 	this.handler = function () {
 		var selectedText;
-		var range = editor.getRangeHelper().selectedRange();
+		const range = editor.getRangeHelper().selectedRange();
 
 		if (range && typeof range.text !== 'undefined') {
 			selectedText = range.text;
@@ -184,13 +184,13 @@ runner.test({
 	}
 }, function (done) {
 	var editor     = this.editor;
-	var body       = editor.getBody();
+	const body = editor.getBody();
 	var firstNode  = body.ownerDocument.getElementById('a');
 	var lastNode   = body.ownerDocument.getElementById('b');
 	var foundFirst = false;
 
 	this.handler = function () {
-		var currentNode = editor.currentNode();
+		const currentNode = editor.currentNode();
 
 		if (!foundFirst) {
 			if (currentNode === firstNode ||
@@ -327,7 +327,7 @@ runner.test({
 		this.editor.removeShortcut('ctrl+j');
 	}
 }, function (done) {
-	var handler = function () {
+	const handler = function () {
 		done(true);
 
 		return false;

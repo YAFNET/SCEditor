@@ -50,7 +50,7 @@ QUnit.test('entities() - IE XSS', function (assert) {
 
 
 QUnit.test('uriScheme() - No schmes', function (assert) {
-	var urls = [
+	const urls = [
 		'',
 		'/test.html',
 		'//localhost/test.html',
@@ -59,15 +59,15 @@ QUnit.test('uriScheme() - No schmes', function (assert) {
 
 	assert.expect(urls.length);
 
-	for (var i = 0; i < urls.length; i++) {
-		var url = urls[i];
+	for (let i = 0; i < urls.length; i++) {
+		const url = urls[i];
 
 		assert.equal(escape.uriScheme(url), url);
 	}
 });
 
 QUnit.test('uriScheme() - Valid schmes', function (assert) {
-	var urls = [
+	const urls = [
 		'http://localhost',
 		'https://example.com/test.html',
 		'ftp://localhost',
@@ -87,23 +87,23 @@ QUnit.test('uriScheme() - Valid schmes', function (assert) {
 
 	assert.expect(urls.length);
 
-	for (var i = 0; i < urls.length; i++) {
-		var url = urls[i];
+	for (let i = 0; i < urls.length; i++) {
+		const url = urls[i];
 
 		assert.equal(escape.uriScheme(url), url);
 	}
 });
 
 QUnit.test('uriScheme() - Invalid schmes', function (assert) {
-	var path = location.pathname.split('/');
+	const path = location.pathname.split('/');
 	path.pop();
 
-	var baseUrl = location.protocol + '//' +
+	const baseUrl = location.protocol + '//' +
 		location.host +
 		path.join('/') + '/';
 
 	/*jshint scripturl:true*/
-	var urls = [
+	const urls = [
 		'javascript:alert("XSS");',
 		'jav	ascript:alert(\'XSS\');',
 		'vbscript:msgbox("XSS")',
@@ -112,8 +112,8 @@ QUnit.test('uriScheme() - Invalid schmes', function (assert) {
 
 	assert.expect(urls.length);
 
-	for (var i = 0; i < urls.length; i++) {
-		var url = urls[i];
+	for (let i = 0; i < urls.length; i++) {
+		const url = urls[i];
 
 		assert.equal(escape.uriScheme(url), baseUrl + url);
 	}
