@@ -43,6 +43,7 @@
 		'link': '<i class="fa-solid fa-link"></i>',
 		'maximize': '<i class="fa-solid fa-maximize"></i>',
 		'media': '<i class="fa-solid fa-photo-film"></i>',
+		'note': '<i class="fa-solid fa-note-sticky"></i>',
 		'orderedlist': '<i class="fa-solid fa-list-ol"></i>',
 		'paste': '<i class="fa-solid fa-paste"></i>',
 		'pastetext': '<i class="fa-solid fa-paste"></i>',

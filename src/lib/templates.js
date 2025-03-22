@@ -26,8 +26,11 @@ var _templates = {
 		'data-sceditor-command="{name}" unselectable="on">' +
 		'<span unselectable="on">  </span></a>',
 
-	codeOpt: '<a class="sceditor-font-option dropdown-item" href="#" ' +
+	codeOpt: '<a class="sceditor-code-option dropdown-item" href="#" ' +
 		'data-language="{language}">{languageName}</a>',
+
+	noteOpt: '<a class="sceditor-note-option dropdown-item" href="#" ' +
+		'data-type="{type}">{type}</a>',
 
 	extensionOpt: '<a class="sceditor-extension-option dropdown-item" href="#" ' +
 		'data-language="{extension}">{extension}</a>',

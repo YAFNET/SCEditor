@@ -490,6 +490,48 @@ var defaultCmds = {
 	},
 	// END_COMMAND
 
+	// START_COMMAND: Note
+	note: {
+		_dropDown: function (editor, caller, callback) {
+			var content = dom.createElement('div');
+
+			dom.on(content,
+				'click',
+				'a',
+				function (e) {
+					callback(dom.data(this, 'type'));
+					editor.closeDropDown(true);
+					e.preventDefault();
+				});
+
+			editor.opts.noteTypes.split(',').forEach(function (noteType) {
+				dom.appendChild(content,
+					_tmpl('noteOpt',
+						{
+							type: noteType
+						},
+						true));
+			});
+
+			editor.createDropDown(caller, 'noteTypes-picker', content);
+		},
+		exec: function (caller) {
+			var editor = this;
+
+			defaultCmds.note._dropDown(editor,
+				caller,
+				function (type) {
+
+					editor.wysiwygEditorInsertHtml(
+						`<div class="alert alert-${type}" role="alert">`,
+						'</div>'
+					);
+				});
+		},
+		tooltip: 'Note'
+	},
+	// END_COMMAND
+
 
 	// START_COMMAND: Code
 	extensions: {

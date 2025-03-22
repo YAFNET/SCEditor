@@ -14,7 +14,7 @@ export default {
 	 */
 	toolbar: 'bold,italic,underline,strike|' +
 		'font,size,color|mark|' +
-		'email,link,unlink,quote,code|image|' +
+		'email,link,unlink,quote,code|image|note|' +
 		'bulletlist,orderedlist|left,center,right|' +
 		'cut,copy,pastetext,removeformat|' +
 		'undo,redo|' +
@@ -94,6 +94,13 @@ export default {
 		{ Value: 'markup', Text: 'XML' },
 		{ Value: 'vb', Text: 'Visual Basic' }
 	],
+
+	/**
+     * Comma separated list of note types for the alerts
+     *
+     * @type {Array}
+     */
+	noteTypes: 'primary,secondary,success,danger,warning,info,light,dark',
 
 	/**
 	 * Colors should be comma separated and have a bar | to signal a new

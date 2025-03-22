@@ -159,6 +159,22 @@
 				);
 			}
 		},
+		note: {
+			txtExec: function (caller) {
+				var editor = this;
+
+				getEditorCommand('note')._dropDown(
+					editor,
+					caller,
+					function (type) {
+						editor.insertText(
+							`[note=${type}]`,
+							'[/note]'
+						);
+					}
+				);
+			}
+		},
 		extensions: {
 			txtExec: function (caller) {
 				var editor = this;
@@ -802,6 +818,30 @@
 			},
 			html:
 				'<pre class="border border-danger rounded m-2 p-2"><code class="lang-{defaultattr}">{0}</code></pre>'
+		},
+
+		// END_COMMAND
+
+		// START_COMMAND: Note
+		note: {
+			tags: {
+				div: {
+					role: 'alert'
+				}
+			},
+			isInline: false,
+			allowedChildren: ['#', '#newline'],
+			format: function (element, content) {
+				var type;
+
+				if (!(type = attr(element, 'class'))) {
+					type = element.className.replace('alert alert-', '');
+				}
+
+				return `[note=${type.replace('alert alert-', '')}]${content}[/note]`;
+			},
+			html:
+				'<div class="alert alert-{defaultattr}" role="alert">{0}</div>'
 		},
 
 		// END_COMMAND
