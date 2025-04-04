@@ -47,9 +47,9 @@
   },
   "devDependencies": {
     "@lodder/grunt-postcss": "^3.1.1",
-    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@w8tcha/grunt-dev-update": "^2.3.4",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.21",
     "cssnano": "^7.0.6",
     "grunt": "~1.6.1",
     "grunt-contrib-clean": "^2.0.1",
@@ -60,20 +60,20 @@
     "grunt-contrib-uglify": "^5.2.2",
     "grunt-eslint": "^25.0.0",
     "grunt-rollup": "^12.0.0",
-    "grunt-sass": "^3.1.0",
+    "grunt-sass": "^4.0.0",
     "istanbul-lib-coverage": "^3.2.0",
     "istanbul-lib-instrument": "^6.0.3",
     "istanbul-lib-report": "^3.0.1",
     "istanbul-reports": "^3.1.7",
     "jquery": "^3.7.1",
     "loader-utils": "^3.3.1",
-    "qunit": "^2.24.0",
+    "qunit": "^2.24.1",
     "rangy": "^1.3.2",
-    "sass": "^1.83.4",
-    "sinon": "^19.0.2",
+    "sass": "^1.86.3",
+    "sinon": "^20.0.0",
     "time-grunt": "^2.0.0",
     "webpack": "^5.88.2",
-    "webpack-dev-server": "^5.2.0"
+    "webpack-dev-server": "^5.2.1"
   },
   "dependencies": {
     "dompurify": "^3.0.5"
