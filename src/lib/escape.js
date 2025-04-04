@@ -1,13 +1,13 @@
 // Must start with a valid scheme
 // 		^
 // Schemes that are considered safe
-// 		(https?|s?ftp|mailto|spotify|skype|ssh|teamspeak|tel):|
+// 		(https?|s?ftp|mailto|spotify|ssh|teamspeak|tel):|
 // Relative schemes (//:) are considered safe
 // 		(\\/\\/)|
 // Image data URI's are considered safe
 // 		data:image\\/(png|bmp|gif|p?jpe?g);
 var VALID_SCHEME_REGEX =
-	/^(https?|s?ftp|mailto|spotify|skype|ssh|teamspeak|tel):|(\/\/)|data:image\/(png|bmp|gif|p?jpe?g);/i;
+	/^(https?|s?ftp|mailto|spotify|ssh|teamspeak|tel):|(\/\/)|data:image\/(png|bmp|gif|p?jpe?g);/i;
 
 /**
  * Escapes a string so it's safe to use in regex
@@ -70,7 +70,6 @@ export function entities(str, noQuotes) {
  * ftp
  * mailto
  * spotify
- * skype
  * ssh
  * teamspeak
  * tel

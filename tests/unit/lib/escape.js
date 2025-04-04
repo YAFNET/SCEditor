@@ -74,7 +74,6 @@ QUnit.test('uriScheme() - Valid schmes', function (assert) {
 		'sftp://example.com/test/',
 		'mailto:user@localhost',
 		'spotify:xyz',
-		'skype:xyz',
 		'ssh:user@host.com:22',
 		'teamspeak:12345',
 		'tel:12345',
