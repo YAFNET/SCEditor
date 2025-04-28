@@ -208,7 +208,7 @@ module.exports = (grunt) => {
 					compress: true,
 					mangle: true,
 					banner: '/* SCEditor v<%= pkg.version %> | ' +
-						'(C) 2017, Sam Clarke | sceditor.com/license */\n'
+						'(C) 2017-<%= grunt.template.today(\'yyyy\') %>, Sam Clarke | sceditor.com/license */\n'
 				},
 				files: [
 					{

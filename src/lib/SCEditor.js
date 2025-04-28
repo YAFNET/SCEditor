@@ -2974,7 +2974,7 @@ export default function SCEditor(original, userOptions) {
 			'size', 'albumimg', 'attach', 'youtube', 'vimeo',
 			'instagram', 'twitter', 'facebook', 'googlewidget', 'spoiler', 'userlink', 'googlemaps',
 			'hide', 'group-hide', 'hide-thanks', 'hide-reply-thanks', 'hide-reply', 'hide-posts', 'dailymotion',
-			'audio', 'media'
+			'audio', 'media','note'
 		];
 
 		var	shortcut   = [],

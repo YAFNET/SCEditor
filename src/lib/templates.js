@@ -42,28 +42,14 @@ var _templates = {
 		'href="#"><font size="{size}">{size}</font></a>',
 
 	albums:
-		'<form class="m-3"><div class="AlbumsListMenu"><div id="AlbumsListBox" class="content">' +
+		'<form class="m-3"><div id="AlbumsListBox" class="content">' +
 			'<div id="AlbumsListPager"></div>' +
 			'<div id="PostAlbumsLoader" class="text-center"><div class="fa-3x"><i class="fas fa-spinner fa-pulse"></i>' +
 			'</div></div>' +
 			'<div id="AlbumsListBox" class="content">' +
 			'<div id="PostAlbumsListPlaceholder" data-url="{root}" style="clear: both; ">' +
-			'<ul class="AlbumsList list-group"></ul>' +
-			'</div>' +
-			'</div></form>',
-
-	attachments:
-		'<form class="m-3"><div class="AttachmentListMenu"><div id="AttachmentsListBox" class="content">' +
-			'<div id="AttachmentsListPager"></div>' +
-			'<div id="PostAttachmentLoader" class="text-center"><div class="fa-3x"><i class="fas fa-spinner fa-pulse"></i>' +
+			'<div class="container"><div class="AlbumsList row"></div></div>' +
 			'</div></div>' +
-			'<div id="AttachmentsListBox" class="content">' +
-			'<div id="PostAttachmentListPlaceholder" data-notext="{root}" style="clear: both; ">' +
-			'<ul class="AttachmentList list-group"></ul>' +
-			'</div>' +
-			'<div class="OpenUploadDialog mt-1 d-grid gap-2">' +
-			'<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#UploadDialog">Upload</button>' +
-			'</div>' +
 			'</div></form>',
 
 	pastetext:

@@ -65,7 +65,7 @@ var defaultCmds = {
 
 			editor.createDropDown(caller, 'albums', content);
 
-			const pageSize = 5;
+			const pageSize = 6;
 			const pageNumber = 0;
 
 			// eslint-disable-next-line no-undef
@@ -77,24 +77,19 @@ var defaultCmds = {
 
 	// START_COMMAND: Attachments
 	attachments: {
-		exec: function (caller) {
-			const content = dom.createElement('div');
-			const editor = this;
+		exec: function () {
+			const modal = new window.bootstrap.Modal('#UploadDialog');
 
-			dom.appendChild(content,
-				_tmpl('attachments',
-					{
-						root: editor.opts.root
-					},
-					true));
+			modal.show();
+			modal._element.addEventListener('shown.bs.modal',
+				_ => {
+					const pageSize = 6;
+					const pageNumber = 0;
 
-			editor.createDropDown(caller, 'attachments', content);
+					// eslint-disable-next-line no-undef
+					getPaginationData(pageSize, pageNumber, false);
 
-			const pageSize = 5;
-			const pageNumber = 0;
-
-			// eslint-disable-next-line no-undef
-			getPaginationData(pageSize, pageNumber, false);
+				});
 		},
 		tooltip: 'User Attachments'
 	},
