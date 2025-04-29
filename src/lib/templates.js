@@ -29,8 +29,7 @@ var _templates = {
 	codeOpt: '<a class="sceditor-code-option dropdown-item" href="#" ' +
 		'data-language="{language}">{languageName}</a>',
 
-	noteOpt: '<a class="sceditor-note-option dropdown-item" href="#" ' +
-		'data-type="{type}">{type}</a>',
+	noteOpt: '<option value="{type}">{type}</option>',
 
 	extensionOpt: '<a class="sceditor-extension-option dropdown-item" href="#" ' +
 		'data-language="{extension}">{extension}</a>',
@@ -50,6 +49,18 @@ var _templates = {
 			'<div id="PostAlbumsListPlaceholder" data-url="{root}" style="clear: both; ">' +
 			'<div class="container"><div class="AlbumsList row"></div></div>' +
 			'</div></div>' +
+		'</div></form>',
+
+	note:
+		'<form class="m-3">' +
+			'<div class="mb-3"><label for="type" class="form-label">{labelType}</label> ' +
+			'<select class="form-select" id="type" aria-label="note type">' +
+			'{values}' +
+			'</select> ' +
+			'</div> ' +
+			'<div class="mb-3"><label for="txt" class="form-label">{labelText}</label> ' +
+			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
+			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
 			'</div></form>',
 
 	pastetext:
@@ -58,27 +69,12 @@ var _templates = {
 			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
 			'</div></form>',
 
-	table:
-		'<form class="m-3"><div class="mb-3"><label for="rows" class="form-label">{rows}</label><input type="text" ' +
-			'id="rows" value="2" class="form-control" /></div>' +
-			'<div class="mb-3"><label for="cols" class="form-label">{cols}</label><input type="text" ' +
-			'id="cols" value="2" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" /></form>',
-
 	image:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{url}</label> ' +
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
 			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
 			'<input type="text" id="des" class="form-control" /></div>' +
 			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" /></form>',
-
-	email:
-		'<form class="m-3"><div class="mb-3"><label for="email" class="form-label">{label}</label> ' +
-			'<input type="text" id="email" dir="ltr" class="form-control" /></div>' +
-			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
-			'<input type="text" id="des" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
-			'</form>',
 
 	link:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{url}</label> ' +

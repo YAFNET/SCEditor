@@ -19,7 +19,7 @@ div.sceditor-dropdown div {
 }
 
 .sceditor-container iframe,
-.sceditor-container textarea {
+.sceditor-container textarea:not(.textarea-input) {
     display: block;
     -ms-flex: 1 1 0%;
     flex: 1 1 0%;
@@ -35,7 +35,7 @@ div.sceditor-dropdown div {
     min-height: 1px;
 }
 
-.sceditor-container textarea {
+.sceditor-container textarea:not(.textarea-input) {
     margin: 7px 5px;
 }
 

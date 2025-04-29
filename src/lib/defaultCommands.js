@@ -487,41 +487,53 @@ var defaultCmds = {
 
 	// START_COMMAND: Note
 	note: {
-		_dropDown: function (editor, caller, callback) {
-			var content = dom.createElement('div');
-
-			dom.on(content,
-				'click',
-				'a',
-				function (e) {
-					callback(dom.data(this, 'type'));
-					editor.closeDropDown(true);
-					e.preventDefault();
-				});
+		exec: function (caller) {
+			var type,
+				val,
+				content = dom.createElement('div'),
+				editor = this,
+				options = '';
 
 			editor.opts.noteTypes.split(',').forEach(function (noteType) {
-				dom.appendChild(content,
+				options +=
 					_tmpl('noteOpt',
 						{
 							type: noteType
 						},
-						true));
+						false);
 			});
 
-			editor.createDropDown(caller, 'noteTypes-picker', content);
-		},
-		exec: function (caller) {
-			var editor = this;
+			dom.appendChild(content,
+				_tmpl('note',
+					{
+						labelType: editor._(
+							'Select the note type:'
+						),
+						labelText: editor._(
+							'Enter the note inside the following box:'
+						),
+						insert: editor._('Insert'),
+						values: options
+					},
+					true));
 
-			defaultCmds.note._dropDown(editor,
-				caller,
-				function (type) {
+			dom.on(content,
+				'click',
+				'.button',
+				function (e) {
+					val = dom.find(content, '#txt')[0].value;
+					type = dom.find(content, '#type')[0].value;
 
-					editor.wysiwygEditorInsertHtml(
-						`<div class="alert alert-${type}" role="alert">`,
-						'</div>'
-					);
+					if (val) {
+						editor.wysiwygEditorInsertHtml(
+							`<div class="alert alert-${type}" role="alert">${val}</div>`);
+					}
+
+					editor.closeDropDown(true);
+					e.preventDefault();
 				});
+
+			editor.createDropDown(caller, 'pastetext', content);
 		},
 		tooltip: 'Note'
 	},
