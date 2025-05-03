@@ -74,7 +74,15 @@ var _templates = {
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
 			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
 			'<input type="text" id="des" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" /></form>',
+		'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" /></form>',
+
+	email:
+		'<form class="m-3"><div class="mb-3"><label for="email" class="form-label">{label}</label> ' +
+			'<input type="text" id="email" dir="ltr" class="form-control" /></div>' +
+			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
+			'<input type="text" id="des" class="form-control" /></div>' +
+			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'</form>',
 
 	link:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{url}</label> ' +
