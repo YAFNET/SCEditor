@@ -5,6 +5,17 @@
 (function () {
 	'use strict';
 	sceditor.locale['tr'] = {
+		'Highlight': 'Vurgulamak',
+		'Note': 'Not',
+		'Post Reply': 'Yanıtla',
+		'Insert a Vimeo video': 'Bir Vimeo videosu ekleyin',
+		'User Albums': 'Kullanıcı albümleri',
+		'User Attachments': 'Kullanıcı ekleri',
+		'Insert an Facebook Post': 'Bir Facebook Gönderi Ekleyin',
+		'Characters remaining:': 'Kalan karakterler:',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'YouTube videosu, Facebook Post veya Twitter durumu gibi bir gömme ortam ekleyin.',
+		'Insert an Instagram Post': 'Bir Instagram Gönderi ekleyin',
+		'More BBCode': 'Daha Fazla BBCODE',
 		'Bold': 'Kalın',
 		'Italic': 'İtalik',
 		'Underline': 'Altı çizgili',

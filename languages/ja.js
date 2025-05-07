@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['ja'] = {
+		'Highlight': 'ハイライト',
+		'Note': '注記',
+		'Characters remaining:': '残りのキャラクター：',
+		'Insert a Vimeo video': 'Vimeoビデオを挿入します',
+		'User Albums': 'ユーザーアルバム',
+		'User Attachments': 'ユーザーの添付ファイル',
+		'Insert an Instagram Post': 'Instagramの投稿を挿入します',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'YouTubeビデオ、Facebookの投稿、Twitterステータスなどの埋め込みメディアを挿入します。',
+		'Post Reply': '返信を投稿してください',
+		'More BBCode': 'より多くのbbcode',
+		'Insert an Facebook Post': 'Facebookの投稿を挿入します',
 		'Bold': '太字',
 		'Italic': '斜字',
 		'Underline': '下線',

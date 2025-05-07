@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['cs'] = {
+		'Note': 'Poznámka',
+		'Post Reply': 'Odpovědět',
+		'User Albums': 'Uživatelská alba',
+		'Characters remaining:': 'Zbývající znaky:',
+		'Highlight': 'Zvýraznit',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Vložte vložené média jako video na YouTube, příspěvek na Facebooku nebo stav Twitteru.',
+		'Insert an Facebook Post': 'Vložte příspěvek na Facebooku',
+		'More BBCode': 'Více BBCode',
+		'User Attachments': 'Uživatelské přílohy',
+		'Insert a Vimeo video': 'Vložte video Vimeo',
+		'Insert an Instagram Post': 'Vložte příspěvek na Instagram',
 		'Bold': 'Tučné',
 		'Italic': 'Kurzíva',
 		'Underline': 'Podtržené',

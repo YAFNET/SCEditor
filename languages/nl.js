@@ -7,6 +7,17 @@
 	'use strict';
 
 	sceditor.locale['nl'] = {
+		'Note': 'Opmerking',
+		'Post Reply': 'Post antwoord',
+		'User Albums': 'Gebruikersalbums',
+		'User Attachments': 'Gebruikersbijlagen',
+		'Characters remaining:': 'Resterende karakters:',
+		'Insert a Vimeo video': 'Voeg een Vimeo -video in',
+		'Highlight': 'Bescheiden',
+		'Insert an Facebook Post': 'Voeg een Facebook -bericht in',
+		'Insert an Instagram Post': 'Plaats een Instagram -bericht',
+		'More BBCode': 'Meer bbcode',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Voeg een insluitmedia in zoals een YouTube -video, Facebook -bericht of Twitter -status.',
 		'Bold': 'Vet',
 		'Italic': 'Cursief',
 		'Underline': 'Onderlijnd',

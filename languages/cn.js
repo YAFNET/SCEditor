@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['cn'] = {
+		'Highlight': '强调',
+		'Insert an Instagram Post': '插入Instagram帖子',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': '插入诸如YouTube视频，Facebook帖子或Twitter状态之类的嵌入媒体。',
+		'More BBCode': '更多的bbcode',
+		'Characters remaining:': '剩下的角色：',
+		'Post Reply': '发布回复',
+		'Note': '笔记',
+		'User Attachments': '用户附件',
+		'Insert a Vimeo video': '插入Vimeo视频',
+		'User Albums': '用户专辑',
+		'Insert an Facebook Post': '插入Facebook帖子',
 		'Bold': '粗体',
 		'Italic': '斜体',
 		'Underline': '下划线',

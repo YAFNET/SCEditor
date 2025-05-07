@@ -5,6 +5,17 @@
 	'use strict';
 
 	sceditor.locale['el'] = {
+		'Note': 'Σημείωμα',
+		'Highlight': 'Αποκορύφωμα',
+		'Post Reply': 'Ανάρτηση',
+		'Characters remaining:': 'Χαρακτήρες που απομένουν:',
+		'Insert an Instagram Post': 'Εισαγάγετε μια ανάρτηση Instagram',
+		'User Attachments': 'Συνημμένα χρήστη',
+		'Insert a Vimeo video': 'Εισαγάγετε ένα βίντεο Vimeo',
+		'User Albums': 'Άλμπουμ χρηστών',
+		'More BBCode': 'Περισσότερος κώδικας BBCODE',
+		'Insert an Facebook Post': 'Εισαγάγετε μια ανάρτηση στο Facebook',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Εισαγάγετε ένα ενσωματωμένο μέσα όπως ένα βίντεο YouTube, το Facebook Post ή το Twitter.',
 		'Bold': 'Έντονα',
 		'Italic': 'Πλάγια',
 		'Underline': 'Υπογραμμισμένα',

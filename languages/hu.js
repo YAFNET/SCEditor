@@ -7,6 +7,17 @@
 	'use strict';
 
 	sceditor.locale['hu'] = {
+		'Note': 'Jegyzet',
+		'Post Reply': 'Küldjön válasz',
+		'Characters remaining:': 'A fennmaradó karakterek:',
+		'User Attachments': 'Felhasználói mellékletek',
+		'Highlight': 'Kiemel',
+		'Insert a Vimeo video': 'Helyezzen be egy Vimeo videót',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Helyezzen be egy beágyazott médiát, mint egy YouTube -videó, Facebook bejegyzés vagy Twitter állapot.',
+		'Insert an Facebook Post': 'Helyezzen be egy Facebook -bejegyzést',
+		'Insert an Instagram Post': 'Helyezzen be egy Instagram -üzenetet',
+		'User Albums': 'Felhasználói albumok',
+		'More BBCode': 'További BBCode',
 		'Bold': 'Félkövér',
 		'Italic': 'Dőlt',
 		'Underline': 'Aláhúzva',

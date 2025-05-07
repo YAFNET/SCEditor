@@ -9,7 +9,7 @@ export default [
 				sceditor: false,
 			},
 
-			ecmaVersion: 6,
+			ecmaVersion: 2018,
 			sourceType: 'module'
 		},
 

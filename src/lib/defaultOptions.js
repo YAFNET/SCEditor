@@ -413,5 +413,12 @@ export default {
 	*/
 	albumsPreviewUrl: '',
 
-	onToggleMode: undefined
+	onToggleMode: undefined,
+
+	/**
+	* Default path for the script files
+	*
+	* @type {string}
+	*/
+	basePath: ''
 };

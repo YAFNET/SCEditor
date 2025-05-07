@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['ar'] = {
+		'Note': 'ملحوظة',
+		'Highlight': 'تسليط الضوء',
+		'User Albums': 'ألبومات المستخدم',
+		'Insert an Instagram Post': 'أدخل منشور Instagram',
+		'User Attachments': 'مرفقات المستخدم',
+		'More BBCode': 'المزيد من البوكرات الأميركية',
+		'Characters remaining:': 'الأحرف المتبقية:',
+		'Post Reply': 'بعد الرد',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'أدخل وسائط مدمجة مثل فيديو YouTube أو منشور Facebook أو حالة Twitter.',
+		'Insert an Facebook Post': 'أدخل منشور على Facebook',
+		'Insert a Vimeo video': 'أدخل فيديو Vimeo',
 		'Bold': 'عريض',
 		'Italic': 'مائل',
 		'Underline': 'خط من الأسفل',

@@ -2,6 +2,18 @@
 	'use strict';
 
 	sceditor.locale['sv-SE'] = {
+		'Note': 'Notera',
+		'Highlight': 'Markera',
+		'Characters remaining:': 'Karaktärer kvar:',
+		'Insert an Facebook Post': 'Sätt in ett Facebook -inlägg',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Sätt in ett inbäddat media som en YouTube -video, Facebook -inlägg eller Twitter -status.',
+		'More BBCode': 'Mer BBCode',
+		'Insert a Quote': 'Sätt in en offert',
+		'User Attachments': 'Användarbilagor',
+		'Post Reply': 'Postsvar',
+		'Insert a Vimeo video': 'Sätt in en Vimeo -video',
+		'User Albums': 'Användaralbum',
+		'Insert an Instagram Post': 'Sätt in ett Instagram -inlägg',
 		'Bold': 'Fet',
 		'Italic': 'Kursiv',
 		'Underline': 'Understruken',

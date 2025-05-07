@@ -6,7 +6,16 @@
 	'use strict';
 
 	sceditor.locale['fi'] = {
-
+		'Note': 'Huomautus',
+		'Characters remaining:': 'Jäljellä olevat merkit:',
+		'Insert a Vimeo video': 'Aseta Vimeo -video',
+		'More BBCode': 'Lisää BBCODE',
+		'User Attachments': 'Käyttäjäliitteet',
+		'Insert an Instagram Post': 'Aseta Instagram -viesti',
+		'Post Reply': 'Viesti vastaus',
+		'Insert an Facebook Post': 'Aseta Facebook -viesti',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Aseta upotusväline, kuten YouTube -video, Facebook -viesti tai Twitter -tila.',
+		'User Albums': 'Käyttäjäalbumit',
 		'Bold': 'Lihavoitu',
 		'Italic': 'Kursivoitu',
 		'Underline': 'Alleviivattu',

@@ -6,6 +6,16 @@
 	'use strict';
 
 	sceditor.locale['pt-BR'] = {
+		'Note': 'Observação',
+		'Insert a Vimeo video': 'Insira um vídeo do Vimeo',
+		'More BBCode': 'Mais bbcode',
+		'Insert an Instagram Post': 'Insira uma postagem no Instagram',
+		'Insert an Facebook Post': 'Insira uma postagem no Facebook',
+		'User Attachments': 'Anexos do usuário',
+		'User Albums': 'Álbuns de usuários',
+		'Post Reply': 'Postar resposta',
+		'Characters remaining:': 'Personagens restantes:',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Insira uma mídia incorporada como um vídeo do YouTube, postagem no Facebook ou status do Twitter.',
 		'Bold': 'Negrito',
 		'Italic': 'Itálico',
 		'Underline': 'Sublinhado',

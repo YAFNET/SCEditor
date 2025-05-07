@@ -2,6 +2,17 @@
 	'use strict';
 
 	sceditor.locale['uk'] = {
+		'Highlight': 'Висвітлювати',
+		'Note': 'Примітка',
+		'Characters remaining:': 'Персонажі, що залишилися:',
+		'More BBCode': 'Більше BBCode',
+		'User Attachments': 'Вкладення користувача',
+		'Insert an Facebook Post': 'Вставте повідомлення у Facebook',
+		'User Albums': 'Альбоми користувача',
+		'Post Reply': 'Опублікувати відповідь',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Вставте засоби масової інформації вбудовуватися на кшталт відео на YouTube, Facebook або статус Twitter.',
+		'Insert an Instagram Post': 'Вставте повідомлення в Instagram',
+		'Insert a Vimeo video': 'Вставте відео Vimeo',
 		'Bold': 'Жирний',
 		'Italic': 'Курсив',
 		'Underline': 'Підкреслений',

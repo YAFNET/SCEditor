@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['lt'] = {
+		'Note': 'PASTABA',
+		'Post Reply': 'Paskelbkite atsakymą',
+		'Characters remaining:': 'Liko personažai:',
+		'User Attachments': 'Vartotojo priedai',
+		'Insert an Instagram Post': 'Įdėkite „Instagram“ įrašą',
+		'Insert a Vimeo video': 'Įdėkite „Vimeo“ vaizdo įrašą',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Įdėkite įterpimo laikmenas, pavyzdžiui, „YouTube“ vaizdo įrašą, „Facebook“ įrašą ar „Twitter“ būseną.',
+		'User Albums': 'Vartotojo albumai',
+		'More BBCode': 'Daugiau bbcode',
+		'Insert an Facebook Post': 'Įterpkite „Facebook“ įrašą',
+		'Highlight': 'Pabrėžti',
 		'Bold': 'Paryškintas',
 		'Italic': 'Pasvirasis',
 		'Underline': 'Pabraukti',

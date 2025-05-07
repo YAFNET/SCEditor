@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['gl'] = {
+		'User Albums': 'Álbums de usuario',
+		'Insert an Instagram Post': 'Inserir unha publicación de Instagram',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Inserir un soporte de inserción como un vídeo de YouTube, publicación de Facebook ou estado de Twitter.',
+		'Note': 'Nota',
+		'Post Reply': 'Publicar resposta',
+		'Highlight': 'Resaltar',
+		'Insert a Vimeo video': 'Inserir un vídeo de Vimeo',
+		'User Attachments': 'Adxuntos de usuario',
+		'Insert an Facebook Post': 'Inserir unha publicación de Facebook',
+		'More BBCode': 'Máis código BB',
+		'Characters remaining:': 'Personaxes que quedan:',
 		'Bold': 'Negrita',
 		'Italic': 'Cursiva',
 		'Underline': 'Subrayar',

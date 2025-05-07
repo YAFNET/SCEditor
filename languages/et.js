@@ -2,6 +2,17 @@
 	'use strict';
 
 	sceditor.locale['et'] = {
+		'Note': 'Märk',
+		'Characters remaining:': 'Tegelased jäävad:',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Sisestage manustatud meedia nagu YouTube i video, Facebooki postitus või Twitteri olek.',
+		'More BBCode': 'Veel BBCODE',
+		'Insert a Vimeo video': 'Sisestage Vimeo video',
+		'User Attachments': 'Kasutaja manused',
+		'Insert an Facebook Post': 'Sisestage Facebooki postitus',
+		'Post Reply': 'Postitama vastus',
+		'User Albums': 'Kasutajaalbumid',
+		'Highlight': 'Esiletõstmine',
+		'Insert an Instagram Post': 'Sisestage Instagrami postitus',
 		'Bold': 'Rasvane',
 		'Italic': 'Kaldkiri',
 		'Underline': 'Allajoonitud',

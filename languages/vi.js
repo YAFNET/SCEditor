@@ -6,6 +6,16 @@
 	'use strict';
 
 	sceditor.locale['vi'] = {
+		'Note': 'Ghi chú',
+		'More BBCode': 'Thêm BBCode',
+		'Insert an Instagram Post': 'Chèn một bài đăng trên Instagram',
+		'Insert a Vimeo video': 'Chèn video Vimeo',
+		'User Albums': 'Album người dùng',
+		'Insert an Facebook Post': 'Chèn một bài đăng trên Facebook',
+		'Post Reply': 'Đăng trả lời',
+		'Characters remaining:': 'Các ký tự còn lại:',
+		'User Attachments': 'Tệp đính kèm của người dùng',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Chèn một phương tiện nhúng như video YouTube, bài đăng trên Facebook hoặc trạng thái Twitter.',
 		'Bold': 'Đậm',
 		'Italic': 'Nghiêng',
 		'Underline': 'Gạch chân',

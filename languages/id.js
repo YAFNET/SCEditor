@@ -6,6 +6,16 @@
 	'use strict';
 
 	sceditor.locale['id'] = {
+		'Note': 'Catatan',
+		'More BBCode': 'Lebih banyak bbcode',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Masukkan media sematan seperti video YouTube, posting Facebook atau status Twitter.',
+		'Insert a Vimeo video': 'Masukkan video vimeo',
+		'Insert an Facebook Post': 'Masukkan posting Facebook',
+		'User Albums': 'Album Pengguna',
+		'Insert an Instagram Post': 'Masukkan posting Instagram',
+		'User Attachments': 'Lampiran pengguna',
+		'Characters remaining:': 'Karakter yang tersisa:',
+		'Post Reply': 'Balas posting',
 		'Bold': 'Tebal',
 		'Italic': 'Miring',
 		'Underline': 'Garis Bawah',

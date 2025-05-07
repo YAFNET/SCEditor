@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['ca'] = {
+		'Note': 'Nota',
+		'Insert a Vimeo video': 'Inseriu un vídeo de Vimeo',
+		'Insert an Facebook Post': 'Inseriu una publicació de Facebook',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Inseriu un suport incrustat com un vídeo de YouTube, una publicació de Facebook o un estat de Twitter.',
+		'More BBCode': 'Més codi BB',
+		'Characters remaining:': 'Personatges restants:',
+		'User Attachments': 'Adjunts dels usuaris',
+		'Highlight': 'Destacat',
+		'Insert an Instagram Post': 'Inseriu una publicació a Instagram',
+		'User Albums': 'Àlbums dusuari',
+		'Post Reply': 'Publica resposta',
 		'Bold': 'Negrita',
 		'Italic': 'Cursiva',
 		'Underline': 'Subratlla',

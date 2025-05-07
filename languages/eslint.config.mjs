@@ -1,7 +1,7 @@
 export default [{
     languageOptions: {
         ecmaVersion: 5,
-        sourceType: 'script',
+        sourceType: 'script'
     },
 
     rules: {
@@ -10,7 +10,7 @@ export default [{
         "max-len": ['error', {
             code: 400,
             ignoreUrls: true,
-            ignoreRegExpLiterals: true,
-        }],
-    },
+            ignoreRegExpLiterals: true
+        }]
+    }
 }];

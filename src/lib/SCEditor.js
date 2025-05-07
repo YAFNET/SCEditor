@@ -299,7 +299,7 @@ export default function SCEditor(original, userOptions) {
 	 * Private functions
 	 * @private
 	 */
-	var	init,
+	var init,
 		handleCommand,
 		initEditor,
 		initLocale,
@@ -318,6 +318,7 @@ export default function SCEditor(original, userOptions) {
 		handleComposition,
 		handleEvent,
 		handleDocumentClick,
+		loadScripts,
 		updateToolBar,
 		updateActiveButtons,
 		sourceEditorSelectedText,
@@ -418,6 +419,38 @@ export default function SCEditor(original, userOptions) {
 	};
 
 	/**
+	* Loads a JavaScript file and returns a Promise for when it is loaded
+	*/
+	const loadScript = src => {
+		return new Promise((resolve, reject) => {
+			const script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.onload = resolve;
+			script.onerror = reject;
+			script.src = src;
+			document.head.append(script);
+		});
+	};
+
+	/**
+	 * Loads all scripts
+	 * @private
+	 */
+	loadScripts = function () {
+		if (options.locale && options.locale !== 'en') {
+			const promises = [];
+			promises.push(
+				loadScript(`../${options.basePath}languages/${options.locale}.js`));
+
+			Promise.all(promises).then(() => {
+				init();
+			}).catch(() => console.error('Something went wrong.'));
+		} else {
+			init();
+		}
+	};
+
+	/**
 	 * Creates the editor iframe and textarea
 	 * @private
 	 */
@@ -501,7 +534,7 @@ export default function SCEditor(original, userOptions) {
 		locale = SCEditor.locale[options.locale];
 
 		if (!locale) {
-			lang   = options.locale.split('-');
+			lang = options.locale.split('-');
 			locale = SCEditor.locale[lang[0]];
 		}
 
@@ -2571,6 +2604,13 @@ export default function SCEditor(original, userOptions) {
 
 		if (locale && locale[args[0]]) {
 			args[0] = locale[args[0]];
+		} else {
+			/*(async () => {
+				//var translatedText = await translateText(args[0], 'zh-tw');
+				//console.log(`'${args[0]}': '${translatedText}',`);
+			})();*/
+
+			console.info(`translation for '${args[0]}' is missing`);
 		}
 
 		return args[0].replace(/\{(\d+)\}/g, function (str, p1) {
@@ -2579,6 +2619,30 @@ export default function SCEditor(original, userOptions) {
 				`{${p1}}`;
 		});
 	};
+
+	/*async function translateText(text, targetLang) {
+		try {
+			const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+
+			const res = await fetch(url);
+			if (!res.ok) {
+				throw new Error(`HTTP error! Status: ${res.status}`);
+			}
+
+			const data = await res.json();
+
+			// Extract translated text
+			if (Array.isArray(data) && data[0] && Array.isArray(data[0][0])) {
+				return data[0].map(sentence => sentence[0]).join(' ');
+			} else {
+				throw new Error('Unexpected response format');
+			}
+		} catch (error) {
+			console.error('Translation failed:', error.message);
+			return 'Error during translation.';
+		}
+	}*/
+
 
 	/**
 	 * Passes events on to any handlers
@@ -3399,7 +3463,7 @@ export default function SCEditor(original, userOptions) {
 	};
 
 	// run the initializer
-	init();
+	loadScripts();
 };
 
 

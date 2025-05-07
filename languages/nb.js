@@ -6,6 +6,17 @@
 	'use strict';
 
 	sceditor.locale['nb-NO'] = {
+		'Note': 'Note',
+		'User Attachments': 'Brukervedlegg',
+		'Highlight': 'Høydepunkt',
+		'Post Reply': 'Legg ut svar',
+		'Characters remaining:': 'Tegn igjen:',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Sett inn et innebygd media som en YouTube -video, Facebook -innlegg eller Twitter -status.',
+		'Insert an Instagram Post': 'Sett inn et Instagram -innlegg',
+		'User Albums': 'Brukeralbum',
+		'More BBCode': 'Mer bbcode',
+		'Insert an Facebook Post': 'Sett inn et Facebook -innlegg',
+		'Insert a Vimeo video': 'Sett inn en Vimeo -video',
 		'Bold': 'Fet',
 		'Italic': 'Kursiv',
 		'Underline': 'Understrek',

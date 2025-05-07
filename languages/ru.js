@@ -2,6 +2,16 @@
 	'use strict';
 
 	sceditor.locale['ru'] = {
+		'Note': 'Примечание',
+		'Post Reply': 'Поместите ответ',
+		'Insert a Vimeo video': 'Вставьте видео Vimeo',
+		'Insert an Facebook Post': 'Вставьте сообщение на Facebook',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Вставьте встроенные медиа, такие как видео на YouTube, пост Facebook или статус Twitter.',
+		'Insert an Instagram Post': 'Вставьте сообщение в Instagram',
+		'More BBCode': 'Больше BBCODE',
+		'User Albums': 'Пользовательские альбомы',
+		'User Attachments': 'Пользовательские вложения',
+		'Characters remaining:': 'Оставшиеся персонажи:',
 		'Bold': 'Жирный',
 		'Italic': 'Курсив',
 		'Underline': 'Подчёркнутый',

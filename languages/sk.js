@@ -5,6 +5,18 @@
 (function () {
 	'use strict';
 	sceditor.locale['sk'] = {
+		'Note': 'Poznámka',
+		'Copy': 'Kopírovať',
+		'User Attachments': 'Prílohy používateľa',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'Vložte médiá vloženia, ako je video YouTube, príspevok na Facebooku alebo stav Twitteru.',
+		'Highlight': 'Zvýraznenie',
+		'Post Reply': 'Odpoveď',
+		'Insert an Instagram Post': 'Vložte príspevok na Instagrame',
+		'More BBCode': 'Viac BBCode',
+		'Insert an Facebook Post': 'Vložte príspevok na Facebooku',
+		'Characters remaining:': 'Zostávajúce znaky:',
+		'Insert a Vimeo video': 'Vložte video Vimeo',
+		'User Albums': 'Používateľské albumy',
 		'Bold': 'Tučné',
 		'Italic': 'Kurzíva',
 		'Underline': 'Podčiarknuté',
@@ -19,7 +31,6 @@
 		'Remove Formatting': 'Odstrániť formátovanie',
 		'Cut': 'Vystrihnúť',
 		'Your browser does not allow the cut command. Please use the keyboard shortcut Ctrl/Cmd-X': 'Váš prehliadač nepodporuje príkaz pre vystrihnutie. Prosím, použite klávesovú skratku Ctrl/Cmd-X',
-		'Copy': '',
 		'Your browser does not allow the copy command. Please use the keyboard shortcut Ctrl/Cmd-C': 'Váš prehliadač nepodporuje príkaz pre skopírovanie. Prosím, použite klávesovú skratku Ctrl/Cmd-C',
 		'Paste': '',
 		'Your browser does not allow the paste command. Please use the keyboard shortcut Ctrl/Cmd-V': 'Váš prehliadač nepodporuje príkaz pre vloženie. Prosím, použite klávesovú skratku Ctrl/Cmd-V',

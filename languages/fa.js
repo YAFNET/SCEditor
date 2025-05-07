@@ -5,6 +5,17 @@
 	'use strict';
 
 	sceditor.locale['fa'] = {
+		'Highlight': 'برجسته کردن',
+		'Note': 'یادداشت',
+		'Post Reply': 'پاسخ پست',
+		'Insert a Vimeo video': 'یک ویدیوی Vimeo را وارد کنید',
+		'Insert an Facebook Post': 'یک پست فیس بوک را وارد کنید',
+		'More BBCode': 'بیشتر BBCODE',
+		'Insert an embed media like a YouTube video, facebook post or twitter status.': 'یک رسانه جاسازی شده مانند یک فیلم YouTube ، Post Facebook یا وضعیت توییتر را وارد کنید.',
+		'Insert an Instagram Post': 'پست اینستاگرام را وارد کنید',
+		'User Albums': 'آلبوم های کاربر',
+		'User Attachments': 'پیوست های کاربر',
+		'Characters remaining:': 'شخصیت های باقی مانده:',
 		'Bold': 'تیره',
 		'Italic': 'مورب',
 		'Underline': 'زیرخط',
