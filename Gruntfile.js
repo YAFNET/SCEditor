@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = (grunt) => {
-	require('time-grunt')(grunt);
+	require('@lodder/time-grunt')(grunt);
 
 	grunt.event.on('qunit.coverage',
 		function(data) {
