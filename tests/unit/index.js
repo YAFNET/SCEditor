@@ -1,3 +1,4 @@
+
 import 'src/jquery.sceditor.js';
 import 'tests/unit/closeAssert.js';
 import 'tests/unit/htmlAssert.js';
@@ -11,4 +12,3 @@ import 'tests/unit/formats/bbcode.js';
 import 'tests/unit/formats/bbcode.parser.js';
 import 'tests/unit/formats/bbcode/matching.js';
 import 'tests/unit/formats/bbcode/nesting.js';
-import 'tests/unit/jquery.sceditor.js';

@@ -36,8 +36,7 @@
     "node": ">= 0.10.0"
   },
   "browserslist": [
-    "last 4 versions",
-    "ie 10"
+    "last 4 versions"
   ],
   "scripts": {
     "test": "grunt test",
@@ -54,7 +53,6 @@
     "cssnano": "^7.0.7",
     "grunt": "~1.6.1",
     "grunt-contrib-clean": "^2.0.1",
-    "grunt-contrib-compress": "^2.0.0",
     "grunt-contrib-concat": "~2.1.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-qunit": "^10.1.1",

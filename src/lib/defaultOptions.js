@@ -65,10 +65,10 @@ export default {
 	format: 'bbcode',
 
 	/**
- * Default icon set
- *
- * @type {string}
- */
+	 * Default icon set
+     *
+     * @type {string}
+    */
 	icons: 'fontawesome',
 
 	/**
@@ -412,6 +412,13 @@ export default {
 	 * @type {string}
 	*/
 	albumsPreviewUrl: '',
+
+	/**
+	 * mentions url
+	 *
+	 * @type {string}
+	*/
+	mentionsUrl: '',
 
 	onToggleMode: undefined,
 

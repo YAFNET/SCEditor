@@ -97,71 +97,21 @@ module.exports = (grunt) => {
 
 		// Removes all the old files from the distributable directory
 		clean: {
-			build: ['minified/', 'coverage/'],
-			dist: ['dist/']
+			build: ['dist/', 'coverage/']
 		},
 
 		// Copy files into the distributable directory ready to be compressed
 		// into the ZIP archive
 		copy: {
-			dist: {
-				files: [
-					{
-						expand: true,
-						src: ['minified/**', 'languages/**'],
-						dest: 'dist/'
-					},
-					{
-						expand: true,
-						cwd: 'src/',
-						src: ['plugins/**.js', 'formats/**.js', 'icons/**.js'],
-						dest: 'dist/development/'
-					},
-					{
-						expand: true,
-						cwd: 'src/themes/icons/',
-						src: '*.png',
-						dest: 'dist/development/themes/'
-					},
-					{
-						expand: true,
-						cwd: 'src/themes/',
-						src: 'content/**',
-						dest: 'dist/development/themes/'
-					},
-					{
-						expand: true,
-						src: 'README.md',
-						dest: 'dist/'
-					},
-					{
-						expand: true,
-						src: 'MIT.txt',
-						dest: 'dist/'
-					},
-					{
-						expand: true,
-						cwd: 'distributable/data/',
-						src: 'example.html',
-						dest: 'dist/'
-					}
-				]
-			},
 			build: {
 				options: {
 				},
 				files: [
 					{
 						expand: true,
-						cwd: 'src/themes/icons/',
-						src: '*.png',
-						dest: 'minified/themes/'
-					},
-					{
-						expand: true,
-						cwd: 'src/themes/',
+						cwd: 'src/',
 						src: 'content/**',
-						dest: 'minified/themes/',
+						dest: 'dist/',
 						rename: function(dest, src) {
 							return dest + src.replace('.css', '.min.css');
 						}
@@ -172,10 +122,6 @@ module.exports = (grunt) => {
 		rollup: {
 			options: {
 				format: 'iife',
-				external: ['jquery'],
-				globals: {
-					jquery: 'jQuery'
-				},
 				plugins: function() {
 					return [
 						nodeResolve({
@@ -186,14 +132,7 @@ module.exports = (grunt) => {
 			},
 			build: {
 				files: {
-					'./minified/sceditor.min.js': [
-						'./src/sceditor.js'
-					]
-				}
-			},
-			dist: {
-				files: {
-					'./dist/development/sceditor.js': [
+					'./dist/sceditor.min.js': [
 						'./src/sceditor.js'
 					]
 				}
@@ -208,25 +147,26 @@ module.exports = (grunt) => {
 					compress: true,
 					mangle: true,
 					banner: '/* SCEditor v<%= pkg.version %> | ' +
-						'(C) 2017-<%= grunt.template.today(\'yyyy\') %>, Sam Clarke | sceditor.com/license */\n'
+						'(C) 2017-<%= new Date().getFullYear() %>, Sam Clarke | sceditor.com/license */\n'
 				},
 				files: [
 					{
-						src: 'minified/sceditor.min.js',
-						dest: 'minified/sceditor.min.js'
-					},
-					{
-						expand: true,
-						filter: 'isFile',
-						cwd: 'src/',
-						src: ['plugins/**.js', 'formats/**.js', 'icons/**.js'],
-						dest: 'minified/'
+						src: [
+							'dist/sceditor.min.js',
+							'src/formats/bbcode.js',
+							'src/icons/fontawesome.js',
+							'src/plugins/dragdrop.js',
+							'src/plugins/undo.js',
+							'src/plugins/plaintext.js',
+							'src/plugins/mentions.js'
+						],
+						dest: 'dist/sceditor.min.js'
 					},
 					{
 						expand: true,
 						filter: 'isFile',
 						src: 'languages/**.js',
-						dest: 'minified/'
+						dest: 'dist/'
 					}
 				]
 			}
@@ -239,7 +179,7 @@ module.exports = (grunt) => {
 			},
 			build: {
 				files: {
-					'minified/themes/sceditor.min.css': 'src/themes/sceditor.scss'
+					'dist/sceditor.min.css': 'src/sceditor.scss'
 				}
 			}
 		},
@@ -257,25 +197,9 @@ module.exports = (grunt) => {
 					{
 						expand: true,
 						filter: 'isFile',
-						cwd: 'minified/',
-						src: ['themes/**/*.css'],
-						dest: 'minified/'
-					}
-				]
-			}
-		},
-
-		// Creates the distributable ZIP file
-		compress: {
-			dist: {
-				options: {
-					archive: 'distributable/sceditor-<%= pkg.version %>.zip'
-				},
-				files: [
-					{
-						expand: true,
 						cwd: 'dist/',
-						src: ['**']
+						src: ['**/*.css'],
+						dest: 'dist/'
 					}
 				]
 			}
@@ -295,7 +219,6 @@ module.exports = (grunt) => {
 	grunt.loadNpmTasks('@lodder/grunt-postcss');
 	grunt.loadNpmTasks('@w8tcha/grunt-dev-update');
 	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-compress');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -318,24 +241,5 @@ module.exports = (grunt) => {
 			'rollup:build',
 			'uglify:build',
 			'postcss:build'
-		]);
-
-	// Creates a directory containing the contents of
-	// the release ZIP but without compressing it
-	grunt.registerTask('dist',
-		[
-			'test',
-			'build',
-			'clean:dist',
-			'rollup:dist',
-			'copy:dist'
-		]);
-
-	// Creates the simplified distributable ZIP
-	grunt.registerTask('release',
-		[
-			'dist',
-			'compress:dist',
-			'clean:dist'
 		]);
 };
