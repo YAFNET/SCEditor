@@ -7,7 +7,7 @@ var USER_AGENT = navigator.userAgent;
  *
  * @function
  * @name ios
- * @memberOf jQuery.sceditor
+ * @memberOf sceditor
  * @type {boolean}
  */
 export var ios = /iPhone|iPod|iPad| wosbrowser\//i.test(USER_AGENT);

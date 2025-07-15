@@ -1,5 +1,5 @@
 /**
- * SCEditor Plain Text Plugin
+ * SCEditor Mentions Plugin
  * http://www.sceditor.com/
  *
  * Copyright (C) 2011-2025, Sam Clarke (samclarke.com)
@@ -125,6 +125,13 @@
 				// query
 				var query = word.slice(1);
 
+				var token = '';
+				var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+
+				if (tokenInput != null) {
+					token = tokenInput.value;
+				}
+
 				if (query.length >= 3) {
 					fetch(opts.url.replace('{q}', query),
 							{
@@ -132,9 +139,7 @@
 								headers: {
 									"Accept": 'application/json',
 									"Content-Type": 'application/json;charset=utf-8',
-									"RequestVerificationToken": document
-										.querySelector('input[name="__RequestVerificationToken"]')
-										.value
+									"RequestVerificationToken": token
 								}
 							})
 						.then(response => response.json())

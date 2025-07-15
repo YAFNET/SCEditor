@@ -2605,12 +2605,14 @@ export default function SCEditor(original, userOptions) {
 		if (locale && locale[args[0]]) {
 			args[0] = locale[args[0]];
 		} else {
-			/*(async () => {
+			if (options.locale !== 'en') {
+				/*(async () => {
 				//var translatedText = await translateText(args[0], 'zh-tw');
 				//console.log(`'${args[0]}': '${translatedText}',`);
-			})();*/
+			    })();*/
 
-			console.info(`translation for '${args[0]}' is missing`);
+				console.info(`translation for '${args[0]}' is missing for locale '${options.locale}'`);
+			}
 		}
 
 		return args[0].replace(/\{(\d+)\}/g, function (str, p1) {

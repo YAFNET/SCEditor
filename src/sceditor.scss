@@ -1,4 +1,3 @@
-/*! SCEditor | (C) 2011-2025, Sam Clarke | sceditor.com/license */
 /**
  * Default SCEditor
  * http://www.sceditor.com/
@@ -21,7 +20,6 @@ div.sceditor-dropdown div {
 .sceditor-container iframe,
 .sceditor-container textarea:not(.textarea-input) {
     display: block;
-    -ms-flex: 1 1 0%;
     flex: 1 1 0%;
     line-height: 1.25;
     border: 0;

@@ -7,6 +7,7 @@ const sass = require('sass');
 const nodeResolve = require('@rollup/plugin-node-resolve').default;
 const fs = require('fs');
 const path = require('path');
+const { sourceMapsEnabled } = require('process');
 
 module.exports = (grunt) => {
 	require('@lodder/time-grunt')(grunt);
@@ -147,7 +148,10 @@ module.exports = (grunt) => {
 					compress: true,
 					mangle: true,
 					banner: '/* SCEditor v<%= pkg.version %> | ' +
-						'(C) 2017-<%= new Date().getFullYear() %>, Sam Clarke | sceditor.com/license */\n'
+						'(C) 2017-<%= new Date().getFullYear() %>, Sam Clarke | sceditor.com/license */\n',
+						sourceMap: {
+          includeSources: true
+        },
 				},
 				files: [
 					{
