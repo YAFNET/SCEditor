@@ -12,10 +12,7 @@
     }
   ],
   "files": [
-    "emoticons/",
-    "languages/",
-    "development/",
-    "minified/",
+    "dist/",
     "src/",
     "CHANGELOG.txt",
     "LICENSE.md",
