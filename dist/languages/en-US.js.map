@@ -1,0 +1,1 @@
+{"version":3,"file":"en-US.js","sources":["../../languages/en-US.js"],"sourcesContent":["(function () {\n\t'use strict';\n\n\tsceditor.locale['en-US'] = {\n\t\tdateFormat: 'month/day/year'\n\t};\n})();\n"],"names":["sceditor","locale","dateFormat"],"mappings":";AAGCA,SAASC,OAAO,SAAW,CAC1BC,WAAY,gBACb"}
