@@ -588,6 +588,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		dom.attr(sourceEditor, 'title', 'source');
+		dom.attr(sourceEditor, 'name', 'source');
 
 		// Add the editor to the container
 		dom.appendChild(editorContainer, wysiwygEditor);

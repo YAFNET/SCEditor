@@ -99,3 +99,7 @@ div.sceditor-grip {
 .sceditor-button-reply {
      display:none!important
 }
+
+.sourceMode textarea:not(.textarea-input) {
+        background-color: var(--bs-tertiary-bg);
+}
