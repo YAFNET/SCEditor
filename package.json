@@ -33,12 +33,11 @@
     "node": ">= 0.10.0"
   },
   "browserslist": [
-    "last 4 versions"
+    "last 2 versions"
   ],
   "scripts": {
     "test": "grunt test",
     "build": "grunt build",
-    "release": "grunt release",
     "dev": "node ./tests/dev-server.js"
   },
   "devDependencies": {
