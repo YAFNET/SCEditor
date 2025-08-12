@@ -1,4 +1,4 @@
-name: Node.js CI
+name: build & test
 on:
   push:
     branches:
@@ -19,8 +19,6 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 21.x
-        cache: 'npm'
     - run: npm install
-    - run: npm -v
-    - run: npm ci
-    - run: npm t
+    - run: grunt build
+    - run: grunt test
