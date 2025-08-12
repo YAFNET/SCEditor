@@ -11,3 +11,4 @@ package-lock.json
 /.vs
 npm-publish.bat
 Folder.DotSettings.user
+package-lock.json
