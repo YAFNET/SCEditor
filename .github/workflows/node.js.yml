@@ -20,6 +20,7 @@ jobs:
       with:
         node-version: 21.x
         cache: 'npm'
+    - run: npm install
     - run: npm -v
     - run: npm ci
     - run: npm t
