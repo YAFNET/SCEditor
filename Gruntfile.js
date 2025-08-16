@@ -12,6 +12,10 @@ const { sourceMapsEnabled } = require('process');
 module.exports = (grunt) => {
 	require('@lodder/time-grunt')(grunt);
 
+	const pkg = grunt.file.readJSON('package.json');
+
+	const banner = `/* SCEditor v${pkg.version} | (C) 2017-${ new Date().getFullYear() }, Sam Clarke | sceditor.com/license */\n`;
+
 	grunt.event.on('qunit.coverage',
 		function(data) {
 			const outputDir = __dirname + '/coverage';
@@ -40,8 +44,6 @@ module.exports = (grunt) => {
 		});
 
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
-
 		// Runs the unit tests
 		qunit: {
 			all: {
@@ -147,11 +149,10 @@ module.exports = (grunt) => {
 					warnings: true,
 					compress: true,
 					mangle: true,
-					banner: '/* SCEditor v<%= pkg.version %> | ' +
-						'(C) 2017-<%= new Date().getFullYear() %>, Sam Clarke | sceditor.com/license */\n',
-						sourceMap: {
-          includeSources: true
-        },
+					banner: banner,
+					sourceMap: {
+						includeSources: true
+					}
 				},
 				files: [
 					{
@@ -194,7 +195,10 @@ module.exports = (grunt) => {
 				options: {
 					processors: [
 						require('autoprefixer')(),
-						require('cssnano')()
+						require('cssnano')(),
+						require('postcss-header')({
+							header: banner
+						})
 					]
 				},
 				files: [
