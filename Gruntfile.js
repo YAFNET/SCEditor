@@ -39,7 +39,7 @@ module.exports = (grunt) => {
 		'Dev server',
 		function() {
 			const done = this.async();
-
+ 
 			require('./tests/dev-server').create(9001, true).then(done, done);
 		});
 
