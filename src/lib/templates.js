@@ -65,7 +65,7 @@ var _templates = {
 
 	pastetext:
 		'<form class="m-3"><div class="mb-3"><label for="txt" class="form-label">{label}</label> ' +
-			'<textarea cols="20" rows="7" id="txt" class="form-control"></textarea></div>' +
+			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
 			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
 			'</div></form>',
 

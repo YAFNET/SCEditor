@@ -1648,7 +1648,7 @@ export default function SCEditor(original, userOptions) {
 		pluginManager.call('pasteHtml', paste);
 
 		const parent = rangeHelper.getFirstBlockParent();
-		base.wysiwygEditorInsertHtml(paste.val, null, true);
+		//base.wysiwygEditorInsertHtml(paste.val, null, true);
 		dom.merge(parent);
 	};
 
