@@ -1575,7 +1575,9 @@ export default function SCEditor(original, userOptions) {
 			}
 			// Call plugins here with file?
 			data.text = data['text/plain'];
-			data.html = sanitize(data['text/html']);
+			if (!options.enablePasteFiltering) {
+				data.html = sanitize(data['text/html']);
+			}
 
 			handlePasteData(data);
 		// If contentsFragment exists then we are already waiting for a
@@ -1605,6 +1607,8 @@ export default function SCEditor(original, userOptions) {
 				handlePasteData({ html: sanitize(html) });
 			}, 0);
 		}
+
+		e.preventDefault();
 	};
 
 	/**
@@ -1648,7 +1652,8 @@ export default function SCEditor(original, userOptions) {
 		pluginManager.call('pasteHtml', paste);
 
 		const parent = rangeHelper.getFirstBlockParent();
-		//base.wysiwygEditorInsertHtml(paste.val, null, true);
+		base.wysiwygEditorInsertHtml(paste.val, null, true);
+
 		dom.merge(parent);
 	};
 

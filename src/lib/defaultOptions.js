@@ -217,7 +217,7 @@ export default {
 	 *
 	 * @type {boolean}
 	 */
-	enablePasteFiltering: false,
+	enablePasteFiltering: true,
 
 	/**
 	 * If to completely disable pasting into the editor
