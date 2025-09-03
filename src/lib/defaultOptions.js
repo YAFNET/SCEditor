@@ -92,7 +92,8 @@ export default {
 		{ Value: 'python', Text: 'Python' },
 		{ Value: 'sql', Text: 'SQL' },
 		{ Value: 'markup', Text: 'XML' },
-		{ Value: 'vb', Text: 'Visual Basic' }
+		{ Value: 'vb', Text: 'Visual Basic' },
+		{ Value: 'stacktrace', Text: 'StackTrace' }
 	],
 
 	/**

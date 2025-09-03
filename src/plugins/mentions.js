@@ -156,7 +156,7 @@
 				if (!items.length)
 					return hideLookup();
 
-				$lookup.innerHTML = `<ul class="dropdown-menu show">${items.join('')}</ul>`;
+				$lookup.innerHTML = `<ul class="dropdown-menu dropdown-mentions show">${items.join('')}</ul>`;
 				[...$lookup.firstElementChild.children]
 					.forEach($el => $el.addEventListener('click', onClick) ||
 						$el.addEventListener('mouseenter', onHover));
