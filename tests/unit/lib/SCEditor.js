@@ -49,17 +49,9 @@ QUnit.module('lib/SCEditor', {
 
 		SCEditor.formats.test = testFormat;
 
-		defaultOptions.style = '../../src/themes/content/default.css';
-		defaultOptions.emoticonsRoot    = '../../';
-		defaultOptions.emoticonsEnabled = false;
-
 		reloadEditor();
 	},
 	after: function () {
-		defaultOptions.style = 'jquery.sceditor.default.css';
-		defaultOptions.emoticonsRoot    = '';
-		defaultOptions.emoticonsEnabled = true;
-
 		delete SCEditor.formats.test;
 
 		if (sceditor) {
