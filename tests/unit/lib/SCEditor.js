@@ -70,7 +70,7 @@ QUnit.module('lib/SCEditor', {
 	}
 });
 
-/*
+
 QUnit.test('autofocus', function (assert) {
 	reloadEditor({
 		autofocus: true,
@@ -115,7 +115,7 @@ QUnit.test('autofocusEnd', function (assert) {
 		'over the lazy dog.|<br /></p>';
 
 	assert.nodesEqual(body.firstChild, utils.htmlToNode(expected));
-});*/
+});
 
 
 QUnit.test('readOnly()', function (assert) {
