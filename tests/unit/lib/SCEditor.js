@@ -89,7 +89,7 @@ QUnit.test('autofocus', function (assert) {
 	range.insertNode(cursor);
 
 	assert.nodesEqual(body.firstChild, utils.htmlToNode(
-		'<p>|The quick brown fox jumps over the lazy dog.<br /></p>'
+		'<div>|&lt;p&gt;The quick brown fox jumps over the lazy dog.&lt;br /&gt;&lt;/p&gt;</div>'
 	));
 });
 
@@ -111,8 +111,7 @@ QUnit.test('autofocusEnd', function (assert) {
 
 	range.insertNode(cursor);
 
-	const expected = '<p>The quick brown fox jumps ' +
-		'over the lazy dog.|<br /></p>';
+	const expected = '<div>&lt;p&gt;The quick brown fox jumps over the lazy dog.&lt;br /&gt;&lt;/p&gt;|';
 
 	assert.nodesEqual(body.firstChild, utils.htmlToNode(expected));
 });
