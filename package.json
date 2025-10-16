@@ -43,7 +43,7 @@
   "devDependencies": {
     "@lodder/grunt-postcss": "^3.1.1",
     "@lodder/time-grunt": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^16.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@w8tcha/grunt-dev-update": "^2.3.4",
     "autoprefixer": "^10.4.21",
     "cssnano": "^7.1.1",
@@ -60,7 +60,6 @@
     "istanbul-lib-instrument": "^6.0.3",
     "istanbul-lib-report": "^3.0.1",
     "istanbul-reports": "^3.2.0",
-    "jquery": "^3.7.1",
     "loader-utils": "^3.3.1",
     "postcss": "^8.5.6",
     "postcss-header": "^3.0.3",
@@ -72,6 +71,6 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
-    "dompurify": "^3.2.7"
+    "dompurify": "^3.3.0"
   }
 }

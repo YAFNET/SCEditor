@@ -1072,8 +1072,8 @@ QUnit.test('extractContents()', function (assert) {
 		'<span>ignored</span>' +
 		'</div>'
 	);
-	const start = $(node).find('#start').get(0);
-	const end = $(node).find('#end').get(0);
+	const start = node.querySelector('#start');
+	const end = node.querySelector('#end');
 
 	assert.nodesEqual(
 		dom.extractContents(start, end),
@@ -1099,8 +1099,8 @@ QUnit.test('extractContents() - End inside start', function (assert) {
 		'<span>ignored</span>' +
 		'</div>'
 	);
-	const start = $(node).find('#start').get(0);
-	const end = $(node).find('#end').get(0);
+	const start = node.querySelector('#start');
+	const end = node.querySelector('#end');
 
 	assert.nodesEqual(
 		dom.extractContents(start, end),
@@ -1126,8 +1126,9 @@ QUnit.test('extractContents() - Start inside end', function (assert) {
 		'<span>ignored</span>' +
 		'</div>'
 	);
-	const start = $(node).find('#start').get(0);
-	const end = $(node).find('#end').get(0);
+
+	const start = node.querySelector('#start');
+	const end = node.querySelector('#end');
 
 	assert.htmlEqual(
 		utils.nodeToHtml(dom.extractContents(start, end)),

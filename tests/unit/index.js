@@ -1,5 +1,5 @@
 
-import 'src/jquery.sceditor.js';
+
 import 'tests/unit/closeAssert.js';
 import 'tests/unit/htmlAssert.js';
 import 'tests/unit/lib/PluginManager.js';

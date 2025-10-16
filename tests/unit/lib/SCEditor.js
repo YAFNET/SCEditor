@@ -7,7 +7,7 @@ import rangy from 'rangy';
 
 var $textarea;
 var sceditor;
-var $fixture = $('#qunit-module-fixture');
+var $fixture = document.getElementById('qunit-module-fixture');
 
 var testFormat = function () {
 	this.toHtml = function () {
@@ -26,19 +26,18 @@ var reloadEditor = function (config) {
 		sceditor.destroy();
 	}
 
-	const textarea = $('<textarea></textarea>')
-		.width(400)
-		.height(300)
-		.val('<p>The quick brown fox jumps over the lazy dog.<br /></p>')
-		.get(0);
+	const textarea = document.createElement('textarea');
 
-	$fixture
-		.empty()
-		.append(textarea);
+	textarea.style.width = '400px';
+	textarea.style.height = '300px';
+	textarea.value = '<p>The quick brown fox jumps over the lazy dog.<br /></p>';
 
-	sceditor  = new SCEditor(textarea, config || {});
+	$fixture.replaceChildren();
+	$fixture.append(textarea);
+
+	sceditor = new SCEditor(textarea, config || {});
 	sceditor.focus();
-	$textarea = $(textarea);
+	$textarea = textarea;
 };
 
 
@@ -89,7 +88,7 @@ QUnit.test('autofocus', function (assert) {
 	range.insertNode(cursor);
 
 	assert.nodesEqual(body.firstChild, utils.htmlToNode(
-		'<div>|&lt;p&gt;The quick brown fox jumps over the lazy dog.&lt;br /&gt;&lt;/p&gt;</div>'
+		'<p>|The quick brown fox jumps over the lazy dog.<br></p>'
 	));
 });
 
@@ -111,7 +110,7 @@ QUnit.test('autofocusEnd', function (assert) {
 
 	range.insertNode(cursor);
 
-	const expected = '<div>&lt;p&gt;The quick brown fox jumps over the lazy dog.&lt;br /&gt;&lt;/p&gt;|';
+	const expected = '<p>The quick brown fox jumps over the lazy dog.|<br></p>';
 
 	assert.nodesEqual(body.firstChild, utils.htmlToNode(expected));
 });
@@ -149,36 +148,36 @@ QUnit.test('rtl()', function (assert) {
 
 
 QUnit.test('width()', function (assert) {
-	const $container = $fixture.children('.sceditor-container');
+	const $container = $fixture.querySelector('.sceditor-container');
 
-	assert.close(sceditor.width(), $container.width(), 1);
+	assert.close(sceditor.width(), $container.getBoundingClientRect().width, 1);
 	assert.equal(sceditor.width('200'), sceditor);
 
-	assert.close(sceditor.width(), $container.width(), 1);
-	assert.close($container.width(), 200, 1);
+	assert.close(sceditor.width(), $container.getBoundingClientRect().width, 1);
+	assert.close($container.getBoundingClientRect().width, 200, 1);
 });
 
 
 QUnit.test('height()', function (assert) {
-	const $container = $fixture.children('.sceditor-container');
+	const $container = $fixture.querySelector('.sceditor-container');
 
-	assert.close(sceditor.height(), $container.height(), 1);
+	assert.close(sceditor.height(), $container.getBoundingClientRect().height, 1);
 	assert.equal(sceditor.height('200'), sceditor);
 
-	assert.close(sceditor.height(), $container.height(), 1);
-	assert.close($container.height(), 200, 1);
+	assert.close(sceditor.height(), $container.getBoundingClientRect().height, 1);
+	assert.close($container.getBoundingClientRect().height, 200, 1);
 });
 
 
 QUnit.test('maximize()', function (assert) {
-	const $container = $fixture.children('.sceditor-container');
+	const $container = $fixture.querySelector('.sceditor-container');
 
 	assert.strictEqual(sceditor.maximize(), false);
 	assert.equal(sceditor.maximize(true), sceditor);
 	assert.strictEqual(sceditor.maximize(), true);
 
-	assert.close($container.width(), $(window).width(), 1);
-	assert.close($container.height(), $(window).height(), 1);
+	assert.close($container.getBoundingClientRect().width, window.innerWidth, 1);
+	assert.close($container.getBoundingClientRect().height, window.innerHeight, 1);
 
 	assert.equal(sceditor.maximize(false), sceditor);
 	assert.strictEqual(sceditor.maximize(), false);
@@ -188,8 +187,10 @@ QUnit.test('maximize()', function (assert) {
 QUnit.test('destroy()', function (assert) {
 	sceditor.destroy();
 
-	assert.equal($fixture.children('.sceditor-container').length, 0);
-	assert.ok($textarea.is(':visible'));
+	var isVisible = !!($textarea.offsetWidth || $textarea.offsetHeight || $textarea.getClientRects().length);
+
+	assert.equal($fixture.querySelector('.sceditor-container'), null);
+	assert.ok(isVisible);
 
 	// Call again to make sure no exception is thrown
 	sceditor.destroy();
@@ -321,7 +322,7 @@ QUnit.test('wysiwygEditorInsertText() - Start and end', function (assert) {
 
 
 QUnit.test('wysiwygEditorInsertHtml()', function (assert) {
-	const sourceEditor = $('.sceditor-container textarea').get(0);
+	const sourceEditor = document.querySelector('.sceditor-container textarea');
 
 	sceditor.sourceMode(true);
 	sceditor.val('<p>The quick brown fox jumps ' +
@@ -356,7 +357,7 @@ QUnit.test('sourceEditorInsertText() - Start and end', function (assert) {
 	);
 });
 
-/*
+
 QUnit.test('getWysiwygEditorValue() - Filter', function (assert) {
 	sceditor.getRangeHelper().clear();
 
@@ -386,8 +387,8 @@ QUnit.test('getWysiwygEditorValue() - Filter', function (assert) {
 		sceditor.getWysiwygEditorValue(true),
 		'<p><b>test source</b></p>'
 	);
-});*/
-/*
+});
+
 QUnit.test('getSourceEditorValue()', function (assert) {
 	sceditor.getRangeHelper().clear();
 	sceditor.sourceMode(true);
@@ -403,7 +404,7 @@ QUnit.test('getSourceEditorValue()', function (assert) {
 		sceditor.getSourceEditorValue(false),
 		'<p>The quick brown fox jumps over the lazy dog.<br /></p>'
 	);
-});*/
+});
 
 QUnit.test('getSourceEditorValue() - Uses format', function (assert) {
 	reloadEditor({
@@ -423,9 +424,9 @@ QUnit.test('getSourceEditorValue() - Uses format', function (assert) {
 	);
 });
 
-/*
+
 QUnit.test('updateOriginal()', function (assert) {
-	const textarea = $('textarea').get(1);
+	const textarea = document.querySelectorAll('textarea')[1];
 	const body = sceditor.getBody();
 
 	body.innerHTML = '<div>text 1234...</div>';
@@ -435,7 +436,7 @@ QUnit.test('updateOriginal()', function (assert) {
 
 	assert.htmlEqual(textarea.value, '<div>text 1234...</div>');
 });
-
+/*
 QUnit.test('Insert image XSS', function (assert) {
 	var done = assert.async();
 
@@ -450,10 +451,10 @@ QUnit.test('Insert image XSS', function (assert) {
 	defaultCommands.image.exec.call(sceditor, button);
 
 	const dropdown = document.getElementsByClassName('sceditor-insertimage')[0];
-	const input = document.getElementById('image');
+	const input = document.getElementById('link');
 	const insertButton = dropdown.getElementsByClassName('button')[0];
 
-	input.value = '<img src="http://url.to.file.which/not.exist" onerror=body.xss();>';
+	input.outerHTML = '<img src="http://url.to.file.which/not.exist" onerror=body.xss();>';
 	insertButton.click();
 
 	sceditor.getBody().addEventListener('error', function () {

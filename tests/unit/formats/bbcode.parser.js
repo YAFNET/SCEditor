@@ -385,8 +385,8 @@ QUnit.test('Attributes QuoteType.never', function (assert) {
 		quoteType: null
 	});
 
-	this.parser = new $.sceditor.BBCodeParser({
-		quoteType: $.sceditor.BBCodeParser.QuoteType.never
+	this.parser = new sceditor.BBCodeParser({
+		quoteType: sceditor.BBCodeParser.QuoteType.never
 	});
 
 	assert.equal(
@@ -465,8 +465,8 @@ QUnit.test('Attributes QuoteType.always', function (assert) {
 		quoteType: null
 	});
 
-	this.parser = new $.sceditor.BBCodeParser({
-		quoteType: $.sceditor.BBCodeParser.QuoteType.always
+	this.parser = new sceditor.BBCodeParser({
+		quoteType: sceditor.BBCodeParser.QuoteType.always
 	});
 
 	assert.equal(
@@ -554,7 +554,7 @@ QUnit.test('Attributes QuoteType custom', function (assert) {
 		quoteType: null
 	});
 
-	this.parser = new $.sceditor.BBCodeParser({
+	this.parser = new sceditor.BBCodeParser({
 		quoteType: function (str) {
 			return '\'' +
 				str.replace(/\\/g, '\\\\').replace(/'/g, '\\\'') +

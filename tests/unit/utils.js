@@ -3,7 +3,7 @@ export function htmlToDiv(html) {
 
 	container.innerHTML = html;
 
-	$('#qunit-fixture').append(container);
+	document.getElementById('qunit-fixture').append(container);
 
 	return container;
 };

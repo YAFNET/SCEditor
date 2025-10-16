@@ -417,10 +417,10 @@ QUnit.test('saveRange() - Start is before end marker', function (assert) {
 
 	rangeHelper.saveRange();
 
-	const $markers = $(editableDiv).find('.sceditor-selection');
+	const $markers = editableDiv.querySelectorAll('.sceditor-selection');
 
-	assert.ok($($markers[0]).is('#sceditor-start-marker'));
-	assert.ok($($markers[1]).is('#sceditor-end-marker'));
+	assert.equal($markers[0].id, 'sceditor-start-marker');
+	assert.equal($markers[1].id, 'sceditor-end-marker');
 });
 
 QUnit.test('saveRange() - Start is before end in selection', function (assert) {
@@ -438,10 +438,10 @@ QUnit.test('saveRange() - Start is before end in selection', function (assert) {
 
 	rangeHelper.saveRange();
 
-	const $markers = $(editableDiv).find('.sceditor-selection');
+	const $markers = editableDiv.querySelectorAll('.sceditor-selection');
 
-	assert.ok($($markers[0]).is('#sceditor-start-marker'));
-	assert.ok($($markers[1]).is('#sceditor-end-marker'));
+	assert.equal($markers[0].id, 'sceditor-start-marker');
+	assert.equal($markers[1].id, 'sceditor-end-marker');
 });
 
 

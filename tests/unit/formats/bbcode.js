@@ -1,12 +1,11 @@
 import defaultOptions from 'src/lib/defaultOptions.js';
 import * as utils from 'tests/unit/utils.js';
-import 'src/formats/bbcode.js';
-
+import 'dist/sceditor.min.js';
 
 QUnit.module('formats/bbcode', {
 	beforeEach: function () {
 		this.mockEditor = {
-			opts: $.extend({}, defaultOptions)
+			opts: { ...defaultOptions }
 		};
 
 		this.format = new sceditor.formats.bbcode();
@@ -94,8 +93,11 @@ QUnit.test('From BBCode method as fragment', function (assert) {
 
 
 QUnit.test('BBcode to HTML trim', function (assert) {
+
+	var other = { bbcodeTrim: true} ;
+
 	this.mockEditor = {
-		opts: $.extend({}, defaultOptions, { bbcodeTrim: true })
+		opts: { ...defaultOptions, ...other }
 	};
 
 	this.format = new sceditor.formats.bbcode();
@@ -123,8 +125,11 @@ QUnit.test('BBcode to HTML trim', function (assert) {
 
 
 QUnit.test('HTML to BBCode trim', function (assert) {
+
+	var other = { bbcodeTrim: true} ;
+
 	this.mockEditor = {
-		opts: $.extend({}, defaultOptions, { bbcodeTrim: true })
+		opts: { ...defaultOptions, ...other }
 	};
 
 	this.format = new sceditor.formats.bbcode();
@@ -155,7 +160,7 @@ QUnit.test('HTML to BBCode trim', function (assert) {
 QUnit.module('formats/bbcode - HTML to BBCode', {
 	beforeEach: function () {
 		this.mockEditor = {
-			opts: $.extend({}, defaultOptions)
+			opts: { ...defaultOptions }
 		};
 
 		this.format = new sceditor.formats.bbcode();
