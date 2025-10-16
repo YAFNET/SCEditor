@@ -3,21 +3,11 @@ import defaultCommands from 'src/lib/defaultCommands.js';
 import defaultOptions from 'src/lib/defaultOptions.js';
 import * as utils from 'tests/unit/utils.js';
 import rangy from 'rangy';
-
+import { testFormat } from './testFormat';
 
 var $textarea;
 var sceditor;
 var $fixture = document.getElementById('qunit-module-fixture');
-
-var testFormat = function () {
-	this.toHtml = function () {
-		return '<p><b>test wysiwyg</b></p>';
-	};
-
-	this.toSource = function () {
-		return '<p><b>test source</b></p>';
-	};
-};
 
 var reloadEditor = function (config) {
 	reloadEditor.isCustomConfig = !!config;
@@ -433,37 +423,9 @@ QUnit.test('updateOriginal()', function (assert) {
 
 	sceditor.getRangeHelper().clear();
 	sceditor.updateOriginal();
-
+	
 	assert.htmlEqual(textarea.value, '<div>text 1234...</div>');
 });
-/*
-QUnit.test('Insert image XSS', function (assert) {
-	var done = assert.async();
-
-	reloadEditor({});
-
-	var called = false;
-	sceditor.getBody().xss = function () {
-		called = true;
-	};
-
-	const button = document.getElementsByClassName('sceditor-button-image')[0];
-	defaultCommands.image.exec.call(sceditor, button);
-
-	const dropdown = document.getElementsByClassName('sceditor-insertimage')[0];
-	const input = document.getElementById('link');
-	const insertButton = dropdown.getElementsByClassName('button')[0];
-
-	input.outerHTML = '<img src="http://url.to.file.which/not.exist" onerror=body.xss();>';
-	insertButton.click();
-
-	sceditor.getBody().addEventListener('error', function () {
-		setTimeout(function () {
-			assert.notOk(called);
-			done();
-		}, 1);
-	}, true);
-});*/
 
 QUnit.test('Insert HTML filter JS', function (assert) {
 	var done = assert.async();
