@@ -7,7 +7,6 @@ const sass = require('sass');
 const nodeResolve = require('@rollup/plugin-node-resolve').default;
 const fs = require('fs');
 const path = require('path');
-const { sourceMapsEnabled } = require('process');
 
 module.exports = (grunt) => {
 	require('@lodder/time-grunt')(grunt);
@@ -39,7 +38,6 @@ module.exports = (grunt) => {
 		'Dev server',
 		function() {
 			const done = this.async();
- 
 			require('./tests/dev-server').create(9001, true).then(done, done);
 		});
 
@@ -65,14 +63,14 @@ module.exports = (grunt) => {
 			},
 			formats: {
 				options: {
-                    overrideConfigFile: 'src/formats/eslint.config.mjs'
-                },
+					overrideConfigFile: 'src/formats/eslint.config.mjs'
+				},
 				src: ['src/formats/**/*.js']
 			},
 			icons: {
 				options: {
-                    overrideConfigFile: 'src/icons/eslint.config.mjs'
-                },
+					overrideConfigFile: 'src/icons/eslint.config.mjs'
+				},
 				src: ['src/icons/**/*.js']
 			},
 			lib: {
@@ -80,20 +78,20 @@ module.exports = (grunt) => {
 			},
 			plugins: {
 				options: {
-                    overrideConfigFile: 'src/plugins/eslint.config.mjs'
-                },
+					overrideConfigFile: 'src/plugins/eslint.config.mjs'
+				},
 				src: ['src/plugins/**/*.js']
 			},
 			tests: {
 				options: {
-                    overrideConfigFile: 'tests/eslint.config.mjs'
-                },
+					overrideConfigFile: 'tests/eslint.config.mjs'
+				},
 				src: ['tests/**/*.js']
 			},
 			translations: {
 				options: {
-                    overrideConfigFile: 'languages/eslint.config.mjs'
-                },
+					overrideConfigFile: 'languages/eslint.config.mjs'
+				},
 				src: 'languages/**/*.js'
 			}
 		},
