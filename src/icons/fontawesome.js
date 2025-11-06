@@ -23,14 +23,14 @@
 		'center': '<i class="fa-solid fa-align-center"></i>',
 		'code': '<i class="fa-solid fa-code"></i>',
 		'color':
-			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-palette sce-color fa-badge"></i></span>',
+			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-palette sce-color fa-sceditor-badge"></i></span>',
 		'copy': '<i class="fa-solid fa-copy"></i>',
 		'cut': '<i class="fa-solid fa-scissors"></i>',
 		'email': '<i class="fa-solid fa-envelope"></i>',
 		'emojis': '<i class="fa-solid fa-face-smile"></i>',
 		'extensions': '<i class="fa-solid fa-plug"></i>',
 		'font':
-			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-font fa-badge"></i></span>',
+			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-font fa-sceditor-badge"></i></span>',
 		'format': '<i class="fa-solid fa-font"></i>',
 		'grip':
 			'<svg xmlns="http://www.w3.org/2000/svg"viewbox="0 0 16 16" unselectable="on"><path d="M14.656 5.156l-10 10 .688.688 10-10-.688-.688zm0 3l-7 7 .688.688 7-7-.688-.688zm0 3l-4 4 .688.688 4-4-.688-.688z"/></svg>',
@@ -53,7 +53,7 @@
 		'reply': '<i class="fa-solid fa-reply"></i>',
 		'right': '<i class="fa-solid fa-align-right"></i>',
 		'size':
-			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-up-down fa-badge"></i></span>',
+			'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-up-down fa-sceditor-badge"></i></span>',
 		'source': '<i class="fa-solid fa-file-code"></i>',
 		'strike': '<i class="fa-solid fa-strikethrough"></i>',
 		'table': '<i class="fa-solid fa-table"></i>',
