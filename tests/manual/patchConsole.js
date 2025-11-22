@@ -102,8 +102,7 @@
 		console.clear  = _patchClearMethod(output);
 
 		window.onerror = function (msg, url, line) {
-			console.error('Caught global error: ' + msg +
-				' on line ' + line + ' of ' + url);
+			console.error(`Caught global error: ${msg} on line ${line} of ${url}`);
 		};
 	};
 }());

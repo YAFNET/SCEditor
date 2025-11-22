@@ -1,16 +1,17 @@
 var testMemoryLeaks = function (pos) {
 	pos = pos || 1;
 
-	$('#testarea').sceditor({
+	var textarea = document.getElementById('testarea');
+
+	sceditor.create(textarea, {
 		autofocus: true,
 		autofocusEnd: true,
 		enablePasteFiltering: true,
-		emoticonsRoot: '../../../',
-		style: '../../../src/themes/content/default.css'
+		plugins: ''
 	});
 
-	$('#testarea').sceditor('instance').destroy();
-	$('#progress').width(pos + '%');
+	sceditor.instance(textarea).destroy();
+	document.getElementById('progress').style.width = `${pos}%`;
 
 	if (pos <= 100) {
 		setTimeout(function () {
@@ -19,8 +20,9 @@ var testMemoryLeaks = function (pos) {
 	}
 };
 
-$(function () {
-	$('input[type="submit"]').click(function () {
+document.addEventListener('DOMContentLoaded', function() {
+	
+	document.querySelector('input[type="submit"]').addEventListener('click', () => {
 		testMemoryLeaks();
 
 		return false;

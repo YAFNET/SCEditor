@@ -1,40 +1,40 @@
-$(function () {
+document.addEventListener('DOMContentLoaded', function() {
 	patchConsole();
 
 	runner.setup(function () {
 		var that = this;
 
+		var textarea = document.getElementById('testarea');
 
-		$('#testarea').sceditor({
+		sceditor.create(textarea, {
 			width: '100%',
 			autofocus: true,
 			toolbar: 'bold,italic,underline',
+			plugins: '',
 			autofocusEnd: true,
-			enablePasteFiltering: true,
-			emoticonsRoot: '../../../',
-			style: '../../../src/themes/content/default.css'
+			enablePasteFiltering: true
 		});
 
 
 		that.count  = 0;
-		that.editor = $('#testarea').sceditor('instance');
+		that.editor = sceditor.instance(textarea);
 		that.clearCount = function () {
 			that.count = 0;
 
-			$('#count').text(that.count);
+			document.getElementById('count').textContent = that.count;
 		};
 
 
 		that.editor.bind('valuechanged', function () {
-			$('#count').text(++that.count);
+			document.getElementById('count').textContent = ++that.count;
 		});
 
 
-		$('#counter .passed').click(function () {
+		document.querySelector('#counter .passed').addEventListener('click', () => {
 			runner._done(true);
 		});
 
-		$('#counter .failed').click(function () {
+		document.querySelector('#counter .failed').addEventListener('click', () => {
 			runner._done(false);
 		});
 

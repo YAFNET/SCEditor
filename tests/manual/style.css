@@ -225,3 +225,15 @@ h2 {
 		padding: 0 1em;
 	}
 }
+
+div.sceditor-grip {
+    overflow: hidden;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    z-index: 3;
+    line-height: 0;
+}
