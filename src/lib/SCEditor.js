@@ -714,12 +714,12 @@ export default function SCEditor(original, userOptions) {
 
 		dom.on(wysiwygBody, 'blur', function () {
 			if (!base.val()) {
-				dom.addClass(wysiwygBody, 'placeholder');
+				dom.addClass(wysiwygBody, 'sceditor-placeholder');
 			}
 		});
 
 		dom.on(wysiwygBody, 'focus', function () {
-			dom.removeClass(wysiwygBody, 'placeholder');
+			dom.removeClass(wysiwygBody, 'sceditor-placeholder');
 		});
 
 		dom.on(sourceEditor, 'blur', valueChangedBlur);

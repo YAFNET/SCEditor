@@ -67,6 +67,12 @@ div.sceditor-grip {
     float: left;
 }
 
+body.sceditor-placeholder::before {
+    content: attr(placeholder);
+    color: #555;
+    font-style: italic;
+}
+
 .sceditor-color-option {
     display:block;
     width: 18px;
