@@ -35,7 +35,7 @@
 
 		if (settings.moduleSetup) {
 			QUnit.moduleStart(function (details) {
-				$('#qunit-module-fixture').empty();
+				document.getElementById('qunit-module-fixture').replaceChildren();
 
 				if (details.name === name) {
 					settings.moduleSetup();
@@ -49,7 +49,7 @@
 					settings.moduleTeardown();
 				}
 
-				$('#qunit-module-fixture').empty();
+				document.getElementById('qunit-module-fixture').replaceChildren();
 			});
 		}
 
