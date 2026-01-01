@@ -2,7 +2,7 @@
  * SCEditor
  * http://www.sceditor.com/
  *
- * Copyright (C) 2011-2025, Sam Clarke (samclarke.com)
+ * Copyright (C) 2011-2026, Sam Clarke (samclarke.com)
  *
  * SCEditor is licensed under the MIT license:
  *	http://www.opensource.org/licenses/mit-license.php
