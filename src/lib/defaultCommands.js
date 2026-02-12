@@ -274,6 +274,11 @@ var defaultCmds = {
 					html += '<div class="sceditor-color-column">';
 
 					column.split(',').forEach(function (color) {
+						// Only allow named, #aaa, hsl(1.1 50% / 1), etc.
+						if (!/^[\#a-z0-9\-\(\) \/%\.]+$/i.test(color)) {
+							color = '';
+						}
+
 						html +=
 							`<a href="#" class="sceditor-color-option" style="background-color: ${color}" data-color="${
 								color}"></a>`;

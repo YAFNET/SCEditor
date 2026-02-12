@@ -1,13 +1,9 @@
-// Must start with a valid scheme
-// 		^
-// Schemes that are considered safe
-// 		(https?|s?ftp|mailto|spotify|ssh|teamspeak|tel):|
-// Relative schemes (//:) are considered safe
-// 		(\\/\\/)|
-// Image data URI's are considered safe
-// 		data:image\\/(png|bmp|gif|p?jpe?g);
-var VALID_SCHEME_REGEX =
-	/^(https?|s?ftp|mailto|spotify|ssh|teamspeak|tel):|(\/\/)|data:image\/(png|bmp|gif|p?jpe?g);/i;
+// Regex used by DOMPurify to filter URLs. Might as well match here as otherwise
+// URLs will be filtered out by DOMPurify anyway
+var VALID_URI_REGEX = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+// Safe image data URIs
+var VALID_DATA_REGEX = /^data:image\/(png|bmp|gif|p?jpe?g);/i;
+var WHITESPACE_REGEX = /[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g;
 
 /**
  * Escapes a string so it's safe to use in regex
@@ -66,14 +62,18 @@ export function entities(str, noQuotes) {
  *
  * http
  * https
- * sftp
+ * ftps
  * ftp
  * mailto
  * spotify
  * ssh
  * teamspeak
  * tel
- * //
+ * callto
+ * sms
+ * cid
+ * xmpp
+ * matrix
  * data:image/(png|jpeg|jpg|pjpeg|bmp|gif);
  *
  * **IMPORTANT**: This does not escape any HTML in a url, for
@@ -84,21 +84,28 @@ export function entities(str, noQuotes) {
  * @since 1.4.5
  */
 export function uriScheme(url) {
-	const hasScheme = /^[^\/]*:/i;
-	const location = window.location;
+	var	path,
+		location = window.location;
 
-	// Has no scheme or a valid scheme
-	if ((!url || !hasScheme.test(url)) || VALID_SCHEME_REGEX.test(url)) {
+	// Match previous behaviour for empty or data: URIs
+	if (!url || VALID_DATA_REGEX.test(url)) {
 		return url;
 	}
 
-	const path = location.pathname.split('/');
-	path.pop();
+	// Invalid scheme so make relative
+	if (!VALID_URI_REGEX.test(url.replace(WHITESPACE_REGEX, ''))) {
+		path = location.pathname.split('/');
+		path.pop();
 
-	return location.protocol +
-		'//' +
-		location.host +
-		path.join('/') +
-		'/' +
-		url;
+		url = location.protocol + '//' +
+			location.host +
+			path.join('/') + '/' +
+			url;
+
+		if (!VALID_URI_REGEX.test(url.replace(WHITESPACE_REGEX, ''))) {
+			return '';
+		}
+	}
+
+	return url;
 };

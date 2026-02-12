@@ -615,7 +615,7 @@ export default function SCEditor(original, userOptions) {
 			charset: options.charset,
 			themeMode: options.themeMode,
 			styles: styles
-		}));
+		}, false, false));
 
 		wysiwygDocument.close();
 

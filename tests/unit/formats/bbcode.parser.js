@@ -965,7 +965,7 @@ QUnit.test('[img]', function (assert) {
 	);
 
 	assert.ok(
-		!/src="jav/i.test(
+		/src="jav&amp;/i.test(
 			this.parser.toHTML('[img]jav&#x0A;ascript:alert(' +
 				'String.fromCharCode(88,83,83))[/img]')
 		),
@@ -1001,7 +1001,7 @@ QUnit.test('[url]', function (assert) {
 	);
 
 	assert.ok(
-		!/href="jav/i.test(
+		/href="jav&amp;/i.test(
 			this.parser.toHTML('[url]jav&#x0A;ascript:alert(' +
 				'String.fromCharCode(88,83,83))[/url]')
 		),
