@@ -103,7 +103,6 @@ QUnit.test('uriScheme() - Invalid schmes', function (assert) {
 
 	/*jshint scripturl:true*/
 	const urls = [
-		// eslint-disable-next-line no-script-url
 		'javascript:alert("XSS");',
 		'sftp://example.com/test/',
 		'skype:xyz',
