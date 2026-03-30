@@ -158,6 +158,7 @@ module.exports = (grunt) => {
 							'dist/sceditor.min.js',
 							'src/formats/bbcode.js',
 							'src/icons/fontawesome.js',
+							'src/plugins/alternative-lists.js',
 							'src/plugins/dragdrop.js',
 							'src/plugins/undo.js',
 							'src/plugins/plaintext.js',
