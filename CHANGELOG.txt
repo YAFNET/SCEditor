@@ -1,3 +1,6 @@
+Version 3.2.16:
+	Added alternative-lists plugin
+		
 Version 3.2.0:
 	Fixed bug with pasting removing styling from fist/last block when using
 		BBCode format.
