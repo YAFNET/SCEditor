@@ -46,7 +46,7 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@w8tcha/grunt-dev-update": "^2.3.4",
     "autoprefixer": "^10.4.27",
-    "cssnano": "^7.1.4",
+    "cssnano": "^8.0.1",
     "grunt": "~1.6.1",
     "grunt-contrib-clean": "^2.0.1",
     "grunt-contrib-concat": "~2.1.0",
