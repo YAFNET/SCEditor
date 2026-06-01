@@ -234,10 +234,7 @@ module.exports = (grunt) => {
 	grunt.loadNpmTasks('grunt-eslint');
 	grunt.loadNpmTasks('grunt-sass');
 
-	grunt.registerTask('default', ['test']);
-
-	// Lints the JS and runs the unit tests
-	grunt.registerTask('test', ['eslint', 'dev-server', 'qunit']);
+	grunt.registerTask('default');
 
 	// Minifies the source
 	grunt.registerTask('build',

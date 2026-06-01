@@ -680,9 +680,11 @@ export function convertElement(element, toTagName) {
 	var newElement = createElement(toTagName, {}, element.ownerDocument);
 
 	utils.each(element.attributes, function (_, attribute) {
-		// Some browsers parse invalid attributes names like
-		// 'size"2' which throw an exception when set, just
-		// ignore these.
+		// HTML5 attribute names must not contain ASCII whitespace, ", ', >, /, or =.
+		// Some browsers silently accept these (no throw), so check explicitly.
+		if (/[\s"'>/=]/.test(attribute.name)) {
+			return;
+		}
 		try {
 			attr(newElement, attribute.name, attribute.value);
 		} catch (_) {}
