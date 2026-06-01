@@ -6,7 +6,6 @@ const reports = require('istanbul-reports');
 const sass = require('sass');
 const nodeResolve = require('@rollup/plugin-node-resolve').default;
 const fs = require('fs');
-const path = require('path');
 
 module.exports = (grunt) => {
 	require('@lodder/time-grunt')(grunt);
@@ -34,28 +33,7 @@ module.exports = (grunt) => {
 			console.log('\n');
 		});
 
-	grunt.registerTask('dev-server',
-		'Dev server',
-		function() {
-			const done = this.async();
-			require('./tests/dev-server').create(9001, true).then(done, done);
-		});
-
 	grunt.initConfig({
-		// Runs the unit tests
-		qunit: {
-			all: {
-				options: {
-					urls: ['http://localhost:9001/tests/unit/index.html'],
-					// Some tests rely on failing URLs so want to ignore them
-					console: false,
-					inject: path.join(__dirname, './tests/test-bridge.js'),
-					// Sandbox doesn't always work well on Linux so just disable
-					puppeteer: { args: ['--no-sandbox'], headless: 'new' }
-				}
-			}
-		},
-
 		// Style checking of JS code using ESLint
 		eslint: {
 			source: {
@@ -210,25 +188,14 @@ module.exports = (grunt) => {
 					}
 				]
 			}
-		},
-
-		devUpdate: {
-			main: {
-				options: {
-					updateType: 'force',
-					semver: false
-				}
-			}
 		}
 	});
 
 
 	grunt.loadNpmTasks('@lodder/grunt-postcss');
-	grunt.loadNpmTasks('@w8tcha/grunt-dev-update');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('grunt-contrib-qunit');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-rollup');
 	grunt.loadNpmTasks('grunt-eslint');
