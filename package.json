@@ -76,7 +76,7 @@
     "webpack-dev-server": "^5.2.3"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*"
+    "@rolldown/binding-linux-x64-gnu": "*"
   },
   "dependencies": {
     "dompurify": "^3.3.3"
