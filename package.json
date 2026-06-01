@@ -47,6 +47,7 @@
     "@lodder/grunt-postcss": "^3.1.1",
     "@lodder/time-grunt": "^4.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rolldown/binding-linux-x64-gnu": "*",
     "@vitest/browser": "^4.1.7",
     "@vitest/browser-playwright": "^4.1.7",
     "autoprefixer": "^10.4.27",
@@ -74,9 +75,6 @@
     "vitest": "^4.1.7",
     "webpack": "^5.105.4",
     "webpack-dev-server": "^5.2.3"
-  },
-  "optionalDependencies": {
-    "@rolldown/binding-linux-x64-gnu": "*"
   },
   "dependencies": {
     "dompurify": "^3.3.3"
