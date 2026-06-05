@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as dom from 'src/lib/dom.js';
-import * as utils from 'tests/unit/utils.js';
+import * as utils from 'tests/unit/utils';
 
 describe('lib/dom', () => {
 

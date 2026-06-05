@@ -1,5 +1,5 @@
 import { beforeEach, expect } from 'vitest';
-import * as utils from './utils.js';
+import * as utils from './utils';
 
 // Create QUnit-compatible fixture elements used by tests and utils
 const fixture = document.createElement('div');

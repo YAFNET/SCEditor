@@ -22,10 +22,10 @@ export default defineConfig({
 				{ browser: 'chromium' },
 			],
 		},
-		setupFiles: ['tests/unit/setup.js'],
+		setupFiles: ['tests/unit/setup.ts'],
 		include: [
-			'tests/unit/lib/*.test.js',
-			'tests/unit/formats/**/*.test.js'
+			'tests/unit/lib/*.test.ts',
+			'tests/unit/formats/**/*.test.ts'
 		],
 		coverage: {
 			provider: 'v8',

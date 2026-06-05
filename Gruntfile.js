@@ -64,7 +64,7 @@ module.exports = (grunt) => {
 				options: {
 					overrideConfigFile: 'tests/eslint.config.mjs'
 				},
-				src: ['tests/**/*.js']
+				src: ['tests/**/*.ts']
 			},
 			translations: {
 				options: {

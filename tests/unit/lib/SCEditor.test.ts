@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import SCEditor from 'src/lib/SCEditor.js';
 import defaultCommands from 'src/lib/defaultCommands.js';
 import defaultOptions from 'src/lib/defaultOptions.js';
-import * as utils from 'tests/unit/utils.js';
+import * as utils from 'tests/unit/utils';
 import rangy from 'rangy';
 import { testFormat } from './testFormat';
 
