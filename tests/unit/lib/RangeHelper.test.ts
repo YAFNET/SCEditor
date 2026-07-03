@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import RangeHelper from 'src/lib/RangeHelper.js';
-import * as utils from 'tests/unit/utils.js';
+import * as utils from 'tests/unit/utils';
 import rangy from 'rangy';
 import DOMPurify from 'dompurify';
 

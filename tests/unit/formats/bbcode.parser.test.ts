@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import * as utils from 'tests/unit/utils.js';
+import * as utils from 'tests/unit/utils';
 import 'src/sceditor.js';
 import 'src/formats/bbcode.js';
 

@@ -1,4 +1,4 @@
-import * as utils from 'tests/unit/utils.js';
+import * as utils from 'tests/unit/utils';
 import 'src/formats/bbcode.js';
 
 
