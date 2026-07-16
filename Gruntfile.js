@@ -206,7 +206,7 @@ module.exports = (grunt) => {
 	// Minifies the source
 	grunt.registerTask('build',
 		[
-			'clean:build',
+			'clean',
 			'sass',
 			'copy:build',
 			'rollup:build',
