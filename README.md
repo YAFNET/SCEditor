@@ -1,7 +1,7 @@
 # [SCEditor](http://www.sceditor.com/)
 
 [![NPM Version](http://img.shields.io/npm/v/@yafnet/sceditor.svg?style=flat)](https://npmjs.org/package/@yafnet/sceditor)
-[![Built with Grunt](http://img.shields.io/badge/BUILT_WITH-GRUNT-orange.svg?style=flat)](http://gruntjs.com/)
+[![Built with Vite](http://img.shields.io/badge/BUILT_WITH-VITE-646cff.svg?style=flat)](https://vite.dev/)
 [![License](http://img.shields.io/npm/l/sceditor.svg)](https://github.com/samclarke/SCEditor/blob/master/LICENSE.md)
 
 Forked SCEditor for [YAF.NET](https://github.com/YAFNET/YAFNET)

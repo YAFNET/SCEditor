@@ -2,6 +2,7 @@ import globals from 'globals';
 
 export default [
 	{
+		files: ['src/*.js', 'src/lib/**/*.js'],
 		languageOptions: {
 			globals: {
 				...globals.browser,
@@ -122,6 +123,61 @@ export default [
 			'eol-last': 'error',
 			'space-infix-ops': 'error',
 			'space-before-blocks': ['error', 'always']
+		}
+	},
+
+	// Legacy global-style scripts (self-registering IIFEs against the
+	// `sceditor` global, not ES modules) - kept loosely checked, same as
+	// their old standalone eslint.config.mjs overrides.
+	{
+		files: ['src/formats/**/*.js', 'src/icons/**/*.js', 'src/plugins/**/*.js'],
+		languageOptions: {
+			ecmaVersion: 6,
+			sourceType: 'script'
+		}
+	},
+
+	{
+		files: ['languages/**/*.js'],
+		languageOptions: {
+			ecmaVersion: 5,
+			sourceType: 'script'
+		},
+
+		rules: {
+			'dot-notation': 'off',
+
+			'max-len': ['error', {
+				code: 400,
+				ignoreUrls: true,
+				ignoreRegExpLiterals: true
+			}]
+		}
+	},
+
+	{
+		files: ['tests/**/*.ts'],
+		languageOptions: {
+			globals: {
+				...globals.qunit,
+				QUnit: true,
+				module: true,
+				test: true,
+				asyncTest: true,
+				rangy: true,
+				sinon: true,
+				runner: true,
+				patchConsole: true,
+				less: true
+			}
+		},
+
+		rules: {
+			'new-cap': 'off',
+			strict: 'off',
+			'max-params': 'off',
+			'max-depth': ['error', 6],
+			'max-len': 'off'
 		}
 	}
 ];
