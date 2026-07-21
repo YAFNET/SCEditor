@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"lib": ["ES2020", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": false
+	},
+	"include": [
+		"src/**/*.ts",
+		"languages/**/*.ts",
+		"tests/manual/**/*.ts",
+		"vitest.config.ts"
+	],
+	"exclude": ["node_modules", "dist"]
+}

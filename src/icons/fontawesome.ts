@@ -12,10 +12,13 @@
 (function (document, sceditor) {
 	'use strict';
 
-	var dom = sceditor.dom;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
+
+	const dom = sceditor.dom;
 
 	/* eslint max-len: off*/
-	var icons = {
+	const icons: Record<string, string> = {
 		'albums': '<i class="fa-solid fa-images"></i',
 		'attachments': '<i class="fa-solid fa-paperclip"></i',
 		'bold': '<i class="fa-solid fa-bold"></i>',
@@ -67,11 +70,11 @@
 	};
 
 	sceditor.icons.fontawesome = function () {
-		var nodes = {};
-		var colorPath;
+		const nodes: Record<string, Any> = {};
+		let colorPath: Any;
 
 		return {
-			create: function (command) {
+			create: function (command: string) {
 				if (command in icons) {
 					nodes[command] = sceditor.dom.parseHTML(
 						icons[command]
@@ -84,7 +87,7 @@
 
 				return nodes[command];
 			},
-			update: function (isSourceMode, currentNode) {
+			update: function (isSourceMode: boolean, currentNode: Any) {
 				if (colorPath) {
 					let color = 'inherit';
 
@@ -96,7 +99,7 @@
 					dom.css(colorPath, 'color', color);
 				}
 			},
-			rtl: function (isRtl) {
+			rtl: function (isRtl: boolean) {
 				const gripNode = nodes.grip;
 
 				if (gripNode) {
@@ -108,7 +111,7 @@
 				}
 			}
 		};
-	};
+	} as Any;
 
-	sceditor.icons.fontawesome.icons = icons;
+	(sceditor.icons.fontawesome as Any).icons = icons;
 })(document, sceditor);

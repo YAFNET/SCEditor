@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 	patchConsole();
 
-	runner.setup(function () {
-		var textarea = document.getElementById('testarea');
+	runner.setup(function (this: Any) {
+		const textarea = document.getElementById('testarea') as HTMLTextAreaElement;
 
 		sceditor.create(textarea, {
 			width: '100%',
@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', function() {
 runner.test({
 	title: 'WYSIWYG Keydown',
 	instructions: 'Press any key in the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keydown', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -36,10 +36,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG Keypress',
 	instructions: 'Press any key in the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keypress', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -50,10 +50,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG Keyup',
 	instructions: 'Press any key in the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keyup', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -64,16 +64,16 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG Keypress prevent default',
 	instructions: 'Press any key in the WYSIWYG editor.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.val('');
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keypress', this.handler);
 	}
-}, function (done) {
-	var that = this;
+}, function (this: Any, done: Any) {
+	const that = this;
 
-	this.handler = function (e) {
+	this.handler = function (e: Any) {
 		e.preventDefault();
 
 		setTimeout(function () {
@@ -87,10 +87,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG shortcut',
 	instructions: 'Press ctrl+j in the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.removeShortcut('ctrl+j');
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	const handler = function () {
 		done(true);
 
@@ -103,10 +103,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG function shortcut',
 	instructions: 'Press ctrl+shift+f3 in the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.removeShortcut('ctrl+shift+f3');
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	const handler = function () {
 		done(true);
 
@@ -119,20 +119,20 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG selectionchanged',
 	instructions: 'Select the text "jumps over" and nothing else.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.val(
 			'<p>The quick brown fox jumps over the lazy dog.</p>'
 		);
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.val('');
 		this.editor.unbind('selectionchanged', this.handler);
 	}
-}, function (done) {
-	var editor = this.editor;
+}, function (this: Any, done: Any) {
+	const editor = this.editor;
 
 	this.handler = function () {
-		var selectedText;
+		let selectedText;
 		const range = editor.getRangeHelper().selectedRange();
 
 		if (range && typeof range.text !== 'undefined') {
@@ -156,10 +156,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG contextmenu',
 	instructions: 'Right click inside the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('contextmenu', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 
@@ -173,22 +173,22 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG nodechanged',
 	instructions: 'Follow the instructions inside the WYSIWYG editor.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.val(
 			'<p id="a" style="background: #ecf0f1">Click anywhere here.</p>' +
 			'<p id="b" style="background: #84C692">Then click here.</p>'
 		);
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('nodechanged', this.handler);
 		this.editor.val('');
 	}
-}, function (done) {
-	var editor     = this.editor;
+}, function (this: Any, done: Any) {
+	const editor = this.editor;
 	const body = editor.getBody();
-	var firstNode  = body.ownerDocument.getElementById('a');
-	var lastNode   = body.ownerDocument.getElementById('b');
-	var foundFirst = false;
+	const firstNode = body.ownerDocument.getElementById('a');
+	const lastNode = body.ownerDocument.getElementById('b');
+	let foundFirst = false;
 
 	this.handler = function () {
 		const currentNode = editor.currentNode();
@@ -220,10 +220,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG blur',
 	instructions: 'Click outside of the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('blur', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -235,10 +235,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG focus',
 	instructions: 'Click inside the WYSIWYG editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('focus', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -247,22 +247,18 @@ runner.test({
 	this.editor.bind('focus', this.handler);
 });
 
-
-
-
-
 runner.test({
 	title: 'Source editor Keydown',
 	instructions: 'Press any key in the source editor.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.sourceMode(true);
 		this.editor.val('');
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keydown', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -273,10 +269,10 @@ runner.test({
 runner.test({
 	title: 'Source editor Keypress',
 	instructions: 'Press any key in the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keypress', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -287,10 +283,10 @@ runner.test({
 runner.test({
 	title: 'Source editor Keyup',
 	instructions: 'Press any key in the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keyup', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -301,16 +297,16 @@ runner.test({
 runner.test({
 	title: 'Source Keypress prevent default',
 	instructions: 'Press any key in the WYSIWYG editor.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.val('');
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('keypress', this.handler);
 	}
-}, function (done) {
-	var that = this;
+}, function (this: Any, done: Any) {
+	const that = this;
 
-	this.handler = function (e) {
+	this.handler = function (e: Any) {
 		e.preventDefault();
 
 		setTimeout(function () {
@@ -324,10 +320,10 @@ runner.test({
 runner.test({
 	title: 'Source editor shortcut',
 	instructions: 'Press ctrl+j in the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.removeShortcut('ctrl+j');
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	const handler = function () {
 		done(true);
 
@@ -340,10 +336,10 @@ runner.test({
 runner.test({
 	title: 'Source editor contextmenu',
 	instructions: 'Right click inside the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('contextmenu', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 
@@ -357,10 +353,10 @@ runner.test({
 runner.test({
 	title: 'Source editor blur',
 	instructions: 'Click outside of the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('blur', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};
@@ -372,10 +368,10 @@ runner.test({
 runner.test({
 	title: 'Source editor focus',
 	instructions: 'Click inside the source editor.',
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.editor.unbind('focus', this.handler);
 	}
-}, function (done) {
+}, function (this: Any, done: Any) {
 	this.handler = function () {
 		done(true);
 	};

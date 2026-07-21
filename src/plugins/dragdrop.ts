@@ -12,12 +12,14 @@
 (function (sceditor) {
 	'use strict';
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
+
 	/**
 	 * Place holder GIF shown while image is loading.
-	 * @type {string}
 	 * @private
 	 */
-	var loadingGif = 'data:image/gif;base64,R0lGODlhlgBkAPABAH19ffb29iH5BAAK' +
+	const loadingGif = 'data:image/gif;base64,R0lGODlhlgBkAPABAH19ffb29iH5BAAK' +
 		'AAAAIf4aQ3JlYXRlZCB3aXRoIGFqYXhsb2FkLmluZm8AIf8LTkVUU0NBUEUyLjADAQA' +
 		'AACwAAAAAlgBkAAAC1YyPqcvtD6OctNqLs968+w+G4kiW5omm6sq27gvH8kzX9o3n+s' +
 		'73/g8MCofEovGITCqXzKbzCY1Kp9Sq9YrNarfcrvcLDovH5LL5jE6r1+y2+w2Py+f0u' +
@@ -42,23 +44,22 @@
 
 	/**
 	 * Basic check for browser support
-	 * @type {boolean}
 	 * @private
 	 */
-	var isSupported = typeof window.FileReader !== 'undefined';
+	const isSupported = typeof window.FileReader !== 'undefined';
 
-	sceditor.plugins.dragdrop = function () {
+	sceditor.plugins.dragdrop = function (this: Any) {
 		if (!isSupported) {
 			return;
 		}
 
 		const base = this;
-		var opts;
-		var editor;
-		var handleFile;
-		var container;
-		var cover;
-		var placeholderId = 0;
+		let opts: Any;
+		let editor: Any;
+		let handleFile: Any;
+		let container: Any;
+		let cover: Any;
+		let placeholderId = 0;
 
 
 		function hideCover() {
@@ -73,7 +74,7 @@
 			}
 		}
 
-		function isAllowed() {
+		function isAllowed(_file?: Any) {
 			// FF sets type to application/x-moz-file until it has been dropped
 			/*if (file.type !== 'application/x-moz-file' && opts.allowedTypes &&
 				opts.allowedTypes.indexOf(file.type) < 0) {
@@ -83,15 +84,15 @@
 			return opts.isAllowed ? opts.isAllowed(file) : true;*/
 
 			return true;
-		};
+		}
 
-		function createHolder(toReplace) {
-			var placeholder = document.createElement('img');
+		function createHolder(toReplace?: Any) {
+			const placeholder = document.createElement('img');
 			placeholder.src = loadingGif;
 			placeholder.className = 'sceditor-ignore';
 			placeholder.id = `sce-dragdrop-${placeholderId++}`;
 
-			function replace(html) {
+			function replace(html?: Any) {
 				const node = editor
 					.getBody()
 					.ownerDocument
@@ -114,7 +115,7 @@
 				}
 
 				return {
-					insert: function (html) {
+					insert: function (html: Any) {
 						replace(html);
 					},
 					cancel: replace
@@ -122,7 +123,7 @@
 			};
 		}
 
-		function handleDragOver(e) {
+		function handleDragOver(e: Any) {
 			const dt = e.dataTransfer;
 			const files = dt.files.length || !dt.items ? dt.files : dt.items;
 
@@ -137,7 +138,7 @@
 			e.preventDefault();
 		}
 
-		function handleDrop(e) {
+		function handleDrop(e: Any) {
 			const dt = e.dataTransfer;
 			const files = dt.files.length || !dt.items ? dt.files : dt.items;
 
@@ -157,11 +158,11 @@
 			e.preventDefault();
 		}
 
-		base.signalReady = function () {
+		base.signalReady = function (this: Any) {
 			editor = this;
 			opts = editor.opts.dragdrop || {};
 			handleFile = opts.handleFile;
-			
+
 			if (!handleFile)
 			{
 				return;
@@ -182,13 +183,13 @@
 			editor.getBody().addEventListener('drop', hideCover);
 		};
 
-		base.signalPasteHtml = function (file) {
+		base.signalPasteHtml = function (file: Any) {
 
 			if (!file)
 			{
 				return;
 			}
-			
+
 			if (!opts.handleFile)
 			{
 				return;
@@ -197,14 +198,14 @@
 			if (file.val) {
 				return;
 			}
-			
+
 			hideCover();
-			
+
 			if (!('handlePaste' in opts) || opts.handlePaste) {
 				if (isAllowed(file)) {
 					handleFile(file, createHolder());
 				}
 			}
 		};
-	};
+	} as Any;
 })(sceditor);

@@ -2,24 +2,28 @@ import * as dom from './dom.js';
 import * as escape from './escape.js';
 import * as utils from './utils.js';
 
+interface OuterTextResult {
+	node: Node;
+	offset: number;
+	text: string;
+}
 
 /**
  * Gets the text, start/end node and offset for
  * length chars left or right of the passed node
  * at the specified offset.
  *
- * @param  {Node}  node
- * @param  {number}  offset
- * @param  {boolean} isLeft
- * @param  {number}  length
- * @return {Object}
  * @private
  */
-var outerText = function (range, isLeft, length) {
-	var nodeValue, remaining, start, end, node,
-		text = '',
-		next = range.startContainer,
-		offset = range.startOffset;
+const outerText = function (range: Range, isLeft: boolean, length: number): OuterTextResult {
+	let nodeValue: string;
+	let remaining: number;
+	let start: number;
+	let end: number;
+	let node: Node | undefined;
+	let text = '';
+	let next: Node | null = range.startContainer;
+	let offset = range.startOffset;
 
 	// Handle cases where node is a paragraph and offset
 	// refers to the index of a text node.
@@ -32,7 +36,7 @@ var outerText = function (range, isLeft, length) {
 	start = end = offset;
 
 	while (length > text.length && next && next.nodeType === 3) {
-		nodeValue = next.nodeValue;
+		nodeValue = next.nodeValue as string;
 		remaining = length - text.length;
 
 		// If not the first node, start and end should be at their
@@ -60,11 +64,42 @@ var outerText = function (range, isLeft, length) {
 	}
 
 	return {
-		node: node || next,
+		node: (node || next) as Node,
 		offset: offset,
 		text: text
 	};
 };
+
+export interface RangeHelperInstance {
+	insertHTML(html: string, endHTML?: string): false | undefined;
+	insertNode(node: Node, endNode?: Node): false | undefined;
+	cloneSelected(): Range | undefined;
+	selectedRange(): Range | undefined;
+	hasSelection(): boolean | undefined;
+	selectedHtml(): string;
+	parentNode(): Node | undefined;
+	getFirstBlockParent(node?: Node): Node | null | undefined;
+	insertNodeAt(start: boolean, node: Node): false | undefined;
+	insertMarkers(): void;
+	getMarker(id: string): HTMLElement | null;
+	removeMarker(id: string): void;
+	removeMarkers(): void;
+	saveRange(): void;
+	selectRange(range: Range): void;
+	restoreRange(): false | undefined;
+	selectOuterText(left: number, right: number): false | undefined;
+	getOuterText(before: boolean, length: number): string;
+	replaceKeyword(
+		keywords: Array<[string, string]>,
+		includeAfter: boolean,
+		keywordsSorted?: boolean,
+		longestKeyword?: number,
+		requireWhitespace?: boolean,
+		keypressChar?: string
+	): boolean;
+	compare(rngA: Range | undefined, rngB?: Range): boolean;
+	clear(): void;
+}
 
 /**
  * Range helper
@@ -72,12 +107,16 @@ var outerText = function (range, isLeft, length) {
  * @class RangeHelper
  * @name RangeHelper
  */
-export default function RangeHelper(win, d, sanitize) {
-	var	_createMarker, _prepareInput,
-		doc          = d || win.contentDocument || win.document,
-		startMarker  = 'sceditor-start-marker',
-		endMarker    = 'sceditor-end-marker',
-		base         = this;
+export default function RangeHelper(
+	this: RangeHelperInstance,
+	win: Window,
+	d: Document | null | undefined,
+	sanitize: (html: string) => string
+) {
+	const doc: Document = d || (win as unknown as { contentDocument?: Document }).contentDocument || win.document;
+	const startMarker = 'sceditor-start-marker';
+	const endMarker = 'sceditor-end-marker';
+	const base = this;
 
 	/**
 	 * Inserts HTML into the current range replacing any selected
@@ -87,14 +126,12 @@ export default function RangeHelper(win, d, sanitize) {
 	 * html and endHTML. If there is nothing selected html and endHTML are
 	 * just concatenate together.
 	 *
-	 * @param {string} html
-	 * @param {string} [endHTML]
 	 * @return False on fail
 	 * @function
 	 * @name insertHTML
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.insertHTML = function (html, endHTML) {
+	base.insertHTML = function (html: string, endHTML?: string) {
 		const range = base.selectedRange();
 
 		if (!range) {
@@ -114,6 +151,8 @@ export default function RangeHelper(win, d, sanitize) {
 		}
 
 		base.insertNode(node);
+
+		return undefined;
 	};
 
 	/**
@@ -121,15 +160,10 @@ export default function RangeHelper(win, d, sanitize) {
 	 * if the last child is empty and adding the range start/end
 	 * markers to the last child.
 	 *
-	 * @param  {Node|string} node
-	 * @param  {Node|string} [endNode]
-	 * @param  {boolean} [returnHtml]
-	 * @return {Node|string}
 	 * @private
 	 */
-	_prepareInput = function (node, endNode, returnHtml) {
-		var lastChild,
-			frag = doc.createDocumentFragment();
+	function _prepareInput(node: Node | string, endNode?: Node | string, returnHtml?: boolean): Node | string | undefined {
+		let frag: DocumentFragment = doc.createDocumentFragment();
 
 		if (typeof node === 'string') {
 			if (endNode) {
@@ -141,17 +175,20 @@ export default function RangeHelper(win, d, sanitize) {
 			dom.appendChild(frag, node);
 
 			if (endNode) {
-				dom.appendChild(frag, base.selectedRange().extractContents());
-				dom.appendChild(frag, endNode);
+				dom.appendChild(frag, base.selectedRange()!.extractContents());
+				dom.appendChild(frag, endNode as Node);
 			}
 		}
 
-		if (!(lastChild = frag.lastChild)) {
-			return;
+		let lastChild: Node | null = frag.lastChild;
+		if (!lastChild) {
+			return undefined;
 		}
 
+		// isInline() treats a null/non-element node as inline (returns true),
+		// so lastChild is never dereferenced here once it becomes null.
 		while (!dom.isInline(lastChild.lastChild, true)) {
-			lastChild = lastChild.lastChild;
+			lastChild = lastChild.lastChild!;
 		}
 
 		if (dom.canHaveChildren(lastChild)) {
@@ -168,8 +205,8 @@ export default function RangeHelper(win, d, sanitize) {
 
 		// Append marks to last child so when restored cursor will be in
 		// the right place
-		dom.appendChild(lastChild, _createMarker(startMarker));
-		dom.appendChild(lastChild, _createMarker(endMarker));
+		dom.appendChild(lastChild!, _createMarker(startMarker));
+		dom.appendChild(lastChild!, _createMarker(endMarker));
 
 		if (returnHtml) {
 			const div = dom.createElement('div');
@@ -179,7 +216,7 @@ export default function RangeHelper(win, d, sanitize) {
 		}
 
 		return frag;
-	};
+	}
 
 	/**
 	 * The same as insertHTML except with DOM nodes instead
@@ -190,25 +227,24 @@ export default function RangeHelper(win, d, sanitize) {
 	 *
 	 * Returns boolean false on fail
 	 *
-	 * @param {Node} node
-	 * @param {Node} endNode
 	 * @return {false|undefined}
 	 * @function
 	 * @name insertNode
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.insertNode = function (node, endNode) {
-		var	first, last;
-		const input = _prepareInput(node, endNode);
-		const range = base.selectedRange();
+	base.insertNode = function (node: Node, endNode?: Node) {
+		let first: ChildNode | null | undefined;
+		let last: ChildNode | null | undefined;
+		const input = _prepareInput(node, endNode) as Node | undefined;
+		const range = base.selectedRange()!;
 		const parent = range.commonAncestorContainer;
-		var emptyNodes = [];
+		const emptyNodes: Node[] = [];
 
 		if (!input) {
 			return false;
 		}
 
-		function removeIfEmpty(node) {
+		function removeIfEmpty(node: Node | null | undefined) {
 			// Only remove empty node if it wasn't already empty
 			if (node && dom.isEmpty(node) && emptyNodes.indexOf(node) < 0) {
 				dom.remove(node);
@@ -222,8 +258,8 @@ export default function RangeHelper(win, d, sanitize) {
 				}
 			});
 
-			first = input.firstChild;
-			last = input.lastChild;
+			first = (input as DocumentFragment).firstChild;
+			last = (input as DocumentFragment).lastChild;
 		}
 
 		range.deleteContents();
@@ -248,12 +284,13 @@ export default function RangeHelper(win, d, sanitize) {
 		}
 
 		base.restoreRange();
+
+		return undefined;
 	};
 
 	/**
 	 * Clones the selected Range
 	 *
-	 * @return {Range}
 	 * @function
 	 * @name cloneSelected
 	 * @memberOf RangeHelper.prototype
@@ -264,22 +301,24 @@ export default function RangeHelper(win, d, sanitize) {
 		if (range) {
 			return range.cloneRange();
 		}
+
+		return undefined;
 	};
 
 	/**
 	 * Gets the selected Range
 	 *
-	 * @return {Range}
 	 * @function
 	 * @name selectedRange
 	 * @memberOf RangeHelper.prototype
 	 */
 	base.selectedRange = function () {
-		var	range, firstChild;
+		let range: Range | undefined;
+		let firstChild: Node;
 		const sel = win.getSelection();
 
 		if (!sel) {
-			return;
+			return undefined;
 		}
 
 		// When creating a new range, set the start to the first child
@@ -308,7 +347,6 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Gets if there is currently a selection
 	 *
-	 * @return {boolean}
 	 * @function
 	 * @name hasSelection
 	 * @since 1.4.4
@@ -317,23 +355,21 @@ export default function RangeHelper(win, d, sanitize) {
 	base.hasSelection = function () {
 		const sel = win.getSelection();
 
-		return sel && sel.rangeCount > 0;
+		return !!sel && sel.rangeCount > 0;
 	};
 
 	/**
 	 * Gets the currently selected HTML
 	 *
-	 * @return {string}
 	 * @function
 	 * @name selectedHtml
 	 * @memberOf RangeHelper.prototype
 	 */
 	base.selectedHtml = function () {
-		var	div;
 		const range = base.selectedRange();
 
 		if (range) {
-			div = dom.createElement('p', {}, doc);
+			const div = dom.createElement('p', {}, doc);
 			dom.appendChild(div, range.cloneContents());
 
 			return div.innerHTML;
@@ -345,7 +381,6 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Gets the parent node of the selected contents in the range
 	 *
-	 * @return {HTMLElement}
 	 * @function
 	 * @name parentNode
 	 * @memberOf RangeHelper.prototype
@@ -356,31 +391,23 @@ export default function RangeHelper(win, d, sanitize) {
 		if (range) {
 			return range.commonAncestorContainer;
 		}
+
+		return undefined;
 	};
 
 	/**
 	 * Gets the first block level parent of the selected
 	 * contents of the range.
 	 *
-	 * @return {HTMLElement}
+	 * @param [n] The element to get the first block level parent from
 	 * @function
 	 * @name getFirstBlockParent
-	 * @memberOf RangeHelper.prototype
-	 */
-	/**
-	 * Gets the first block level parent of the selected
-	 * contents of the range.
-	 *
-	 * @param {Node} [n] The element to get the first block level parent from
-	 * @return {HTMLElement}
-	 * @function
-	 * @name getFirstBlockParent^2
 	 * @since 1.4.1
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.getFirstBlockParent = function (node) {
-		var func = function (elm) {
-			if (!dom.isInline(elm, true)) {
+	base.getFirstBlockParent = function (node?: Node) {
+		const func = function (elm: Node | null | undefined): Node | null | undefined {
+			if (!dom.isInline(elm as Node, true)) {
 				return elm;
 			}
 
@@ -395,13 +422,11 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Inserts a node at either the start or end of the current selection
 	 *
-	 * @param {Bool} start
-	 * @param {Node} node
 	 * @function
 	 * @name insertNodeAt
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.insertNodeAt = function (start, node) {
+	base.insertNodeAt = function (start: boolean, node: Node) {
 		const currentRange = base.selectedRange();
 		const range = base.cloneSelected();
 
@@ -414,29 +439,31 @@ export default function RangeHelper(win, d, sanitize) {
 
 		// Reselect the current range.
 		// Fixes issue with Chrome losing the selection. Issue#82
-		base.selectRange(currentRange);
+		if (currentRange) {
+			base.selectRange(currentRange);
+		}
+
+		return undefined;
 	};
 
 	/**
 	 * Creates a marker node
 	 *
-	 * @param {string} id
-	 * @return {HTMLSpanElement}
 	 * @private
 	 */
-	_createMarker = function (id) {
+	function _createMarker(id: string): HTMLSpanElement {
 		base.removeMarker(id);
 
 		const marker = dom.createElement('span', {
 			id: id,
 			className: 'sceditor-selection sceditor-ignore',
 			style: 'display:none;line-height:0'
-		}, doc);
+		}, doc) as HTMLSpanElement;
 
 		marker.innerHTML = ' ';
 
 		return marker;
-	};
+	}
 
 	/**
 	 * Inserts start/end markers for the current selection
@@ -457,7 +484,7 @@ export default function RangeHelper(win, d, sanitize) {
 		// Fixes issue with end marker sometimes being placed before
 		// the start marker when the range is collapsed.
 		if (currentRange && currentRange.collapsed) {
-			startNode.parentNode.insertBefore(
+			startNode.parentNode!.insertBefore(
 				_createMarker(endMarker), startNode.nextSibling);
 		} else {
 			base.insertNodeAt(false, _createMarker(endMarker));
@@ -467,25 +494,22 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Gets the marker with the specified ID
 	 *
-	 * @param {string} id
-	 * @return {Node}
 	 * @function
 	 * @name getMarker
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.getMarker = function (id) {
+	base.getMarker = function (id: string) {
 		return doc.getElementById(id);
 	};
 
 	/**
 	 * Removes the marker with the specified ID
 	 *
-	 * @param {string} id
 	 * @function
 	 * @name removeMarker
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.removeMarker = function (id) {
+	base.removeMarker = function (id: string) {
 		const marker = base.getMarker(id);
 
 		if (marker) {
@@ -519,13 +543,11 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Select the specified range
 	 *
-	 * @param {Range} range
 	 * @function
 	 * @name selectRange
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.selectRange = function (range) {
-		var lastChild;
+	base.selectRange = function (range: Range) {
 		const sel = win.getSelection();
 		const container = range.endContainer;
 
@@ -535,18 +557,18 @@ export default function RangeHelper(win, d, sanitize) {
 		if (range.collapsed && container &&
 			!dom.isInline(container, true)) {
 
-			lastChild = container.lastChild;
+			let lastChild: ChildNode | Node | null = container.lastChild;
 			while (lastChild && dom.is(lastChild, '.sceditor-ignore')) {
 				lastChild = lastChild.previousSibling;
 			}
 
 			if (dom.is(lastChild, 'br')) {
 				const rng = doc.createRange();
-				rng.setEndAfter(lastChild);
+				rng.setEndAfter(lastChild as Node);
 				rng.collapse(false);
 
 				if (base.compare(range, rng)) {
-					range.setStartBefore(lastChild);
+					range.setStartBefore(lastChild as Node);
 					range.collapse(true);
 				}
 			}
@@ -566,8 +588,7 @@ export default function RangeHelper(win, d, sanitize) {
 	 * @memberOf RangeHelper.prototype
 	 */
 	base.restoreRange = function () {
-		var	isCollapsed,
-			range = base.selectedRange();
+		let range = base.selectedRange();
 		const start = base.getMarker(startMarker);
 		const end = base.getMarker(endMarker);
 
@@ -575,7 +596,7 @@ export default function RangeHelper(win, d, sanitize) {
 			return false;
 		}
 
-		isCollapsed = start.nextSibling === end;
+		const isCollapsed = start.nextSibling === end;
 
 		range = doc.createRange();
 		range.setStartBefore(start);
@@ -587,20 +608,19 @@ export default function RangeHelper(win, d, sanitize) {
 
 		base.selectRange(range);
 		base.removeMarkers();
+
+		return undefined;
 	};
 
 	/**
 	 * Selects the text left and right of the current selection
 	 *
-	 * @param {number} left
-	 * @param {number} right
 	 * @since 1.4.3
 	 * @function
 	 * @name selectOuterText
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.selectOuterText = function (left, right) {
-		var start, end;
+	base.selectOuterText = function (left: number, right: number) {
 		const range = base.cloneSelected();
 
 		if (!range) {
@@ -609,27 +629,26 @@ export default function RangeHelper(win, d, sanitize) {
 
 		range.collapse(false);
 
-		start = outerText(range, true, left);
-		end = outerText(range, false, right);
+		const start = outerText(range, true, left);
+		const end = outerText(range, false, right);
 
 		range.setStart(start.node, start.offset);
 		range.setEnd(end.node, end.offset);
 
 		base.selectRange(range);
+
+		return undefined;
 	};
 
 	/**
 	 * Gets the text left or right of the current selection
 	 *
-	 * @param {boolean} before
-	 * @param {number} length
-	 * @return {string}
 	 * @since 1.4.3
 	 * @function
 	 * @name selectOuterText
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.getOuterText = function (before, length) {
+	base.getOuterText = function (before: boolean, length: number) {
 		const range = base.cloneSelected();
 
 		if (!range) {
@@ -644,31 +663,30 @@ export default function RangeHelper(win, d, sanitize) {
 	/**
 	 * Replaces keywords with values based on the current caret position
 	 *
-	 * @param {Array}   keywords
-	 * @param {boolean} includeAfter      If to include the text after the
-	 *                                    current caret position or just
-	 *                                    text before
-	 * @param {boolean} keywordsSorted    If the keywords array is pre
-	 *                                    sorted shortest to longest
-	 * @param {number}  longestKeyword    Length of the longest keyword
-	 * @param {boolean} requireWhitespace If the key must be surrounded
-	 *                                    by whitespace
-	 * @param {string}  keypressChar      If this is being called from
-	 *                                    a keypress event, this should be
-	 *                                    set to the pressed character
-	 * @return {boolean}
+	 * @param keywords
+	 * @param includeAfter      If to include the text after the
+	 *                          current caret position or just
+	 *                          text before
+	 * @param keywordsSorted    If the keywords array is pre
+	 *                          sorted shortest to longest
+	 * @param longestKeyword    Length of the longest keyword
+	 * @param requireWhitespace If the key must be surrounded
+	 *                          by whitespace
+	 * @param keypressChar      If this is being called from
+	 *                          a keypress event, this should be
+	 *                          set to the pressed character
 	 * @function
 	 * @name replaceKeyword
 	 * @memberOf RangeHelper.prototype
 	 */
 	// eslint-disable-next-line max-params
 	base.replaceKeyword = function (
-		keywords,
-		includeAfter,
-		keywordsSorted,
-		longestKeyword,
-		requireWhitespace,
-		keypressChar
+		keywords: Array<[string, string]>,
+		includeAfter: boolean,
+		keywordsSorted?: boolean,
+		longestKeyword?: number,
+		requireWhitespace?: boolean,
+		keypressChar?: string
 	) {
 		if (!keywordsSorted) {
 			keywords.sort(function (a, b) {
@@ -676,12 +694,10 @@ export default function RangeHelper(win, d, sanitize) {
 			});
 		}
 
-		var outerText, match, matchPos, startIndex,
-			leftLen, charsLeft, keyword, keywordLen;
 		const whitespaceRegex = '(^|[\\s\xA0\u2002\u2003\u2009])';
-		var keywordIdx      = keywords.length;
+		let keywordIdx = keywords.length;
 		const whitespaceLen = requireWhitespace ? 1 : 0;
-		var maxKeyLen       = longestKeyword ||
+		let maxKeyLen = longestKeyword ||
             keywords[keywordIdx - 1][0].length;
 
 		if (requireWhitespace) {
@@ -689,33 +705,33 @@ export default function RangeHelper(win, d, sanitize) {
 		}
 
 		keypressChar = keypressChar || '';
-		outerText    = base.getOuterText(true, maxKeyLen);
-		leftLen      = outerText.length;
-		outerText   += keypressChar;
+		let outerTextStr = base.getOuterText(true, maxKeyLen);
+		const leftLen = outerTextStr.length;
+		outerTextStr += keypressChar;
 
 		if (includeAfter) {
-			outerText += base.getOuterText(false, maxKeyLen);
+			outerTextStr += base.getOuterText(false, maxKeyLen);
 		}
 
 		while (keywordIdx--) {
-			keyword    = keywords[keywordIdx][0];
-			keywordLen = keyword.length;
-			startIndex = Math.max(0, leftLen - keywordLen - whitespaceLen);
-			matchPos   = -1;
+			const keyword = keywords[keywordIdx][0];
+			const keywordLen = keyword.length;
+			const startIndex = Math.max(0, leftLen - keywordLen - whitespaceLen);
+			let matchPos = -1;
 
 			if (requireWhitespace) {
-				match = outerText
+				const match = outerTextStr
 					.substr(startIndex)
 					.match(new RegExp(whitespaceRegex +
 						escape.regex(keyword) + whitespaceRegex));
 
-				if (match) {
+				if (match && match.index !== undefined) {
 					// Add the length of the text that was removed by
 					// substr() and also add 1 for the whitespace
 					matchPos = match.index + startIndex + match[1].length;
 				}
 			} else {
-				matchPos = outerText.indexOf(keyword, startIndex);
+				matchPos = outerTextStr.indexOf(keyword, startIndex);
 			}
 
 			if (matchPos > -1) {
@@ -723,7 +739,7 @@ export default function RangeHelper(win, d, sanitize) {
 				// after, not just entirely in one side or the other
 				if (matchPos <= leftLen &&
 					matchPos + keywordLen + whitespaceLen >= leftLen) {
-					charsLeft = leftLen - matchPos;
+					const charsLeft = leftLen - matchPos;
 
 					// If the keypress char is white space then it should
 					// not be replaced, only chars that are part of the
@@ -749,14 +765,11 @@ export default function RangeHelper(win, d, sanitize) {
 	 * If rangeB is undefined it will be set to
 	 * the current selected range
 	 *
-	 * @param  {Range} rngA
-	 * @param  {Range} [rngB]
-	 * @return {boolean}
 	 * @function
 	 * @name compare
 	 * @memberOf RangeHelper.prototype
 	 */
-	base.compare = function (rngA, rngB) {
+	base.compare = function (rngA: Range | undefined, rngB?: Range) {
 		if (!rngB) {
 			rngB = base.selectedRange();
 		}
@@ -778,7 +791,7 @@ export default function RangeHelper(win, d, sanitize) {
 	 * @memberOf RangeHelper.prototype
 	 */
 	base.clear = function () {
-		const sel = win.getSelection();
+		const sel = win.getSelection() as (Selection & { empty?: () => void }) | null;
 
 		if (sel) {
 			if (sel.removeAllRanges) {
@@ -788,4 +801,4 @@ export default function RangeHelper(win, d, sanitize) {
 			}
 		}
 	};
-};
+}

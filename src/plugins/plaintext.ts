@@ -12,8 +12,11 @@
 (function (sceditor) {
 	'use strict';
 
-	var utils = sceditor.utils;
-	var dom = sceditor.dom;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
+
+	const utils = sceditor.utils;
+	const dom = sceditor.dom;
 
 	/**
 	 * Options:
@@ -24,10 +27,10 @@
 	 * pastetext.enabled - If the plain text button should be enabled at start
 	 *                     up. Only applies if addButton is enabled.
 	 */
-	sceditor.plugins.plaintext = function () {
-		var plainTextEnabled = true;
+	sceditor.plugins.plaintext = function (this: Any) {
+		let plainTextEnabled = true;
 
-		this.init = function () {
+		this.init = function (this: Any) {
 			const commands = this.commands;
 			const opts = this.opts;
 
@@ -45,7 +48,7 @@
 			}
 		};
 
-		this.signalPasteRaw = function (data) {
+		this.signalPasteRaw = function (data: Any) {
 			if (plainTextEnabled) {
 				if (data.html && !data.text) {
 					const div = document.createElement('div');
@@ -54,12 +57,12 @@
 					// TODO: Refactor into private shared module with editor
 					// innerText adds two newlines after <p> tags so convert
 					// them to <div> tags
-					utils.each(div.querySelectorAll('p'), function (_, elm) {
+					utils.each(div.querySelectorAll('p'), function (_: Any, elm: Any) {
 						dom.convertElement(elm, 'div');
 					});
 					// Remove collapsed <br> tags as innerText converts them to
 					// newlines
-					utils.each(div.querySelectorAll('br'), function (_, elm) {
+					utils.each(div.querySelectorAll('br'), function (_: Any, elm: Any) {
 						if (!elm.nextSibling ||
 						!dom.isInline(elm.nextSibling, true)) {
 							elm.parentNode.removeChild(elm);
@@ -74,5 +77,5 @@
 				data.html = null;
 			}
 		};
-	};
+	} as Any;
 }(sceditor));

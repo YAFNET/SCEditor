@@ -5,10 +5,9 @@ import DOMPurify from 'dompurify';
 
 /**
  * HTML templates used by the editor and default commands
- * @type {Object}
  * @private
  */
-var _templates = {
+const _templates: Record<string, string> = {
 	html:
 		'<!DOCTYPE html>' +
 			'<html data-bs-theme="{themeMode}">' +
@@ -135,17 +134,33 @@ var _templates = {
  * If createHtml is passed it will return a DocumentFragment
  * containing the parsed template.
  *
- * @param {string} name
- * @param {Object} [params]
- * @param {boolean} [createHtml]
- * @param {boolean} [sanitize=true]
- * @returns {string|DocumentFragment}
+ * NOTE: despite the `sanitize` name/default below, omitting it (as most
+ * call sites do) currently disables sanitization entirely - preserved
+ * as-is, see conversion notes.
+ *
  * @private
  */
-export default function(name, params, createHtml, sanitize) {
-	var template = _templates[name];
+export default function template(
+	name: string,
+	params: Record<string, unknown>,
+	createHtml: true,
+	sanitize?: boolean
+): DocumentFragment;
+export default function template(
+	name: string,
+	params: Record<string, unknown>,
+	createHtml?: boolean,
+	sanitize?: boolean
+): string;
+export default function template(
+	name: string,
+	params: Record<string, unknown>,
+	createHtml?: boolean,
+	sanitize?: boolean
+): string | DocumentFragment {
+	let renderedTemplate = _templates[name];
 
-	Object.keys(params).forEach(function(name) {
+	Object.keys(params).forEach(function (paramName) {
 
 		if (typeof sanitize === 'undefined') {
 			sanitize = false;
@@ -153,23 +168,23 @@ export default function(name, params, createHtml, sanitize) {
 
 		// Default to sanitizing
 		if (sanitize !== false) {
-			params[name] = escape.entities(String(params[name]));
+			params[paramName] = escape.entities(String(params[paramName]));
 		}
 
-		template = template.replace(
-			new RegExp(escape.regex(`{${name}}`), 'g'),
-			params[name]
+		renderedTemplate = renderedTemplate.replace(
+			new RegExp(escape.regex(`{${paramName}}`), 'g'),
+			String(params[paramName])
 		);
 	});
 
 	// Default to sanitizing
 	if (sanitize !== false) {
-		template = DOMPurify.sanitize(template, {ADD_ATTR: ['unselectable']});
+		renderedTemplate = DOMPurify.sanitize(renderedTemplate, { ADD_ATTR: ['unselectable'] });
 	}
 
 	if (createHtml) {
-		template = dom.parseHTML(template);
+		return dom.parseHTML(renderedTemplate);
 	}
 
-	return template;
-};
+	return renderedTemplate;
+}

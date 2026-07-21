@@ -1,10 +1,10 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 	patchConsole();
 
-	runner.setup(function () {
-		var that = this;
+	runner.setup(function (this: Any) {
+		const that = this;
 
-		var textarea = document.getElementById('testarea');
+		const textarea = document.getElementById('testarea') as HTMLTextAreaElement;
 
 		sceditor.create(textarea, {
 			width: '100%',
@@ -16,25 +16,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 
 
-		that.count  = 0;
+		that.count = 0;
 		that.editor = sceditor.instance(textarea);
 		that.clearCount = function () {
 			that.count = 0;
 
-			document.getElementById('count').textContent = that.count;
+			(document.getElementById('count') as HTMLElement).textContent = that.count;
 		};
 
 
 		that.editor.bind('valuechanged', function () {
-			document.getElementById('count').textContent = ++that.count;
+			(document.getElementById('count') as HTMLElement).textContent = String(++that.count);
 		});
 
 
-		document.querySelector('#counter .passed').addEventListener('click', () => {
+		(document.querySelector('#counter .passed') as HTMLElement).addEventListener('click', () => {
 			runner._done(true);
 		});
 
-		document.querySelector('#counter .failed').addEventListener('click', () => {
+		(document.querySelector('#counter .failed') as HTMLElement).addEventListener('click', () => {
 			runner._done(false);
 		});
 
@@ -47,10 +47,10 @@ runner.test({
 	title: 'WYSIWYG text',
 	instructions: 'Enter some text without pressing space or back space, ' +
 		'after 1.5 seconds the counter increment.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -59,10 +59,10 @@ runner.test({
 	title: 'WYSIWYG text followed by space',
 	instructions: 'Enter some text then press space, the counter should ' +
 		'increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -72,10 +72,10 @@ runner.test({
 	instructions: 'Press space one or more times then enter some text, ' +
 		'the counter should increment immediately after the first piece ' +
 		'of text is entered.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -84,10 +84,10 @@ runner.test({
 	title: 'WYSIWYG text followed by backspace',
 	instructions: 'Enter some text then press backspace, the counter ' +
 		'should increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -96,10 +96,10 @@ runner.test({
 	title: 'WYSIWYG backspace followed by text',
 	instructions: 'Press backspace one or more times then enter some text, ' +
 		'the counter should increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -108,10 +108,10 @@ runner.test({
 	title: 'WYSIWYG cut',
 	instructions: 'Cut some text, the counter should increment ' +
 		'after 1.5 seconds.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -119,10 +119,10 @@ runner.test({
 runner.test({
 	title: 'WYSIWYG paste',
 	instructions: 'Paste some text, the counter should increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -131,11 +131,11 @@ runner.test({
 	title: 'SourceMode text',
 	instructions: 'Enter some text without pressing space or back space, ' +
 		'after 1.5 seconds the counter increment.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.sourceMode(true);
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -144,10 +144,10 @@ runner.test({
 	title: 'SourceMode text followed by space',
 	instructions: 'Enter some text then press space, the counter should ' +
 		'increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -157,10 +157,10 @@ runner.test({
 	instructions: 'Press space one or more times then enter some text, ' +
 		'the counter should increment immediately after the first piece ' +
 		'of text is entered.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -169,10 +169,10 @@ runner.test({
 	title: 'SourceMode text followed by backspace',
 	instructions: 'Enter some text then press backspace, the counter ' +
 		'should increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -181,10 +181,10 @@ runner.test({
 	title: 'SourceMode backspace followed by text',
 	instructions: 'Press backspace one or more times then enter some text, ' +
 		'the counter should increment immediately.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -193,10 +193,10 @@ runner.test({
 	title: 'SourceMode cut',
 	instructions: 'Cut some text, the counter should increment ' +
 		'after 1.5 seconds.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });
@@ -205,10 +205,10 @@ runner.test({
 	title: 'SourceMode paste',
 	instructions: 'Paste some text, the counter should increment ' +
 		'after 1.5 seconds.',
-	setup: function () {
+	setup: function (this: Any) {
 		this.editor.focus();
 	},
-	teardown: function () {
+	teardown: function (this: Any) {
 		this.clearCount();
 	}
 }, function () { });

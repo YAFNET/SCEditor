@@ -14,22 +14,64 @@
 	/*eslint max-depth: off*/
 	'use strict';
 
-	var escapeEntities = sceditor.escapeEntities;
-	var escapeUriScheme = sceditor.escapeUriScheme;
-	var dom = sceditor.dom;
-	var utils = sceditor.utils;
+	interface BBCodeAttrs {
+		defaultattr?: string;
+		[key: string]: string | undefined;
+	}
 
-	var css = dom.css;
-	var attr = dom.attr;
-	var is = dom.is;
-	var extend = utils.extend;
-	var each = utils.each;
+	interface BBCodeToken {
+		type: string;
+		name: string;
+		val: string;
+		attrs: BBCodeAttrs;
+		children: BBCodeToken[];
+		closing: BBCodeToken | null;
+		clone(): BBCodeToken;
+		splitAt(splitAt: BBCodeToken): BBCodeToken;
+	}
 
-	var editorOptions;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
 
-	var getEditorCommand = sceditor.command.get;
+	interface BBCodeHandler {
+		tags?: Record<string, Record<string, unknown> | null>;
+		styles?: Record<string, string[] | null>;
+		format?: string | ((this: Any, element: Any, content: string) => string);
+		html?: string | ((token: BBCodeToken, attrs: BBCodeAttrs, content: string) => string);
+		isInline?: boolean;
+		isHtmlInline?: boolean;
+		isSelfClosing?: boolean;
+		isPreFormatted?: boolean;
+		allowsEmpty?: boolean;
+		allowedChildren?: string[];
+		closedBy?: string[];
+		skipLastLineBreak?: boolean;
+		excludeClosing?: boolean;
+		breakBefore?: boolean;
+		breakStart?: boolean;
+		breakEnd?: boolean;
+		breakAfter?: boolean;
+		quoteType?: number | ((str: string, name: string) => string);
+		strictMatch?: boolean;
+		[key: string]: unknown;
+	}
 
-	var QuoteType = {
+	const escapeEntities = sceditor.escapeEntities;
+	const escapeUriScheme = sceditor.escapeUriScheme;
+	const dom = sceditor.dom;
+	const utils = sceditor.utils;
+
+	const css = dom.css as (node: Any, rule: Any, value?: Any) => Any;
+	const attr = dom.attr as (node: Any, attr: string, value?: Any) => Any;
+	const is = dom.is as (node: Any, selector?: string) => boolean;
+	const extend = utils.extend as (target: Any, ...sources: Any[]) => Any;
+	const each = utils.each as (obj: Any, fn: (key: Any, value: Any) => void) => void;
+
+	let editorOptions: Any;
+
+	const getEditorCommand = sceditor.command.get as (name: string) => Any;
+
+	const QuoteType = {
 		/** @lends BBCodeParser.QuoteType */
 		/**
 		 * Always quote the attribute value
@@ -50,7 +92,7 @@
 		auto: 3
 	};
 
-	var defaultCommandsOverrides = {
+	const defaultCommandsOverrides: Record<string, Any> = {
 		bold: {
 			txtExec: ['[b]', '[/b]']
 		},
@@ -79,13 +121,13 @@
 			txtExec: ['[justify]', '[/justify]']
 		},
 		font: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('font')._dropDown(
 					editor,
 					caller,
-					function (fontName) {
+					function (fontName: string) {
 						editor.insertText(
 							`[font=${fontName}]`,
 							'[/font]'
@@ -95,13 +137,13 @@
 			}
 		},
 		size: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('size')._dropDown(
 					editor,
 					caller,
-					function (fontSize) {
+					function (fontSize: string) {
 						editor.insertText(
 							`[size=${fontSize}]`,
 							'[/size]'
@@ -111,13 +153,13 @@
 			}
 		},
 		color: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('color')._dropDown(
 					editor,
 					caller,
-					function (color) {
+					function (color: string) {
 						editor.insertText(
 							`[color=${color}]`,
 							'[/color]'
@@ -127,14 +169,14 @@
 			}
 		},
 		bulletlist: {
-			txtExec: function (caller, selected) {
+			txtExec: function (this: Any, caller: Any, selected: string) {
 				this.insertText(
 					`[list]\n[list]${selected.split(/\r?\n/).join('[/li]\n[li]')}[/li]\n[/ul]`
 				);
 			}
 		},
 		orderedlist: {
-			txtExec: function (caller, selected) {
+			txtExec: function (this: Any, caller: Any, selected: string) {
 				this.insertText(
 					`[list=I]\n[li]${selected.split(/\r?\n/).join('[/li]\n[li]')}[/li]\n[/list]`
 				);
@@ -144,13 +186,13 @@
 			txtExec: ['[table][tr][td]', '[/td][/tr][/table]']
 		},
 		code: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('code')._dropDown(
 					editor,
 					caller,
-					function (language) {
+					function (language: string) {
 						editor.insertText(
 							`[code=${language}]`,
 							'[/code]'
@@ -160,13 +202,13 @@
 			}
 		},
 		note: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('note')._dropDown(
 					editor,
 					caller,
-					function (type) {
+					function (type: string) {
 						editor.insertText(
 							`[note=${type}]`,
 							'[/note]'
@@ -176,13 +218,13 @@
 			}
 		},
 		extensions: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('extensions')._dropDown(
 					editor,
 					caller,
-					function (extension) {
+					function (extension: string) {
 						editor.insertText(
 							`[${extension}]`,
 							`[/${extension}]`
@@ -192,13 +234,13 @@
 			}
 		},
 		image: {
-			txtExec: function (caller, selected) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any, selected: string) {
+				const editor = this;
 
 				getEditorCommand('image')._dropDown(
 					editor,
 					caller,
-					function (url, text) {
+					function (url: string, text: string) {
 						if (text || selected) {
 							editor.insertText(
 								`[img=${url}]${text || selected || url}[/img]`
@@ -211,13 +253,13 @@
 			}
 		},
 		email: {
-			txtExec: function (caller, selected) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any, selected: string) {
+				const editor = this;
 
 				getEditorCommand('email')._dropDown(
 					editor,
 					caller,
-					function (url, text) {
+					function (url: string, text: string) {
 						editor.insertText(
 							`[email=${url}]${text || selected || url}[/email]`
 						);
@@ -226,13 +268,13 @@
 			}
 		},
 		link: {
-			txtExec: function (caller, selected) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any, selected: string) {
+				const editor = this;
 
 				getEditorCommand('link')._dropDown(
 					editor,
 					caller,
-					function (url, text) {
+					function (url: string, text: string) {
 						if (selected || text) {
 							editor.insertText(
 								`[url=${url}]${text || selected || url}[/url]`
@@ -253,91 +295,91 @@
 			txtExec: ['[userlink]', '[/userlink]']
 		},
 		albums: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('albums')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[albumid]${url}[/albumid]`);
 					}
 				);
 			}
 		},
 		attachments: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('attachments')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[attach]${url}[/attach]`);
 					}
 				);
 			}
 		},
 		media: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('media')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[media]${url}[/media]`);
 					}
 				);
 			}
 		},
 		vimeo: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('vimeo')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[vimeo]${url}[/vimeo]`);
 					}
 				);
 			}
 		},
 		instagram: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('instagram')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[instagram]${url}[/instagram]`);
 					}
 				);
 			}
 		},
 		facebook: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('facebook')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[facebook]${url}[/facebook]`);
 					}
 				);
 			}
 		},
 		youtube: {
-			txtExec: function (caller) {
-				var editor = this;
+			txtExec: function (this: Any, caller: Any) {
+				const editor = this;
 
 				getEditorCommand('youtube')._dropDown(
 					editor,
 					caller,
-					function (url) {
+					function (url: string) {
 						editor.insertText(`[youtube]${url}[/youtube]`);
 					}
 				);
@@ -345,7 +387,7 @@
 		}
 	};
 
-	var bbcodeHandlers = {
+	const bbcodeHandlers: Record<string, BBCodeHandler> = {
 		// START_COMMAND: Bold
 		b: {
 			tags: {
@@ -445,8 +487,8 @@
 				'font-family': null
 			},
 			quoteType: QuoteType.never,
-			format: function (element, content) {
-				var font;
+			format: function (element: Any, content: string) {
+				let font;
 
 				if (!is(element, 'font') || !(font = attr(element, 'face'))) {
 					font = css(element, 'font-family');
@@ -468,9 +510,9 @@
 			styles: {
 				'font-size': null
 			},
-			format: function (element, content) {
-				var fontSize = attr(element, 'size'),
-					size = 2;
+			format: function (element: Any, content: string) {
+				let fontSize = attr(element, 'size');
+				let size: Any = 2;
 
 				if (!fontSize) {
 					fontSize = css(element, 'fontSize');
@@ -520,8 +562,8 @@
 				color: null
 			},
 			quoteType: QuoteType.never,
-			format: function (elm, content) {
-				var color;
+			format: function (elm: Any, content: string) {
+				let color;
 
 				if (!is(elm, 'font') || !(color = attr(elm, 'color'))) {
 					color = elm.style.color || css(elm, 'color');
@@ -529,7 +571,7 @@
 
 				return `[color=${_normaliseColour(color)}]${content}[/color]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				return `<font color="${escapeEntities(_normaliseColour(attrs.defaultattr), true)}">${content}</font>`;
 			}
 		},
@@ -643,8 +685,8 @@
 			},
 			allowedChildren: ['#'],
 			quoteType: QuoteType.never,
-			format: function (element) {
-				var desc;
+			format: function (element: Any) {
+				let desc;
 
 				desc = attr(element, 'alt');
 
@@ -654,9 +696,9 @@
 
 				return `[img]${attr(element, 'src')}[/img]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				attrs.defaultattr =
-					escapeEntities(attrs.defaultattr, true) || content;
+					escapeEntities(attrs.defaultattr ?? null, true) || content;
 
 				return `<img src="${escapeUriScheme(attrs.defaultattr)}" alt="${content
 				}" class="img-user-posted img-thumbnail" />`;
@@ -672,10 +714,10 @@
 					class: 'badge rounded-pill text-bg-secondary fs-6'
 				}
 			},
-			format: function (element) {
+			format: function (element: Any) {
 				return `[userlink]${attr(element, 'data-user')}[/userlink]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 
 				return `<span class="badge rounded-pill text-bg-secondary fs-6" data-user="${escapeEntities(content)
 				}">${escapeEntities(content)}</span>`;
@@ -694,12 +736,12 @@
 			},
 			allowedChildren: ['#'],
 			quoteType: QuoteType.never,
-			format: function (element) {
+			format: function (element: Any) {
 				return `[albumimg]${attr(element, 'alt')}[/albumimg]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				attrs.defaultattr =
-					escapeEntities(attrs.defaultattr, true) || content;
+					escapeEntities(attrs.defaultattr ?? null, true) || content;
 
 				return `<div class="card text-bg-dark" style="max-width:200px" alt="${content}"><img src="${
 					editorOptions.albumsPreviewUrl}${escapeUriScheme(attrs.defaultattr)
@@ -717,7 +759,7 @@
 				}
 			},
 			quoteType: QuoteType.never,
-			format: function (element, content) {
+			format: function (element: Any, content: string) {
 				const url = attr(element, 'href');
 
 				// make sure this link is not an e-mail,
@@ -728,9 +770,9 @@
 
 				return `[url=${url}]${content}[/url]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				attrs.defaultattr =
-					escapeEntities(attrs.defaultattr, true) || content;
+					escapeEntities(attrs.defaultattr ?? null, true) || content;
 
 				return `<a href="${escapeUriScheme(attrs.defaultattr)}" class="link">${content}</a>`;
 			}
@@ -740,8 +782,8 @@
 		// START_COMMAND: E-mail
 		email: {
 			quoteType: QuoteType.never,
-			html: function (token, attrs, content) {
-				return `<a href="mailto:${escapeEntities(attrs.defaultattr, true) || content}">${content}</a>`;
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
+				return `<a href="mailto:${escapeEntities(attrs.defaultattr ?? null, true) || content}">${content}</a>`;
 			}
 		},
 		// END_COMMAND
@@ -755,9 +797,9 @@
 			},
 			isInline: false,
 			quoteType: QuoteType.never,
-			format: function (element, content) {
-				var author = '';
-				var cite;
+			format: function (this: Any, element: Any, content: string) {
+				let author = '';
+				let cite: Any;
 				const children = element.children;
 
 				for (let i = 0; !cite && i < children.length; i++) {
@@ -784,7 +826,7 @@
 
 				return `[quote${author}]${content}[/quote]`;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				if (attrs.defaultattr) {
 					content = content +
 						'<cite class="card-text text-end d-block text-body-secondary small">' +
@@ -807,8 +849,8 @@
 			},
 			isInline: false,
 			allowedChildren: ['#', '#newline'],
-			format: function (element, content) {
-				var codeLanguage;
+			format: function (element: Any, content: string) {
+				let codeLanguage;
 
 				if (!is(element, 'code') || !(codeLanguage = attr(element, 'class'))) {
 					codeLanguage = element.className.replace('lang-', '');
@@ -831,8 +873,8 @@
 			},
 			isInline: false,
 			allowedChildren: ['#', '#newline'],
-			format: function (element, content) {
-				var type;
+			format: function (element: Any, content: string) {
+				let type;
 
 				if (!(type = attr(element, 'class'))) {
 					type = element.className.replace('alert alert-', '');
@@ -923,12 +965,12 @@
 					'data-facebook-url': null
 				}
 			},
-			format: function (element, content) {
+			format: function (element: Any) {
 				element = attr(element, 'data-facebook-url');
 
-				return element ? `[facebook]${element}[/facebook]` : content;
+				return element ? `[facebook]${element}[/facebook]` : element;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
 
 				return `<div class="ratio ratio-1x1" data-oembed-url="${url}" data-facebook-url="${url
@@ -945,17 +987,15 @@
 					'data-instagram-url': null
 				}
 			},
-			format: function (element, content) {
+			format: function (element: Any) {
 				element = attr(element, 'data-instagram-url');
 
-				return element ? `[instagram]${element}[/instagram]` : content;
+				return element ? `[instagram]${element}[/instagram]` : element;
 			},
-			html: function (token, attrs, content) {
-				var id = content;
-
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
 
-				var id = url.match(/\/(p|tv|reel)\/(.*?)\//)[2];
+				const id = (url.match(/\/(p|tv|reel)\/(.*?)\//) as RegExpMatchArray)[2];
 
 				return `<div class="ratio ratio-1x1" data-oembed-url="https://www.instagram.com/p/${id
 				}" data-instagram-url="${url}"><iframe src="https://www.instagram.com/p/${id
@@ -972,15 +1012,15 @@
 					'data-vimeo-url': null
 				}
 			},
-			format: function (element, content) {
+			format: function (element: Any) {
 				element = attr(element, 'data-vimeo-url');
 
-				return element ? `[vimeo]${element}[/vimeo]` : content;
+				return element ? `[vimeo]${element}[/vimeo]` : element;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
 
-				const id = url.match(/vimeo\..*\/(\d+)(?:$|\/)/)[1];
+				const id = (url.match(/vimeo\..*\/(\d+)(?:$|\/)/) as RegExpMatchArray)[1];
 
 				return `<div data-oembed-url="https://vimeo.com/${id}" data-vimeo-url="${url
 				}" class="ratio ratio-16x9 border"><iframe src="https://player.vimeo.com/video/${id
@@ -998,15 +1038,15 @@
 					'data-youtube-url': null
 				}
 			},
-			format: function (element, content) {
+			format: function (element: Any) {
 				element = attr(element, 'data-youtube-url');
 
-				return element ? `[youtube]${element}[/youtube]` : content;
+				return element ? `[youtube]${element}[/youtube]` : element;
 			},
-			html: function (token, attrs, content) {
+			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
 
-				const id = content.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/)[1];
+				const id = (content.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/) as RegExpMatchArray)[1];
 
 				return `<div data-oembed-url="https://youtube.com/embed/${id}" data-youtube-url="${url
 				}" class="ratio ratio-16x9 border"><iframe src="https://youtube.com/embed/${id
@@ -1051,16 +1091,13 @@
 	 * If there is no property for the specified {name} then
 	 * it will be left intact.
 	 *
-	 * @param  {string} str
-	 * @param  {Object} obj
-	 * @return {string}
 	 * @since 2.0.0
 	 */
-	function formatBBCodeString(str, obj) {
+	function formatBBCodeString(str: string, obj: Record<string, Any>): string {
 		return str.replace(/\{([^}]+)\}/g,
 			function (match, group) {
-				var undef,
-					escape = true;
+				const undef = undefined;
+				let escape = true;
 
 				if (group.charAt(0) === '!') {
 					escape = false;
@@ -1079,17 +1116,16 @@
 			});
 	}
 
-	function isFunction(fn) {
+	function isFunction(fn: Any): boolean {
 		return typeof fn === 'function';
 	}
 
 	/**
 	 * Removes any leading or trailing quotes ('")
 	 *
-	 * @return string
 	 * @since v1.4.0
 	 */
-	function _stripQuotes(str) {
+	function _stripQuotes(str: string): string {
 		return str ? str.replace(/\\(.)/g, '$1').replace(/^(["'])(.*?)\1$/, '$2') : str;
 	}
 
@@ -1097,25 +1133,22 @@
 	 * Formats a string replacing {0}, {1}, {2}, ect. with
 	 * the params provided
 	 *
-	 * @param {string} str The string to format
-	 * @param {...string} arg The strings to replace
-	 * @return {string}
+	 * @param str The string to format
 	 * @since v1.4.0
 	 */
-	function _formatString(str) {
-		var undef;
-		var args = arguments;
+	function _formatString(str: string, ...args: string[]): string {
+		const undef = undefined;
 
 		return str.replace(/\{(\d+)\}/g,
 			function (_, matchNum) {
-				return args[matchNum - 0 + 1] !== undef ? args[matchNum - 0 + 1] : `{${matchNum}}`;
+				return args[Number(matchNum)] !== undef ? args[Number(matchNum)] : `{${matchNum}}`;
 			});
 	}
 
-	var TOKEN_OPEN = 'open';
-	var TOKEN_CONTENT = 'content';
-	var TOKEN_NEWLINE = 'newline';
-	var TOKEN_CLOSE = 'close';
+	const TOKEN_OPEN = 'open';
+	const TOKEN_CONTENT = 'content';
+	const TOKEN_NEWLINE = 'newline';
+	const TOKEN_CLOSE = 'close';
 
 
 	/*
@@ -1131,20 +1164,28 @@
 	/**
 	 * Tokenize token object
 	 *
-	 * @param  {string} type The type of token this is,
-	 *                       should be one of tokenType
-	 * @param  {string} name The name of this token
-	 * @param  {string} val The originally matched string
-	 * @param  {array} attrs Any attributes. Only set on
-	 *                       TOKEN_TYPE_OPEN tokens
-	 * @param  {array} children Any children of this token
-	 * @param  {TokenizeToken} closing This tokens closing tag.
-	 *                                 Only set on TOKEN_TYPE_OPEN tokens
+	 * @param  type The type of token this is,
+	 *              should be one of tokenType
+	 * @param  name The name of this token
+	 * @param  val The originally matched string
+	 * @param  attrs Any attributes. Only set on
+	 *               TOKEN_TYPE_OPEN tokens
+	 * @param  children Any children of this token
+	 * @param  closing This tokens closing tag.
+	 *                 Only set on TOKEN_TYPE_OPEN tokens
 	 * @class {TokenizeToken}
 	 * @name {TokenizeToken}
 	 * @memberOf BBCodeParser.prototype
 	 */
-	function TokenizeToken(type, name, val, attrs, children, closing) {
+	function TokenizeToken(
+		this: BBCodeToken,
+		type: string,
+		name: string,
+		val: string,
+		attrs?: BBCodeAttrs,
+		children?: BBCodeToken[],
+		closing?: BBCodeToken | null
+	) {
 		const base = this;
 
 		base.type = type;
@@ -1153,19 +1194,26 @@
 		base.attrs = attrs || {};
 		base.children = children || [];
 		base.closing = closing || null;
-	};
+	}
+
+	const TokenizeTokenCtor = TokenizeToken as unknown as new (
+		type: string,
+		name: string,
+		val: string,
+		attrs?: BBCodeAttrs,
+		children?: BBCodeToken[],
+		closing?: BBCodeToken | null
+	) => BBCodeToken;
 
 	TokenizeToken.prototype = {
 		/** @lends BBCodeParser.prototype.TokenizeToken */
 		/**
 		 * Clones this token
-		 *
-		 * @return {TokenizeToken}
 		 */
-		clone: function () {
+		clone: function (this: BBCodeToken) {
 			const base = this;
 
-			return new TokenizeToken(
+			return new TokenizeTokenCtor(
 				base.type,
 				base.name,
 				base.val,
@@ -1177,12 +1225,12 @@
 		/**
 		 * Splits this token at the specified child
 		 *
-		 * @param  {TokenizeToken} splitAt The child to split at
-		 * @return {TokenizeToken} The right half of the split token or
-		 *                         empty clone if invalid splitAt lcoation
+		 * @param splitAt The child to split at
+		 * @return The right half of the split token or
+		 *         empty clone if invalid splitAt lcoation
 		 */
-		splitAt: function (splitAt) {
-			var offsetLength;
+		splitAt: function (this: BBCodeToken, splitAt: BBCodeToken) {
+			let offsetLength;
 			const base = this;
 			const clone = base.clone();
 			const offset = base.children.indexOf(splitAt);
@@ -1202,13 +1250,12 @@
 	/**
 	 * SCEditor BBCode parser class
 	 *
-	 * @param {Object} options
 	 * @class BBCodeParser
 	 * @name BBCodeParser
 	 * @since v1.4.0
 	 */
-	function BBCodeParser(options) {
-		var base = this;
+	function BBCodeParser(this: Any, options?: Any) {
+		const base = this;
 
 		base.opts = extend({}, BBCodeParser.defaults, options);
 
@@ -1221,13 +1268,11 @@
 		 * before it. For that the tokens should be passed to the
 		 * parse function.
 		 *
-		 * @param {string} str
-		 * @return {array}
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.tokenize = function (str) {
-			var matches, type, i;
-			const tokens = [];
+		base.tokenize = function (str: string): BBCodeToken[] {
+			let matches, type, i;
+			const tokens: BBCodeToken[] = [];
 			// The token types in reverse order of precedence
 			// (they're looped in reverse)
 			const tokenTypes = [
@@ -1288,13 +1333,12 @@
 		/**
 		 * Extracts the name an params from a tag
 		 *
-		 * @param {string} type
-		 * @param {string} val
-		 * @return {Object}
 		 * @private
 		 */
-		function tokenizeTag(type, val) {
-			var matches, attrs, name;
+		function tokenizeTag(type: string, val: string): BBCodeToken {
+			let matches;
+			let attrs;
+			let name = '';
 			const openRegex = /\[([^\]\s=]+)(?:([^\]]+))?\]/;
 			const closeRegex = /\[\/([^\[\]]+)\]/;
 
@@ -1327,19 +1371,18 @@
 				name = '#';
 			}
 
-			return new TokenizeToken(type, name, val, attrs);
+			return new TokenizeTokenCtor(type, name, val, attrs);
 		}
 
 		/**
 		 * Extracts the individual attributes from a string containing
 		 * all the attributes.
 		 *
-		 * @param {string} attrs
-		 * @return {Object} Assoc array of attributes
+		 * @return Assoc array of attributes
 		 * @private
 		 */
-		function tokenizeAttrs(attrs) {
-			var matches
+		function tokenizeAttrs(attrs: string): BBCodeAttrs {
+			let matches
 				/*
 				([^\s=]+)				Anything that's not a space or equals
 				=						Equals sign =
@@ -1361,8 +1404,8 @@
 					)
 				)
 				*/;
-			const attrRegex = /([^\s=]+)=(?:(?:(["'])((?:\\\2|[^\2])*?)\2)|((?:.(?!\s\S+=))*.))/g;
-			const ret = {};
+			const attrRegex = /([^\s=]+)=(?:(?:(["'])((?:\\\2|[^\x02])*?)\2)|((?:.(?!\s\S+=))*.))/g;
+			const ret: BBCodeAttrs = {};
 
 			// if only one attribute then remove the = from the start and
 			// strip any quotes
@@ -1386,14 +1429,13 @@
 		/**
 		 * Parses a string into an array of BBCodes
 		 *
-		 * @param  {string}  str
-		 * @param  {boolean} preserveNewLines If to preserve all new lines, not
-		 *                                    strip any based on the passed
-		 *                                    formatting options
-		 * @return {array}                    Array of BBCode objects
+		 * @param  preserveNewLines If to preserve all new lines, not
+		 *                          strip any based on the passed
+		 *                          formatting options
+		 * @return Array of BBCode objects
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.parse = function (str, preserveNewLines) {
+		base.parse = function (str: string, preserveNewLines?: boolean): BBCodeToken[] {
 			const ret = parseTokens(base.tokenize(str));
 			const opts = base.opts;
 
@@ -1417,14 +1459,10 @@
 		 * Checks the tokens name and type match another tokens
 		 * name and type in the array.
 		 *
-		 * @param  {string}    name
-		 * @param  {string} type
-		 * @param  {array}     arr
-		 * @return {Boolean}
 		 * @private
 		 */
-		function hasTag(name, type, arr) {
-			var i = arr.length;
+		function hasTag(name: string, type: string, arr: BBCodeToken[]): boolean {
+			let i = arr.length;
 
 			while (i--) {
 				if (arr[i].type === type && arr[i].name === name) {
@@ -1439,13 +1477,10 @@
 		 * Checks if the child tag is allowed as one
 		 * of the parent tags children.
 		 *
-		 * @param  {TokenizeToken}  parent
-		 * @param  {TokenizeToken}  child
-		 * @return {Boolean}
 		 * @private
 		 */
-		function isChildAllowed(parent, child) {
-			const parentBBCode = parent ? bbcodeHandlers[parent.name] : {};
+		function isChildAllowed(parent: BBCodeToken | null | undefined, child: BBCodeToken): boolean {
+			const parentBBCode: BBCodeHandler = parent ? bbcodeHandlers[parent.name] : {};
 			const allowedChildren = parentBBCode.allowedChildren;
 
 			if (base.opts.fixInvalidChildren && allowedChildren) {
@@ -1459,52 +1494,48 @@
 		/**
 		 * Parses an array of tokens created by tokenize()
 		 *
-		 * @param  {array} toks
-		 * @return {array} Parsed tokens
+		 * @return Parsed tokens
 		 * @see tokenize()
 		 * @private
 		 */
-		function parseTokens(toks) {
-			var token,
-				bbcode,
-				curTok,
-				clone,
-				i,
-				next,
-				cloned = [],
-				output = [],
-				openTags = [],
-				/**
-				 * Returns the currently open tag or undefined
-				 * @return {TokenizeToken}
-				 */
-				currentTag = function () {
-					return last(openTags);
-				},
-				/**
-				 * Adds a tag to either the current tags children
-				 * or to the output array.
-				 * @param {TokenizeToken} token
-				 * @private
-				 */
-				addTag = function (token) {
-					if (currentTag()) {
-						currentTag().children.push(token);
-					} else {
-						output.push(token);
-					}
-				},
-				/**
-				 * Checks if this tag closes the current tag
-				 * @param  {string} name
-				 * @return {Void}
-				 */
-				closesCurrentTag = function (name) {
-					return currentTag() &&
-						(bbcode = bbcodeHandlers[currentTag().name]) &&
-						bbcode.closedBy &&
-						bbcode.closedBy.indexOf(name) > -1;
-				};
+		function parseTokens(toks: BBCodeToken[]): BBCodeToken[] {
+			let token: BBCodeToken | undefined;
+			let bbcode: BBCodeHandler | undefined;
+			let curTok: BBCodeToken | undefined;
+			let clone;
+			let i;
+			let next: BBCodeToken | undefined;
+			const cloned: BBCodeToken[] = [];
+			const output: BBCodeToken[] = [];
+			const openTags: BBCodeToken[] = [];
+			/**
+			 * Returns the currently open tag or undefined
+			 */
+			const currentTag = function () {
+				return last(openTags);
+			};
+			/**
+			 * Adds a tag to either the current tags children
+			 * or to the output array.
+			 */
+			const addTag = function (token: BBCodeToken) {
+				const current = currentTag();
+				if (current) {
+					current.children.push(token);
+				} else {
+					output.push(token);
+				}
+			};
+			/**
+			 * Checks if this tag closes the current tag
+			 */
+			const closesCurrentTag = function (name: string) {
+				const current = currentTag();
+				return !!(current &&
+					(bbcode = bbcodeHandlers[current.name]) &&
+					bbcode.closedBy &&
+					bbcode.closedBy.indexOf(name) > -1);
+			};
 
 			while ((token = toks.shift())) {
 				next = toks[0];
@@ -1525,9 +1556,10 @@
 				if (!isChildAllowed(currentTag(), token)) {
 
 					// exclude closing tags of current tag
+					const current = currentTag();
 					if (token.type !== TOKEN_CLOSE ||
-						!currentTag() ||
-						token.name !== currentTag().name) {
+						!current ||
+						token.name !== current.name) {
 						token.name = '#';
 						token.type = TOKEN_CONTENT;
 					}
@@ -1559,11 +1591,12 @@
 						}
 						break;
 
-					case TOKEN_CLOSE:
+					case TOKEN_CLOSE: {
 					// check if this closes the current tag,
 					// e.g. [/list] would close an open [*]
-						if (currentTag() &&
-						token.name !== currentTag().name &&
+						const current = currentTag();
+						if (current &&
+						token.name !== current.name &&
 						closesCurrentTag(`/${token.name}`)) {
 
 							openTags.pop();
@@ -1571,8 +1604,9 @@
 
 						// If this is closing the currently open tag just pop
 						// the close tag off the open tags array
-						if (currentTag() && token.name === currentTag().name) {
-							currentTag().closing = token;
+						const current2 = currentTag();
+						if (current2 && token.name === current2.name) {
+							current2.closing = token;
 							openTags.pop();
 
 						// If this is closing an open tag that is the parent of
@@ -1597,7 +1631,7 @@
 								clone = curTok.clone();
 
 								if (cloned.length) {
-									clone.children.push(last(cloned));
+									clone.children.push(last(cloned) as BBCodeToken);
 								}
 
 								cloned.push(clone);
@@ -1614,7 +1648,7 @@
 
 							// Add the last cloned child to the now current tag
 							// (the parent of the tag which was being closed)
-							addTag(last(cloned));
+							addTag(last(cloned) as BBCodeToken);
 
 							// Add all the cloned tags to the open tags list
 							i = cloned.length;
@@ -1630,15 +1664,17 @@
 							addTag(token);
 						}
 						break;
+					}
 
-					case TOKEN_NEWLINE:
+					case TOKEN_NEWLINE: {
 					// handle things like
 					//     [*]list\nitem\n[*]list1
 					// where it should come out as
 					//     [*]list\nitem[/*]\n[*]list1[/*]
 					// instead of
 					//     [*]list\nitem\n[/*][*]list1[/*]
-						if (currentTag() &&
+						const current = currentTag();
+						if (current &&
 						next &&
 						closesCurrentTag(
 							(next.type === TOKEN_CLOSE ? '/' : '') +
@@ -1647,8 +1683,8 @@
 						// skip if the next tag is the closing tag for
 						// the option tag, i.e. [/*]
 							if (!(next.type === TOKEN_CLOSE &&
-							next.name === currentTag().name)) {
-								bbcode = bbcodeHandlers[currentTag().name];
+							next.name === current.name)) {
+								bbcode = bbcodeHandlers[current.name];
 
 								if (bbcode && bbcode.breakAfter) {
 									openTags.pop();
@@ -1663,6 +1699,7 @@
 
 						addTag(token);
 						break;
+					}
 
 					default: // content
 						addTag(token);
@@ -1693,28 +1730,16 @@
 		 * Which makes it easier to convert to HTML or add
 		 * the formatting new lines back in when converting
 		 * back to BBCode
-		 *
-		 * @param  {array} children
-		 * @param  {TokenizeToken} parent
-		 * @param  {boolean} onlyRemoveBreakAfter
-		 * @return {void}
 		 */
-		function normaliseNewLines(children, parent, onlyRemoveBreakAfter) {
-			var token,
-				left,
-				right,
-				parentBBCode,
-				bbcode,
-				removedBreakEnd,
-				removedBreakBefore,
-				remove;
-			var childrenLength = children.length;
+		function normaliseNewLines(children: BBCodeToken[], parent?: BBCodeToken | null, onlyRemoveBreakAfter?: boolean): void {
+			let token, left, right, parentBBCode: BBCodeHandler | undefined, bbcode, removedBreakEnd, removedBreakBefore, remove;
+			const childrenLength = children.length;
 			// TODO: this function really needs tidying up
 			if (parent) {
 				parentBBCode = bbcodeHandlers[parent.name];
 			}
 
-			var i = childrenLength;
+			let i = childrenLength;
 			while (i--) {
 				if (!(token = children[i])) {
 					continue;
@@ -1832,17 +1857,15 @@
 		 * Will become:
 		 *     [inline]A[/inline][blocklevel]B[/blocklevel][inline]C[/inline]
 		 *
-		 * @param {array} children
 		 * @param {array} [parents] Null if there is no parents
 		 * @param {boolea} [insideInline] If inside an inline element
 		 * @param {array} [rootArr] Root array if there is one
-		 * @return {array}
 		 * @private
 		 */
-		function fixNesting(children, parents, insideInline, rootArr) {
-			var token, i, parent, parentIndex, parentParentChildren, right;
+		function fixNesting(children: BBCodeToken[], parents?: BBCodeToken[], insideInline?: boolean, rootArr?: BBCodeToken[]): void {
+			let token, i, parent, parentIndex, parentParentChildren, right;
 
-			const isInline = function (token) {
+			const isInline = function (token: BBCodeToken) {
 				const bbcode = bbcodeHandlers[token.name];
 
 				return !bbcode || bbcode.isInline !== false;
@@ -1861,7 +1884,7 @@
 				if (insideInline && !isInline(token)) {
 					// if this is a blocklevel element inside an inline one then
 					// split the parent at the block level element
-					parent = last(parents);
+					parent = last(parents) as BBCodeToken;
 					right = parent.splitAt(token);
 
 					parentParentChildren = parents.length > 1 ? parents[parents.length - 2].children : rootArr;
@@ -1926,18 +1949,17 @@
 		/**
 		 * Removes any empty BBCodes which are not allowed to be empty.
 		 *
-		 * @param {array} tokens
 		 * @private
 		 */
-		function removeEmpty(tokens) {
-			var token, bbcode;
+		function removeEmpty(tokens: BBCodeToken[]): void {
+			let token, bbcode;
 
 			/**
 			 * Checks if all children are whitespace or not
 			 * @private
 			 */
-			const isTokenWhiteSpace = function (children) {
-				var j = children.length;
+			const isTokenWhiteSpace = function (children: BBCodeToken[]) {
+				let j = children.length;
 
 				while (j--) {
 					const type = children[j].type;
@@ -1947,7 +1969,7 @@
 					}
 
 					if (type === TOKEN_CONTENT &&
-						/\S|\u00A0/.test(children[j].val)) {
+						/\S| /.test(children[j].val)) {
 						return false;
 					}
 				}
@@ -1955,7 +1977,7 @@
 				return true;
 			};
 
-			var i = tokens.length;
+			let i = tokens.length;
 			while (i--) {
 				// So skip anything that isn't a tag since only tags can be
 				// empty, content can't
@@ -1973,7 +1995,7 @@
 					bbcode &&
 					!bbcode.isSelfClosing &&
 					!bbcode.allowsEmpty) {
-					tokens.splice.apply(tokens, [i, 1].concat(token.children));
+					tokens.splice(i, 1, ...token.children);
 				}
 			}
 		}
@@ -1981,37 +2003,34 @@
 		/**
 		 * Converts a BBCode string to HTML
 		 *
-		 * @param {string} str
-		 * @param {boolean}   preserveNewLines If to preserve all new lines, not
-		 *                                  strip any based on the passed
-		 *                                  formatting options
-		 * @return {string}
+		 * @param preserveNewLines If to preserve all new lines, not
+		 *                         strip any based on the passed
+		 *                         formatting options
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.toHTML = function (str, preserveNewLines) {
+		base.toHTML = function (str: string, preserveNewLines?: boolean) {
 			return convertToHTML(base.parse(str, preserveNewLines), true);
 		};
 
-		base.toHTMLFragment = function (str, preserveNewLines) {
+		base.toHTMLFragment = function (str: string, preserveNewLines?: boolean) {
 			return convertToHTML(base.parse(str, preserveNewLines), false);
 		};
 
 		/**
 		 * @private
 		 */
-		function convertToHTML(tokens, isRoot) {
-			var undef,
-				token,
-				bbcode,
-				content,
-				html,
-				needsBlockWrap,
-				blockWrapOpen,
-				isInline,
-				lastChild,
-				ret = '';
+		function convertToHTML(tokens: BBCodeToken[], isRoot: boolean): string {
+			const undef = undefined;
+			let token: BBCodeToken | undefined;
+			let bbcode: BBCodeHandler | undefined;
+			let content;
+			let html: string;
+			let needsBlockWrap;
+			let blockWrapOpen;
+			let lastChild;
+			let ret = '';
 
-			isInline = function (bbcode) {
+			const isInline = function (bbcode?: BBCodeHandler) {
 				return (!bbcode || (bbcode.isHtmlInline !== undef ? bbcode.isHtmlInline : bbcode.isInline)) !== false;
 			};
 
@@ -2021,7 +2040,7 @@
 				}
 
 				if (token.type === TOKEN_OPEN) {
-					lastChild = token.children[token.children.length - 1] || {};
+					lastChild = token.children[token.children.length - 1] || {} as BBCodeToken;
 					bbcode = bbcodeHandlers[token.name];
 					needsBlockWrap = isRoot && isInline(bbcode);
 					content = convertToHTML(token.children, false);
@@ -2041,11 +2060,11 @@
 						if (!isFunction(bbcode.html)) {
 							token.attrs['0'] = content;
 							html = formatBBCodeString(
-								bbcode.html,
+								bbcode.html as string,
 								token.attrs
 							);
 						} else {
-							html = bbcode.html.call(
+							html = (bbcode.html as Any).call(
 								base,
 								token,
 								token.attrs,
@@ -2084,7 +2103,7 @@
 					// content
 				} else {
 					needsBlockWrap = isRoot;
-					html = escapeEntities(token.val, true);
+					html = escapeEntities(token.val, true) as string;
 				}
 
 				if (needsBlockWrap && !blockWrapOpen) {
@@ -2111,14 +2130,12 @@
 		 * This will auto fix the BBCode and format it with the specified
 		 * options.
 		 *
-		 * @param {string} str
-		 * @param {boolean} preserveNewLines If to preserve all new lines, not
-		 *                                strip any based on the passed
-		 *                                formatting options
-		 * @return {string}
+		 * @param preserveNewLines If to preserve all new lines, not
+		 *                         strip any based on the passed
+		 *                         formatting options
 		 * @memberOf BBCodeParser.prototype
 		 */
-		base.toBBCode = function (str, preserveNewLines) {
+		base.toBBCode = function (str: string, preserveNewLines?: boolean) {
 			return convertToBBCode(base.parse(str, preserveNewLines));
 		};
 
@@ -2127,22 +2144,21 @@
 		 * formatting specified in the options and with any
 		 * fixes specified.
 		 *
-		 * @param  {array} toks Array of parsed tokens from base.parse()
-		 * @return {string}
+		 * @param toks Array of parsed tokens from base.parse()
 		 * @private
 		 */
-		function convertToBBCode(toks) {
-			var token,
-				attr,
-				bbcode,
-				isBlock,
-				isSelfClosing,
-				quoteType,
-				breakBefore,
-				breakStart,
-				breakEnd,
-				breakAfter,
-				ret = '';
+		function convertToBBCode(toks: BBCodeToken[]): string {
+			let token: BBCodeToken | undefined;
+			let attrName;
+			let bbcode: BBCodeHandler | undefined;
+			let isBlock;
+			let isSelfClosing;
+			let quoteType;
+			let breakBefore;
+			let breakStart;
+			let breakEnd;
+			let breakAfter;
+			let ret = '';
 
 			while (toks.length > 0) {
 				if (!(token = toks.shift())) {
@@ -2155,23 +2171,23 @@
 
 				breakBefore = (isBlock &&
 						base.opts.breakBeforeBlock &&
-						bbcode.breakBefore !== false) ||
+						(bbcode as BBCodeHandler).breakBefore !== false) ||
 					(bbcode && bbcode.breakBefore);
 
 				breakStart = (isBlock &&
 						!isSelfClosing &&
 						base.opts.breakStartBlock &&
-						bbcode.breakStart !== false) ||
+						(bbcode as BBCodeHandler).breakStart !== false) ||
 					(bbcode && bbcode.breakStart);
 
 				breakEnd = (isBlock &&
 						base.opts.breakEndBlock &&
-						bbcode.breakEnd !== false) ||
+						(bbcode as BBCodeHandler).breakEnd !== false) ||
 					(bbcode && bbcode.breakEnd);
 
 				breakAfter = (isBlock &&
 						base.opts.breakAfterBlock &&
-						bbcode.breakAfter !== false) ||
+						(bbcode as BBCodeHandler).breakAfter !== false) ||
 					(bbcode && bbcode.breakAfter);
 
 				quoteType = (bbcode ? bbcode.quoteType : null) ||
@@ -2206,9 +2222,9 @@
 							delete token.attrs.defaultattr;
 						}
 
-						for (attr in token.attrs) {
-							if (token.attrs.hasOwnProperty(attr)) {
-								ret += ` ${attr}=${quote(token.attrs[attr], quoteType, attr)}`;
+						for (attrName in token.attrs) {
+							if (Object.prototype.hasOwnProperty.call(token.attrs, attrName)) {
+								ret += ` ${attrName}=${quote(token.attrs[attrName] as string, quoteType, attrName)}`;
 							}
 						}
 					}
@@ -2224,7 +2240,7 @@
 					}
 
 					// add closing tag if not self closing
-					if (!isSelfClosing && !bbcode.excludeClosing) {
+					if (!isSelfClosing && !(bbcode as BBCodeHandler).excludeClosing) {
 						if (breakEnd) {
 							ret += '\n';
 						}
@@ -2252,13 +2268,9 @@
 		/**
 		 * Quotes an attribute
 		 *
-		 * @param {string} str
-		 * @param {BBCodeParser.QuoteType} quoteType
-		 * @param {string} name
-		 * @return {string}
 		 * @private
 		 */
-		function quote(str, quoteType, name) {
+		function quote(str: string, quoteType: Any, name: string): string {
 			const needsQuotes = /\s|=/.test(str);
 
 			if (isFunction(quoteType)) {
@@ -2276,11 +2288,10 @@
 		/**
 		 * Returns the last element of an array or null
 		 *
-		 * @param {array} arr
-		 * @return {Object} Last element
+		 * @return Last element
 		 * @private
 		 */
-		function last(arr) {
+		function last(arr: BBCodeToken[]): BBCodeToken | null {
 			if (arr.length) {
 				return arr[arr.length - 1];
 			}
@@ -2291,18 +2302,16 @@
 		/**
 		 * Converts a string to lowercase.
 		 *
-		 * @param {string} str
-		 * @return {string} Lowercase version of str
+		 * @return Lowercase version of str
 		 * @private
 		 */
-		function lower(str) {
+		function lower(str: string): string {
 			return str.toLowerCase();
 		}
-	};
+	}
 
 	/**
 	 * Quote type
-	 * @type {Object}
 	 * @class QuoteType
 	 * @name BBCodeParser.QuoteType
 	 * @since 1.4.0
@@ -2311,49 +2320,36 @@
 
 	/**
 	 * Default BBCode parser options
-	 * @type {Object}
 	 */
 	BBCodeParser.defaults = {
 		/**
 		 * If to add a new line before block level elements
-		 *
-		 * @type {Boolean}
 		 */
 		breakBeforeBlock: false,
 
 		/**
 		 * If to add a new line after the start of block level elements
-		 *
-		 * @type {Boolean}
 		 */
 		breakStartBlock: false,
 
 		/**
 		 * If to add a new line before the end of block level elements
-		 *
-		 * @type {Boolean}
 		 */
 		breakEndBlock: false,
 
 		/**
 		 * If to add a new line after block level elements
-		 *
-		 * @type {Boolean}
 		 */
 		breakAfterBlock: true,
 
 		/**
 		 * If to remove empty tags
-		 *
-		 * @type {Boolean}
 		 */
 		removeEmptyTags: true,
 
 		/**
 		 * If to fix invalid nesting,
 		 * i.e. block level elements inside inline elements.
-		 *
-		 * @type {Boolean}
 		 */
 		fixInvalidNesting: true,
 
@@ -2361,15 +2357,12 @@
 		 * If to fix invalid children.
 		 * i.e. A tag which is inside a parent that doesn't
 		 * allow that type of tag.
-		 *
-		 * @type {Boolean}
 		 */
 		fixInvalidChildren: true,
 
 		/**
 		 * Attribute quote type
 		 *
-		 * @type {BBCodeParser.QuoteType}
 		 * @since 1.4.1
 		 */
 		quoteType: QuoteType.auto,
@@ -2383,7 +2376,6 @@
 		 * When false will perform OR matching and will match if any of
 		 * a tags attributes or styles match.
 		 *
-		 * @type {Boolean}
 		 * @since 3.1.0
 		 */
 		strictMatch: false
@@ -2394,33 +2386,29 @@
 	 *
 	 * Will return 00 if number is not a valid number.
 	 *
-	 * @param  {any} number
-	 * @return {string}
 	 * @private
 	 */
-	function toHex(number) {
-		number = parseInt(number, 10);
+	function toHex(numberArg: Any): string {
+		let n = parseInt(numberArg, 10);
 
-		if (isNaN(number)) {
+		if (isNaN(n)) {
 			return '00';
 		}
 
-		number = Math.max(0, Math.min(number, 255)).toString(16);
+		const hex = Math.max(0, Math.min(n, 255)).toString(16);
 
-		return number.length < 2 ? `0${number}` : number;
+		return hex.length < 2 ? `0${hex}` : hex;
 	}
 
 	/**
 	 * Normalises a CSS colour to hex #xxxxxx format
 	 *
-	 * @param  {string} colorStr
-	 * @return {string}
 	 * @private
 	 */
-	function _normaliseColour(colorStr) {
-		var match;
+	function _normaliseColour(colorStrArg: string | undefined): string {
+		let match;
 
-		colorStr = colorStr || '#000';
+		const colorStr = colorStrArg || '#000';
 
 		// rgb(n,n,n);
 		if ((match =
@@ -2449,8 +2437,8 @@
 	 * SCEditor BBCode format
 	 * @since 2.0.0
 	 */
-	function bbcodeFormat() {
-		var base = this;
+	function bbcodeFormat(this: Any) {
+		const base = this;
 
 		base.stripQuotes = _stripQuotes;
 
@@ -2459,14 +2447,14 @@
 		 * faster lookup of which bbcode a tag should have
 		 * @private
 		 */
-		var tagsToBBCodes = {};
+		const tagsToBBCodes: Record<string, Any> = {};
 
 		/**
 		 * Allowed children of specific HTML tags. Empty array if no
 		 * children other than text nodes are allowed
 		 * @private
 		 */
-		var validChildren = {
+		const validChildren: Record<string, string[]> = {
 			ul: ['li', 'ol', 'ul'],
 			ol: ['li', 'ol', 'ul'],
 			table: ['tr'],
@@ -2479,51 +2467,51 @@
 		 *
 		 * @private
 		 */
-		function buildBbcodeCache() {
+		function buildBbcodeCache(): void {
 			each(bbcodeHandlers,
-				function (bbcode, handler) {
-					var
-						isBlock = handler.isInline === false;
+				function (bbcode: string, handler: BBCodeHandler) {
+					const isBlock = handler.isInline === false;
 					const tags = bbcodeHandlers[bbcode].tags;
 					const styles = bbcodeHandlers[bbcode].styles;
 
 					if (styles) {
 						tagsToBBCodes['*'] = tagsToBBCodes['*'] || {};
-						tagsToBBCodes['*'][isBlock] =
-							tagsToBBCodes['*'][isBlock] || {};
-						tagsToBBCodes['*'][isBlock][bbcode] = [
+						tagsToBBCodes['*'][String(isBlock)] =
+							tagsToBBCodes['*'][String(isBlock)] || {};
+						tagsToBBCodes['*'][String(isBlock)][bbcode] = [
 							['style', Object.entries(styles)]
 						];
 					}
 
 					if (tags) {
 						each(tags,
-							function (tag, values) {
+							function (tag: string, values: Any) {
 								if (values && values.style) {
 									values.style = Object.entries(values.style);
 								}
 
 								tagsToBBCodes[tag] = tagsToBBCodes[tag] || {};
-								tagsToBBCodes[tag][isBlock] =
-									tagsToBBCodes[tag][isBlock] || {};
-								tagsToBBCodes[tag][isBlock][bbcode] =
+								tagsToBBCodes[tag][String(isBlock)] =
+									tagsToBBCodes[tag][String(isBlock)] || {};
+								tagsToBBCodes[tag][String(isBlock)][bbcode] =
 									values && Object.entries(values);
 							});
 					}
 				});
-		};
+		}
 
 		/**
 		 * Handles adding newlines after block level elements
 		 *
-		 * @param {HTMLElement} element The element to convert
-		 * @param {string} content  The tags text content
-		 * @return {string}
+		 * @param element The element to convert
+		 * @param content  The tags text content
 		 * @private
 		 */
-		function handleBlockNewlines(element, content) {
+		function handleBlockNewlines(elementArg: Any, contentArg: string): string {
+			let element = elementArg;
+			let content = contentArg;
 			const tag = element.nodeName.toLowerCase();
-			const isInline = dom.isInline;
+			const isInline = dom.isInline as (node: Any, includeCodeAsBlock?: boolean) => boolean;
 			if (!isInline(element, true) || tag === 'br') {
 				let isLastBlockChild;
 				let parent;
@@ -2577,15 +2565,16 @@
 		/**
 		 * Handles a HTML tag and finds any matching BBCodes
 		 *
-		 * @param {HTMLElement} element The element to convert
-		 * @param {string} content  The Tags text content
-		 * @param {boolean} blockLevel
-		 * @return {string} Content with any matching BBCode tags
-		 *                  wrapped around it.
+		 * @param element The element to convert
+		 * @param content  The Tags text content
+		 * @return Content with any matching BBCode tags
+		 *         wrapped around it.
 		 * @private
 		 */
-		function handleTags(element, content, blockLevel) {
-			function isStyleMatch(style) {
+		function handleTags(element: Any, contentArg: string, blockLevel: boolean): string {
+			let content = contentArg;
+
+			function isStyleMatch(style: [string, Any]) {
 				const property = style[0];
 				const values = style[1];
 				const val = dom.getStyle(element, property);
@@ -2593,15 +2582,15 @@
 
 				// if the parent has the same style use that instead of this one
 				// so you don't end up with [i]parent[i]child[/i][/i]
-				if (!val || parent && dom.hasStyle(parent, property, val)) {
+				if (!val || (parent && dom.hasStyle(parent, property, val))) {
 					return false;
 				}
 
 				return !values || values.includes(val);
 			}
 
-			function createAttributeMatch(isStrict) {
-				return function (attribute) {
+			function createAttributeMatch(isStrict: boolean) {
+				return function (attribute: [string, Any]) {
 					const name = attribute[0];
 					const value = attribute[1];
 
@@ -2620,17 +2609,15 @@
 				};
 			}
 
-			function handleTag(tag) {
-				if (!tagsToBBCodes[tag] || !tagsToBBCodes[tag][blockLevel]) {
+			function handleTag(tag: string) {
+				if (!tagsToBBCodes[tag] || !tagsToBBCodes[tag][String(blockLevel)]) {
 					return;
 				}
 
 				// loop all bbcodes for this tag
-				each(tagsToBBCodes[tag][blockLevel],
-					function (bbcode, attrs) {
-						var fn,
-							format,
-							isStrict = bbcodeHandlers[bbcode].strictMatch;
+				each(tagsToBBCodes[tag][String(blockLevel)],
+					function (bbcode: string, attrs: Any) {
+						let isStrict = bbcodeHandlers[bbcode].strictMatch;
 
 						if (typeof isStrict === 'undefined') {
 							isStrict = base.opts.strictMatch;
@@ -2638,16 +2625,16 @@
 
 						// Skip if the element doesn't have the attribute or the
 						// attribute doesn't match one of the required values
-						fn = isStrict ? 'every' : 'some';
-						if (attrs && !attrs[fn](createAttributeMatch(isStrict))) {
+						const fn = isStrict ? 'every' : 'some';
+						if (attrs && !attrs[fn](createAttributeMatch(!!isStrict))) {
 							return;
 						}
 
-						format = bbcodeHandlers[bbcode].format;
+						const format = bbcodeHandlers[bbcode].format;
 						if (isFunction(format)) {
-							content = format.call(base, element, content);
+							content = (format as Any).call(base, element, content);
 						} else {
-							content = _formatString(format, content);
+							content = _formatString(format as string, content);
 						}
 						return false;
 					});
@@ -2663,24 +2650,21 @@
 		 * the innermost element and working backwards
 		 *
 		 * @private
-		 * @param {HTMLElement}	element
-		 * @param {boolean}	hasCodeParent
-		 * @return {string} BBCode
 		 * @memberOf SCEditor.plugins.bbcode.prototype
 		 */
-		function elementToBbcode(element, hasCodeParent) {
-			var toBBCode = function (node, hasCodeParent, vChildren) {
-				var ret = '';
+		function elementToBbcode(element: Any, hasCodeParent?: boolean): string {
+			const toBBCode = function (node: Any, hasCodeParentArg: Any, vChildren?: string[]): string {
+				let ret = '';
 
 				dom.traverse(node,
-					function (node) {
-						var content = '';
+					function (node: Any) {
+						let content = '';
 						const nodeType = node.nodeType;
 						const tag = node.nodeName.toLowerCase();
 						const isCodeTag = tag === 'code';
-						var vChild = validChildren[tag];
+						let vChild = validChildren[tag];
 						const firstChild = node.firstChild;
-						var isValidChild = true;
+						let isValidChild = true;
 
 						if (vChildren) {
 							isValidChild = vChildren.indexOf(tag) > -1;
@@ -2704,7 +2688,7 @@
 							// don't convert iframe contents
 							if (tag !== 'iframe') {
 								content = toBBCode(node,
-									hasCodeParent || isCodeTag,
+									hasCodeParentArg || isCodeTag,
 									vChild);
 							}
 
@@ -2714,7 +2698,7 @@
 							if (isValidChild) {
 								// Emoticons should be converted if they have found
 								// their way into a code tag
-								if (!hasCodeParent) {
+								if (!hasCodeParentArg) {
 									if (!isCodeTag) {
 										// Parse inline codes first so they don't
 										// contain block level codes
@@ -2731,6 +2715,8 @@
 						} else if (nodeType === 3) {
 							ret += node.nodeValue;
 						}
+
+						return undefined;
 					},
 					false,
 					true);
@@ -2739,13 +2725,13 @@
 			};
 
 			return toBBCode(element, hasCodeParent);
-		};
+		}
 
 		/**
 		 * Initializer
 		 * @private
 		 */
-		base.init = function () {
+		base.init = function (this: Any) {
 			base.opts = this.opts;
 			base.elementToBbcode = elementToBbcode;
 
@@ -2766,13 +2752,9 @@
 
 		/**
 		 * Converts BBCode into HTML
-		 *
-		 * @param {boolean} asFragment
-		 * @param {string} source
-		 * @param {boolean} [legacyAsFragment] Used by fromBBCode() method
 		 */
-		function toHtml(asFragment, source, legacyAsFragment) {
-			const parser = new BBCodeParser(base.opts.parserOptions);
+		function toHtml(asFragment: boolean, source: string, legacyAsFragment?: boolean): string {
+			const parser = new BBCodeParserCtor(base.opts.parserOptions);
 			const toHTML = (asFragment || legacyAsFragment) ? parser.toHTMLFragment : parser.toHTML;
 
 			editorOptions = base.opts;
@@ -2783,21 +2765,16 @@
 		/**
 		 * Converts HTML into BBCode
 		 *
-		 * @param {boolean} asFragment
-		 * @param {string}	html
-		 * @param {!Document} [context]
-		 * @param {!HTMLElement} [parent]
-		 * @return {string}
 		 * @private
 		 */
-		function toSource(asFragment, html, context, parent) {
-			context = context || document;
+		function toSource(asFragment: boolean, html: string, contextArg?: Document, parent?: Any): string {
+			const context = contextArg || document;
 
-			var bbcode, elements;
+			let bbcode, elements;
 			const hasCodeParent = !!dom.closest(parent, 'code');
 			const containerParent = context.createElement('div');
 			const container = context.createElement('div');
-			const parser = new BBCodeParser(base.opts.parserOptions);
+			const parser = new BBCodeParserCtor(base.opts.parserOptions);
 
 			container.innerHTML = html;
 			css(containerParent, 'visibility', 'hidden');
@@ -2822,7 +2799,7 @@
 			// Remove all nodes with sceditor-ignore class
 			elements = container.getElementsByClassName('sceditor-ignore');
 			while (elements.length) {
-				elements[0].parentNode.removeChild(elements[0]);
+				(elements[0].parentNode as Any).removeChild(elements[0]);
 			}
 
 			dom.removeWhiteSpace(containerParent);
@@ -2838,22 +2815,22 @@
 			}
 
 			return bbcode;
-		};
+		}
 
 		base.toHtml = toHtml.bind(null, false);
 		base.fragmentToHtml = toHtml.bind(null, true);
 		base.toSource = toSource.bind(null, false);
 		base.fragmentToSource = toSource.bind(null, true);
-	};
+	}
+
+	const BBCodeParserCtor = BBCodeParser as unknown as new (options?: Any) => Any;
 
 	/**
 	 * Gets a BBCode
 	 *
-	 * @param {string} name
-	 * @return {Object|null}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.get = function (name) {
+	(bbcodeFormat as Any).get = function (name: string) {
 		return bbcodeHandlers[name] || null;
 	};
 
@@ -2861,15 +2838,12 @@
 	 * Adds a BBCode to the parser or updates an existing
 	 * BBCode if a BBCode with the specified name already exists.
 	 *
-	 * @param {string} name
-	 * @param {Object} bbcode
-	 * @return {this}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.set = function (name, bbcode) {
-		if (name && bbcode) {
+	(bbcodeFormat as Any).set = function (name: string, bbcodeArg: BBCodeHandler) {
+		if (name && bbcodeArg) {
 			// merge any existing command properties
-			bbcode = extend(bbcodeHandlers[name] || {}, bbcode);
+			const bbcode = extend(bbcodeHandlers[name] || {}, bbcodeArg);
 
 			bbcode.remove = function () {
 				delete bbcodeHandlers[name];
@@ -2887,12 +2861,9 @@
 	 * This does not change the format or HTML handling, those must be
 	 * changed manually.
 	 *
-	 * @param  {string} name    [description]
-	 * @param  {string} newName [description]
-	 * @return {this|false}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.rename = function (name, newName) {
+	(bbcodeFormat as Any).rename = function (name: string, newName: string) {
 		if (name in bbcodeHandlers) {
 			bbcodeHandlers[newName] = bbcodeHandlers[name];
 
@@ -2905,11 +2876,9 @@
 	/**
 	 * Removes a BBCode
 	 *
-	 * @param {string} name
-	 * @return {this}
 	 * @since 2.0.0
 	 */
-	bbcodeFormat.remove = function (name) {
+	(bbcodeFormat as Any).remove = function (name: string) {
 		if (name in bbcodeHandlers) {
 			delete bbcodeHandlers[name];
 		}
@@ -2917,8 +2886,8 @@
 		return this;
 	};
 
-	bbcodeFormat.formatBBCodeString = formatBBCodeString;
+	(bbcodeFormat as Any).formatBBCodeString = formatBBCodeString;
 
-	sceditor.formats.bbcode = bbcodeFormat;
-	sceditor.BBCodeParser = BBCodeParser;
+	sceditor.formats.bbcode = bbcodeFormat as Any;
+	(sceditor as Any).BBCodeParser = BBCodeParserCtor;
 }(sceditor));

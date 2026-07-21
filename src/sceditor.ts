@@ -19,7 +19,15 @@ import * as dom from './lib/dom.js';
 import * as utils from './lib/utils.js';
 import defaultCommands from './lib/defaultCommands.js';
 import defaultOptions from './lib/defaultOptions.js';
+import type { SCEditorInstance, SCEditorOptions } from './lib/types.js';
 
+// SCEditor is a constructor function using a `this: SCEditorInstance`
+// parameter (not a real TS class), so `new SCEditor(...)` has no construct
+// signature to infer from - this typed wrapper provides one.
+const SCEditorCtor = SCEditor as unknown as new (
+	original: HTMLTextAreaElement,
+	userOptions: Partial<SCEditorOptions>
+) => SCEditorInstance;
 
 window.sceditor = {
 	command: SCEditor.command,
@@ -68,7 +76,7 @@ window.sceditor = {
 	},
 	plugins: PluginManager.plugins,
 	formats: SCEditor.formats,
-	create: function (textarea, options) {
+	create: function (textarea: HTMLTextAreaElement, options?: Partial<SCEditorOptions>) {
 		options = options || {};
 
 		// Don't allow the editor to be initialised
@@ -79,10 +87,10 @@ window.sceditor = {
 
 		if (options.runWithoutWysiwygSupport || browser.isWysiwygSupported) {
 			/*eslint no-new: off*/
-			(new SCEditor(textarea, options));
+			(new SCEditorCtor(textarea, options));
 		}
 	},
-	instance: function (textarea) {
+	instance: function (textarea: HTMLTextAreaElement) {
 		return textarea._sceditor;
 	}
 };

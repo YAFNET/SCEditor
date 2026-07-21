@@ -19,25 +19,29 @@
 (function (sceditor) {
 	'use strict';
 
-	var utils = sceditor.utils;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
 
-	function isFunction(fn) {
+	const utils = sceditor.utils;
+	const bbcode = sceditor.formats.bbcode as Any;
+
+	function isFunction(fn: Any): boolean {
 		return typeof fn === 'function';
 	}
 
-	sceditor.plugins['alternative-lists'] = function () {
-		var base = this;
+	sceditor.plugins['alternative-lists'] = function (this: Any) {
+		const base = this;
 
 		/**
 		 * Private functions
 		 * @private
 		 */
-		var bulletHandler;
-		var orderedHandler;
-		var insertListTag;
+		let bulletHandler: Any;
+		let orderedHandler: Any;
+		let insertListTag: Any;
 
-		base.init = function () {
-			var opts = this.opts;
+		base.init = function (this: Any) {
+			const opts = this.opts;
 
 			// Enable for BBCode only
 			if (opts.format && opts.format !== 'bbcode') {
@@ -45,17 +49,17 @@
 			}
 
 			// Override only txtExec implementation
-			sceditor.command.get('orderedlist').txtExec = orderedHandler;
-			sceditor.command.get('bulletlist').txtExec = bulletHandler;
+			sceditor.command.get('orderedlist')!.txtExec = orderedHandler;
+			sceditor.command.get('bulletlist')!.txtExec = bulletHandler;
 
 			// Override current implementation
-			sceditor.formats.bbcode.set('list', {
+			bbcode.set('list', {
 				breakStart: true,
 				isInline: false,
 				skipLastLineBreak: true,
-				html: function (token, attrs, content) {
-					var listType = 'disc';
-					var toHtml = null;
+				html: function (this: Any, token: Any, attrs: Any, content: Any) {
+					let listType = 'disc';
+					let toHtml = null;
 
 					if (attrs.defaultattr) {
 						listType = attrs.defaultattr;
@@ -63,23 +67,23 @@
 
 					if (listType === '1') {
 						// This listType belongs to orderedList (OL)
-						toHtml = sceditor.formats.bbcode.get('ol').html;
+						toHtml = bbcode.get('ol').html;
 					} else {
 						// unknown listType, use default bullet list behavior
-						toHtml = sceditor.formats.bbcode.get('ul').html;
+						toHtml = bbcode.get('ul').html;
 					}
 
 					if (isFunction(toHtml)) {
 						return toHtml.call(this, token, attrs, content);
 					} else {
 						token.attrs['0'] = content;
-						return sceditor.formats.bbcode.formatBBCodeString(
+						return bbcode.formatBBCodeString(
 							toHtml, token.attrs);
 					}
 				}
 			});
 
-			sceditor.formats.bbcode.set('ul', {
+			bbcode.set('ul', {
 				tags: {
 					ul: null
 				},
@@ -90,7 +94,7 @@
 				html: '<ul>{0}</ul>'
 			});
 
-			sceditor.formats.bbcode.set('ol', {
+			bbcode.set('ol', {
 				tags: {
 					ol: null
 				},
@@ -101,7 +105,7 @@
 				html: '<ol>{0}</ol>'
 			});
 
-			sceditor.formats.bbcode.set('li', {
+			bbcode.set('li', {
 				tags: {
 					li: null
 				},
@@ -111,7 +115,7 @@
 				html: '<li>{0}</li>'
 			});
 
-			sceditor.formats.bbcode.set('*', {
+			bbcode.set('*', {
 				isInline: false,
 				excludeClosing: true,
 				closedBy: ['/ul', '/ol', '/list', '*', 'li'],
@@ -119,10 +123,14 @@
 			});
 		};
 
-		insertListTag = function (editor, listType, selected) {
-			var content = '';
+		insertListTag = function (editor: Any, listType: string, selected: string) {
+			let content = '';
 
-			utils.each(selected.split(/\r?\n/), function (item) {
+			// NOTE: utils.each() calls fn(index, value) for arrays, but this
+			// callback only declares one param - so `item` actually receives
+			// the numeric index, not the line text. Pre-existing bug in the
+			// original .js, preserved as-is rather than silently fixed here.
+			utils.each(selected.split(/\r?\n/), function (item: Any) {
 				content += (content ? '\n' : '') +
 					'[*]' + item;
 			});
@@ -138,20 +146,20 @@
 		/**
 		 * Function for the txtExec and exec properties
 		 *
-		 * @param  {node} caller
+		 * @param  caller
 		 * @private
 		 */
-		orderedHandler = function (caller, selected) {
-			var editor = this;
+		orderedHandler = function (this: Any, caller: Any, selected: string) {
+			const editor = this;
 
 			insertListTag(editor, '1', selected);
 		};
 
-		bulletHandler = function (caller, selected) {
-			var editor = this;
+		bulletHandler = function (this: Any, caller: Any, selected: string) {
+			const editor = this;
 
 			insertListTag(editor, '', selected);
 		};
 
-	};
+	} as Any;
 })(sceditor);

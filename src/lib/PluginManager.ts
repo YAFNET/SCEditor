@@ -1,36 +1,47 @@
-var plugins = {};
+import type { Plugin } from './types.js';
+
+type PluginCtor = new () => Plugin;
+
+const plugins: Record<string, PluginCtor> = {};
+
+export interface PluginManagerInstance {
+	call(...args: unknown[]): void;
+	callOnlyFirst(...args: unknown[]): unknown;
+	hasHandler(signal: string): boolean;
+	exists(plugin: string): boolean;
+	isRegistered(plugin: string): boolean;
+	register(plugin: string): boolean;
+	deregister(plugin: string): boolean;
+	destroy(): void;
+}
 
 /**
  * Plugin Manager class
  * @class PluginManager
  * @name PluginManager
  */
-export default function PluginManager(thisObj) {
+export default function PluginManager(this: PluginManagerInstance, thisObj: unknown) {
 	/**
 	 * Alias of this
 	 *
 	 * @private
-	 * @type {Object}
 	 */
-	var base = this;
+	const base = this;
 
 	/**
 	 * Array of all currently registered plugins
 	 *
-	 * @type {Array}
 	 * @private
 	 */
-	var registeredPlugins = [];
+	let registeredPlugins: Plugin[] = [];
 
 
 	/**
 	 * Changes a signals name from "name" into "signalName".
 	 *
-	 * @param  {string} signal
-	 * @return {string}
 	 * @private
 	 */
-	var formatSignalName = function (signal) {
+	const formatSignalName = function (signal: string): string {
 		return `signal${signal.charAt(0).toUpperCase()}${signal.slice(1)}`;
 	};
 
@@ -39,70 +50,69 @@ export default function PluginManager(thisObj) {
 	 *
 	 * @see call()
 	 * @see callOnlyFirst()
-	 * @param  {Array}   args
-	 * @param  {boolean} returnAtFirst
-	 * @return {*}
 	 * @private
 	 */
-	var callHandlers = function (args, returnAtFirst) {
-		args = [].slice.call(args);
+	const callHandlers = function (args: unknown[], returnAtFirst: boolean): unknown {
+		args = args.slice();
 
-		var	idx, ret;
-		const signal = formatSignalName(args.shift());
+		let ret;
+		const signal = formatSignalName(args.shift() as string);
 
-		for (idx = 0; idx < registeredPlugins.length; idx++) {
-			if (signal in registeredPlugins[idx]) {
-				ret = registeredPlugins[idx][signal].apply(thisObj, args);
+		for (let idx = 0; idx < registeredPlugins.length; idx++) {
+			const handler = registeredPlugins[idx][signal];
+
+			if (handler) {
+				ret = handler.apply(thisObj, args);
 
 				if (returnAtFirst) {
 					return ret;
 				}
 			}
 		}
+
+		return undefined;
 	};
 
 	/**
 	 * Calls all handlers for the passed signal
 	 *
-	 * @param  {string}    signal
-	 * @param  {...string} args
+	 * @param signal
+	 * @param args
 	 * @function
 	 * @name call
 	 * @memberOf PluginManager.prototype
 	 */
-	base.call = function () {
-		callHandlers(arguments, false);
+	base.call = function (...args: unknown[]) {
+		callHandlers(args, false);
 	};
 
 	/**
 	 * Calls the first handler for a signal, and returns the
 	 *
-	 * @param  {string}    signal
-	 * @param  {...string} args
-	 * @return {*} The result of calling the handler
+	 * @param signal
+	 * @param args
+	 * @return The result of calling the handler
 	 * @function
 	 * @name callOnlyFirst
 	 * @memberOf PluginManager.prototype
 	 */
-	base.callOnlyFirst = function () {
-		return callHandlers(arguments, true);
+	base.callOnlyFirst = function (...args: unknown[]) {
+		return callHandlers(args, true);
 	};
 
 	/**
 	 * Checks if a signal has a handler
 	 *
-	 * @param  {string} signal
-	 * @return {boolean}
 	 * @function
 	 * @name hasHandler
 	 * @memberOf PluginManager.prototype
 	 */
-	base.hasHandler = function (signal) {
-		var i  = registeredPlugins.length;
-		signal = formatSignalName(signal);
+	base.hasHandler = function (signal: string): boolean {
+		let i = registeredPlugins.length;
+		const signalName = formatSignalName(signal);
 
 		while (i--) {
-			if (signal in registeredPlugins[i]) {
+			if (signalName in registeredPlugins[i]) {
 				return true;
 			}
 		}
@@ -113,18 +123,16 @@ export default function PluginManager(thisObj) {
 	/**
 	 * Checks if the plugin exists in plugins
 	 *
-	 * @param  {string} plugin
-	 * @return {boolean}
 	 * @function
 	 * @name exists
 	 * @memberOf PluginManager.prototype
 	 */
-	base.exists = function (plugin) {
+	base.exists = function (plugin: string): boolean {
 		if (plugin in plugins) {
-			plugin = plugins[plugin];
+			const pluginCtor = plugins[plugin];
 
-			return typeof plugin === 'function' &&
-				typeof plugin.prototype === 'object';
+			return typeof pluginCtor === 'function' &&
+				typeof pluginCtor.prototype === 'object';
 		}
 
 		return false;
@@ -133,13 +141,11 @@ export default function PluginManager(thisObj) {
 	/**
 	 * Checks if the passed plugin is currently registered.
 	 *
-	 * @param  {string} plugin
-	 * @return {boolean}
 	 * @function
 	 * @name isRegistered
 	 * @memberOf PluginManager.prototype
 	 */
-	base.isRegistered = function (plugin) {
+	base.isRegistered = function (plugin: string): boolean {
 		if (base.exists(plugin)) {
 			let idx = registeredPlugins.length;
 
@@ -156,22 +162,20 @@ export default function PluginManager(thisObj) {
 	/**
 	 * Registers a plugin to receive signals
 	 *
-	 * @param  {string} plugin
-	 * @return {boolean}
 	 * @function
 	 * @name register
 	 * @memberOf PluginManager.prototype
 	 */
-	base.register = function (plugin) {
+	base.register = function (plugin: string): boolean {
 		if (!base.exists(plugin) || base.isRegistered(plugin)) {
 			return false;
 		}
 
-		plugin = new plugins[plugin]();
-		registeredPlugins.push(plugin);
+		const instance = new plugins[plugin]();
+		registeredPlugins.push(instance);
 
-		if ('init' in plugin) {
-			plugin.init.call(thisObj);
+		if ('init' in instance && instance.init) {
+			instance.init.call(thisObj);
 		}
 
 		return true;
@@ -180,16 +184,13 @@ export default function PluginManager(thisObj) {
 	/**
 	 * Deregisters a plugin.
 	 *
-	 * @param  {string} plugin
-	 * @return {boolean}
 	 * @function
 	 * @name deregister
 	 * @memberOf PluginManager.prototype
 	 */
-	base.deregister = function (plugin) {
-		var	removedPlugin,
-			pluginIdx = registeredPlugins.length,
-			removed   = false;
+	base.deregister = function (plugin: string): boolean {
+		let pluginIdx = registeredPlugins.length;
+		let removed = false;
 
 		if (!base.isRegistered(plugin)) {
 			return removed;
@@ -197,10 +198,10 @@ export default function PluginManager(thisObj) {
 
 		while (pluginIdx--) {
 			if (registeredPlugins[pluginIdx] instanceof plugins[plugin]) {
-				removedPlugin = registeredPlugins.splice(pluginIdx, 1)[0];
-				removed       = true;
+				const removedPlugin = registeredPlugins.splice(pluginIdx, 1)[0];
+				removed = true;
 
-				if ('destroy' in removedPlugin) {
+				if ('destroy' in removedPlugin && removedPlugin.destroy) {
 					removedPlugin.destroy.call(thisObj);
 				}
 			}
@@ -219,17 +220,19 @@ export default function PluginManager(thisObj) {
 	 * @memberOf PluginManager.prototype
 	 */
 	base.destroy = function () {
-		var i = registeredPlugins.length;
+		let i = registeredPlugins.length;
 
 		while (i--) {
-			if ('destroy' in registeredPlugins[i]) {
-				registeredPlugins[i].destroy.call(thisObj);
+			const plugin = registeredPlugins[i];
+
+			if ('destroy' in plugin && plugin.destroy) {
+				plugin.destroy.call(thisObj);
 			}
 		}
 
 		registeredPlugins = [];
-		thisObj    = null;
+		thisObj = null;
 	};
-};
+}
 
 PluginManager.plugins = plugins;

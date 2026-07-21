@@ -1,35 +1,37 @@
 (function (sceditor) {
 	'use strict';
 
-	sceditor.plugins.undo = function () {
-		var base = this;
-		var sourceEditor;
-		var editor;
-		var body;
-		var lastInputType = '';
-		var charChangedCount = 0;
-		var isInPatchedFn = false;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
+
+	sceditor.plugins.undo = function (this: Any) {
+		const base = this;
+		let sourceEditor: Any;
+		let editor: Any;
+		let body: Any;
+		let lastInputType = '';
+		let charChangedCount = 0;
+		let isInPatchedFn = false;
 		/**
 		 * If currently restoring a state
 		 * Should ignore events while it's happening
 		 */
-		var isApplying = false;
+		let isApplying = false;
 		/**
 		 * If current selection change event has already been stored
 		 */
-		var isSelectionChangeHandled = false;
+		let isSelectionChangeHandled = false;
 
-		var undoLimit  = 50;
-		var undoStates = [];
-		var redoPosition = 0;
-		var lastState;
+		let undoLimit = 50;
+		const undoStates: Any[] = [];
+		let redoPosition = 0;
+		let lastState: Any;
 
 		/**
 		 * Sets the editor to the specified state.
-		 * @param  {Object} state
 		 * @private
 		 */
-		function applyState(state) {
+		function applyState(state: Any) {
 			isApplying = true;
 			editor.sourceMode(state.sourceMode);
 
@@ -49,16 +51,14 @@
 
 			editor.focus();
 			isApplying = false;
-		};
+		}
 
 		/**
 		 * Patches a function on the object to call store() after invocation
-		 * @param {Object} obj
-		 * @param {string} fn
 		 */
-		function patch(obj, fn) {
-			var origFn = obj[fn];
-			obj[fn] = function () {
+		function patch(obj: Any, fn: string) {
+			const origFn = obj[fn];
+			obj[fn] = function (this: Any, ...args: Any[]) {
 				// sourceMode calls other patched methods so need to ignore them
 				const ignore = isInPatchedFn;
 
@@ -69,7 +69,7 @@
 				}
 
 				isInPatchedFn = true;
-				origFn.apply(this, arguments);
+				origFn.apply(this, args);
 
 				if (!ignore) {
 					isInPatchedFn = false;
@@ -113,20 +113,20 @@
 				editor.getSourceEditorValue(false) :
 				editor.getBody().innerHTML;
 
-			const countField = document.getElementById('editor-Counter'),
-				maxLimit = editor.opts.maxLength;
+			const countField = document.getElementById('editor-Counter');
+			const maxLimit = editor.opts.maxLength;
 
 			// Update counter
 			if (editor.val().length > maxLimit) {
 				base.undo();
 			} else {
-				countField.textContent = maxLimit - editor.val().length;
+				(countField as HTMLElement).textContent = String(maxLimit - editor.val().length);
 			}
 
 			lastState.value = value;
 		}
 
-		base.init = function () {
+		base.init = function (this: Any) {
 			// this variable will be set to the instance of the editor
 			// calling it, hence why the plugins "this" is saved to the base
 			// variable.
@@ -164,9 +164,8 @@
 			/**
 			 * Handles the before input event so can override built in
 			 * undo / redo
-			 * @param {InputEvent} e
 			 */
-			function beforeInputHandler(e) {
+			function beforeInputHandler(e: Any) {
 				if (e.inputType === 'historyUndo') {
 					base.undo();
 					e.preventDefault();
@@ -237,9 +236,8 @@
 
 		/**
 		 * Handles the input event
-		 * @param {InputEvent} e
 		 */
-		base.signalInputEvent = function (e) {
+		base.signalInputEvent = function (e: Any) {
 			// InputType is one of
 			// https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
 			// Most should cause a full undo item to be added so only need to
@@ -294,15 +292,13 @@
 
 		/**
 		 * Creates a positions object form passed range
-		 * @param {Range} range
-		 * @return {Object<string, Array<number>}
 		 */
-		function getRangePositions(range) {
+		function getRangePositions(range: Any) {
 			// In Firefox, range may not exist when the editor is first created
 			// due to Firefox returning null from getSelection() when the
 			// editors iframe is first created. See issue #910
 			if (!range) {
-				return;
+				return undefined;
 			}
 
 			// Merge any adjacent text nodes as it will be done by innerHTML
@@ -319,10 +315,8 @@
 
 		/**
 		 * Sets the range start/end based on the positions object
-		 * @param {Range} range
-		 * @param {Object<string, Array<number>>} positions
 		 */
-		function setRangePositions(range, positions) {
+		function setRangePositions(range: Any, positions: Any) {
 			try {
 				const startPositions = positions.startPositions;
 				const endPositions = positions.endPositions;
@@ -340,13 +334,10 @@
 
 		/**
 		 * Converts the passed container and offset into positions array
-		 * @param {Node} container
-		 * @param {number} offset
-		 * @returns {Array<number>}
 		 */
-		function nodeToPositions(container, offset) {
+		function nodeToPositions(container: Any, offset: number): number[] {
 			const positions = [offset];
-			var node = container;
+			let node = container;
 
 			while (node && node.tagName !== 'BODY') {
 				positions.push(nodeIndex(node));
@@ -358,11 +349,10 @@
 
 		/**
 		 * Returns index of passed node
-		 * @param {Node} node
-		 * @returns {number}
 		 */
-		function nodeIndex(node) {
-			var i = 0;
+		function nodeIndex(nodeArg: Any): number {
+			let node = nodeArg;
+			let i = 0;
 			while ((node = node.previousSibling)) {
 				i++;
 			}
@@ -371,15 +361,13 @@
 
 		/**
 		 * Gets the container node from the positions array
-		 * @param {Node} node
-		 * @param {Array<number>} positions
-		 * @returns {Node}
 		 */
-		function positionsToNode(node, positions) {
+		function positionsToNode(nodeArg: Any, positions: number[]): Any {
+			let node = nodeArg;
 			for (let i = positions.length - 1; node && i > 0; i--) {
 				node = node.childNodes[positions[i]];
 			}
 			return node;
 		}
-	};
+	} as Any;
 }(sceditor));

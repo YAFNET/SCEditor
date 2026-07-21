@@ -1,28 +1,71 @@
-﻿import * as dom from './dom.js';
+import * as dom from './dom.js';
 import * as utils from './utils.js';
 import defaultOptions from './defaultOptions.js';
 import defaultCommands from './defaultCommands.js';
 import PluginManager from './PluginManager.js';
+import type { PluginManagerInstance } from './PluginManager.js';
 import RangeHelper from './RangeHelper.js';
+import type { RangeHelperInstance } from './RangeHelper.js';
 import _tmpl from './templates.js';
 import * as escape from './escape.js';
 import * as browser from './browser.js';
 import DOMPurify from 'dompurify';
+import type {
+	SCEditorInstance,
+	SCEditorOptions,
+	Command,
+	Format,
+	IconPack,
+	LocaleStrings
+} from './types.js';
 
-var globalWin  = window;
-var globalDoc  = document;
+const globalWin: Window & typeof globalThis = window;
+const globalDoc: Document = document;
 
-var IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
+// RangeHelper/PluginManager are constructor functions using a `this: X`
+// parameter (not a real TS class), so `new RangeHelper(...)` has no
+// construct signature to infer from - these typed wrappers provide one.
+const RangeHelperCtor = RangeHelper as unknown as new (
+	win: Window,
+	d: Document | null | undefined,
+	sanitize: (html: string) => string
+) => RangeHelperInstance;
+
+const PluginManagerCtor = PluginManager as unknown as new (thisObj: unknown) => PluginManagerInstance;
+
+const IMAGE_MIME_REGEX = /^image\/(p?jpe?g|gif|png|bmp)$/i;
+
+interface PasteData {
+	html?: string;
+	text?: string;
+	val?: string;
+	[key: string]: unknown;
+}
+
+interface BtnStateHandler {
+	name: string;
+	state: Command['state'];
+}
+
+interface TriggerValueChangedFn {
+	(saveRange?: boolean): void;
+	hasHandler?: boolean;
+	lastVal?: string;
+}
+
+interface ValueChangedKeyUpFn {
+	(e: KeyboardEvent): void;
+	lastChar?: number;
+	triggerNext?: boolean;
+}
 
 /**
  * Wrap inlines that are in the root in paragraphs.
  *
- * @param {HTMLBodyElement} body
- * @param {Document} doc
  * @private
  */
-function wrapInlines(body, doc) {
-	var wrapper;
+function wrapInlines(body: HTMLElement, doc: Document): void {
+	let wrapper: HTMLElement | null = null;
 
 	dom.traverse(body, function (node) {
 		if (dom.isInline(node, true)) {
@@ -31,7 +74,7 @@ function wrapInlines(body, doc) {
 			// Ignore sceditor-ignore elements unless wrapping siblings
 			// Should still wrap both if wrapping siblings.
 			if (wrapper || node.nodeType === dom.TEXT_NODE ?
-				/\S/.test(node.nodeValue) : !dom.is(node, '.sceditor-ignore')) {
+				/\S/.test(node.nodeValue as string) : !dom.is(node, '.sceditor-ignore')) {
 				if (!wrapper) {
 					wrapper = dom.createElement('p', {}, doc);
 					dom.insertBefore(wrapper, node);
@@ -43,171 +86,158 @@ function wrapInlines(body, doc) {
 			wrapper = null;
 		}
 	}, false, true);
-};
+}
 
 /**
  * SCEditor - A lightweight WYSIWYG editor
  *
- * @param {HTMLTextAreaElement} original The textarea to be converted
- * @param {Object} userOptions
+ * @param original The textarea to be converted
  * @class SCEditor
  * @name SCEditor
  */
-export default function SCEditor(original, userOptions) {
+export default function SCEditor(
+	this: SCEditorInstance,
+	original: HTMLTextAreaElement,
+	userOptions: Partial<SCEditorOptions>
+) {
 	/**
 	 * Alias of this
 	 *
 	 * @private
 	 */
-	var base = this;
+	const base = this;
 
 	/**
 	 * Editor format like BBCode or HTML
 	 */
-	var format;
+	let format: Format = {};
 
 	/**
 	 * The div which contains the editor and toolbar
 	 *
-	 * @type {HTMLDivElement}
 	 * @private
 	 */
-	var editorContainer;
+	let editorContainer: HTMLDivElement;
 
 	/**
 	 * Map of events handlers bound to this instance.
 	 *
-	 * @type {Object}
 	 * @private
 	 */
-	var eventHandlers = {};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const eventHandlers: Record<string, Array<(this: SCEditorInstance, ...args: any[]) => void>> = {};
 
 	/**
 	 * The editors toolbar
 	 *
-	 * @type {HTMLDivElement}
 	 * @private
 	 */
-	var toolbar;
+	let toolbar: HTMLDivElement;
 
 	/**
 	 * The editors iframe which should be in design mode
 	 *
-	 * @type {HTMLIFrameElement}
 	 * @private
 	 */
-	var wysiwygEditor;
+	let wysiwygEditor: HTMLIFrameElement;
 
 	/**
 	 * The editors window
 	 *
-	 * @type {Window}
 	 * @private
 	 */
-	var wysiwygWindow;
+	let wysiwygWindow: Window;
 
 	/**
 	 * The WYSIWYG editors body element
 	 *
-	 * @type {HTMLBodyElement}
 	 * @private
 	 */
-	var wysiwygBody;
+	let wysiwygBody: HTMLElement;
 
 	/**
 	 * The WYSIWYG editors document
 	 *
-	 * @type {Document}
 	 * @private
 	 */
-	var wysiwygDocument;
+	let wysiwygDocument: Document;
 
 	/**
 	 * The editors textarea for viewing source
 	 *
-	 * @type {HTMLTextAreaElement}
 	 * @private
 	 */
-	var sourceEditor;
+	let sourceEditor: HTMLTextAreaElement;
 
-	var footer;
+	let footer: HTMLDivElement;
 
 	/**
 	 * The current dropdown
 	 *
-	 * @type {HTMLDivElement}
 	 * @private
 	 */
-	var dropdown;
+	let dropdown: HTMLDivElement | null;
 
 	/**
 	 * If the user is currently composing text via IME
-	 * @type {boolean}
 	 */
-	var isComposing;
+	let isComposing: boolean;
 
 	/**
 	 * Timer for valueChanged key handler
-	 * @type {number}
 	 */
-	var valueChangedKeyUpTimer;
+	let valueChangedKeyUpTimer: ReturnType<typeof setTimeout> | false;
 
 	/**
 	 * The editors locale
 	 *
 	 * @private
 	 */
-	var locale;
+	let locale: Partial<LocaleStrings> | undefined;
 
 	/**
 	 * The editors rangeHelper instance
 	 *
-	 * @type {RangeHelper}
 	 * @private
 	 */
-	var rangeHelper;
+	let rangeHelper: RangeHelperInstance | null;
 
 	/**
 	 * An array of button state handlers
 	 *
-	 * @type {Array.<Object>}
 	 * @private
 	 */
-	var btnStateHandlers = [];
+	const btnStateHandlers: BtnStateHandler[] = [];
 
 	/**
 	 * Plugin manager instance
 	 *
-	 * @type {PluginManager}
 	 * @private
 	 */
-	var pluginManager;
+	let pluginManager: PluginManagerInstance | null;
 
 	/**
 	 * The current node containing the selection/caret
 	 *
-	 * @type {Node}
 	 * @private
 	 */
-	var currentNode;
+	let currentNode: Node | null = null;
 
 	/**
 	 * The first block level parent of the current node
 	 *
-	 * @type {node}
 	 * @private
 	 */
-	var currentBlockNode;
+	let currentBlockNode: HTMLElement | null = null;
 
-	var backSpaceHandled;
+	let backSpaceHandled: boolean;
 
 	/**
 	 * The current node selection/caret
 	 *
-	 * @type {Object}
 	 * @private
 	 */
-	var currentSelection;
+	let currentSelection: Range | null;
 
 	/**
 	 * Used to make sure only 1 selection changed
@@ -215,140 +245,132 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * Helps improve performance as it is checked a lot.
 	 *
-	 * @type {boolean}
 	 * @private
 	 */
-	var isSelectionCheckPending;
+	let isSelectionCheckPending: boolean;
 
 	/**
 	 * If content is required (equivalent to the HTML5 required attribute)
 	 *
-	 * @type {boolean}
 	 * @private
 	 */
-	var isRequired;
+	let isRequired: boolean;
 
 	/**
 	 * The inline CSS style element. Will be undefined
 	 * until css() is called for the first time.
 	 *
-	 * @type {HTMLStyleElement}
 	 * @private
 	 */
-	var inlineCss;
+	let inlineCss: HTMLStyleElement;
 
 	/**
 	 * Object containing a list of shortcut handlers
 	 *
-	 * @type {Object}
 	 * @private
 	 */
-	var shortcutHandlers = {};
+	const shortcutHandlers: Record<string, (this: SCEditorInstance) => boolean | void> = {};
 
 	/**
 	 * The min and max heights that autoExpand should stay within
 	 *
-	 * @type {Object}
 	 * @private
 	 */
-	var autoExpandBounds;
+	let autoExpandBounds: { min: number; max: number } | undefined;
 
 	/**
 	 * Timeout for the autoExpand function to throttle calls
 	 *
 	 * @private
 	 */
-	var autoExpandThrottle;
+	let autoExpandThrottle: ReturnType<typeof setTimeout> | false;
 
 	/**
 	 * Cache of the current toolbar buttons
 	 *
-	 * @type {Object}
 	 * @private
 	 */
-	var toolbarButtons = {};
+	const toolbarButtons: Record<string, HTMLElement> = {};
 
 	/**
 	 * Last scroll position before maximizing so
 	 * it can be restored when finished.
 	 *
-	 * @type {number}
 	 * @private
 	 */
-	var maximizeScrollPosition;
+	let maximizeScrollPosition: number;
 
 	/**
 	 * Stores the contents while a paste is taking place.
 	 *
 	 * Needed to support browsers that lack clipboard API support.
 	 *
-	 * @type {?DocumentFragment}
 	 * @private
 	 */
-	var pasteContentFragment;
+	let pasteContentFragment: DocumentFragment | false | undefined;
 
 	/**
 	 * Current icon set if any
 	 *
-	 * @type {?Object}
 	 * @private
 	 */
-	var icons;
+	let icons: IconPack | undefined;
 
 	/**
 	 * Private functions
 	 * @private
 	 */
-	var init,
-		handleCommand,
-		initEditor,
-		initLocale,
-		initToolBar,
-		initOptions,
-		initEvents,
-		initResize,
-		handlePasteEvt,
-		handleCutCopyEvt,
-		handlePasteData,
-		handleKeyDown,
-		handleBackSpace,
-		handleKeyPress,
-		handleFormReset,
-		handleMouseDown,
-		handleComposition,
-		handleEvent,
-		handleDocumentClick,
-		loadScripts,
-		updateToolBar,
-		updateActiveButtons,
-		sourceEditorSelectedText,
-		appendNewLine,
-		checkSelectionChanged,
-		checkNodeChanged,
-		autofocus,
-		currentStyledBlockNode,
-		triggerValueChanged,
-		valueChangedBlur,
-		valueChangedKeyUp,
-		autoUpdate,
-		autoExpand;
+	let init: () => void;
+	let handleCommand: (caller: HTMLElement | undefined, cmd: Command) => void;
+	let initEditor: () => void;
+	let initLocale: () => void;
+	let initToolBar: () => void;
+	let initOptions: () => void;
+	let initEvents: () => void;
+	let initResize: () => void;
+	let handlePasteEvt: (e: ClipboardEvent) => void;
+	let handleCutCopyEvt: (e: ClipboardEvent) => void;
+	let handlePasteData: (data: PasteData) => void;
+	let handleKeyDown: (e: KeyboardEvent) => void;
+	let handleBackSpace: (e: KeyboardEvent) => void;
+	let handleKeyPress: (e: KeyboardEvent) => void;
+	let handleFormReset: () => void;
+	let handleMouseDown: () => void;
+	let handleComposition: (e: Event) => void;
+	let handleEvent: (e: Event) => void;
+	let handleDocumentClick: (e: MouseEvent) => void;
+	let loadScripts: () => void;
+	let updateToolBar: (disable?: boolean) => void;
+	let updateActiveButtons: () => void;
+	let sourceEditorSelectedText: () => string;
+	let appendNewLine: () => void;
+	let checkSelectionChanged: () => void;
+	let checkNodeChanged: () => void;
+	let autofocus: (focusEnd?: boolean) => void;
+	let currentStyledBlockNode: () => HTMLElement | undefined;
+	let triggerValueChanged: TriggerValueChangedFn;
+	let valueChangedBlur: () => void;
+	let valueChangedKeyUp: ValueChangedKeyUpFn;
+	let autoUpdate: () => void;
+	let autoExpand: () => void;
 
 	/**
 	 * All the commands supported by the editor
 	 * @name commands
 	 * @memberOf SCEditor.prototype
 	 */
-	base.commands = utils
-		.extend(true, {}, (userOptions.commands || defaultCommands));
+	base.commands = utils.extend(
+		true, {}, (userOptions.commands || defaultCommands)
+	) as Record<string, Command>;
 
 	/**
 	 * Options for this editor instance
 	 * @name opts
 	 * @memberOf SCEditor.prototype
 	 */
-	var options = base.opts = utils.extend(
+	const options = base.opts = utils.extend(
 		true, {}, defaultOptions, userOptions
-	);
+	) as SCEditorOptions;
 
 	if (!Array.isArray(options.allowedIframeUrls)) {
 		options.allowedIframeUrls = [];
@@ -362,7 +384,7 @@ export default function SCEditor(original, userOptions) {
 	// Create new instance of DOMPurify for each editor instance so can
 	// have different allowed iframe URLs
 	// eslint-disable-next-line new-cap
-	var domPurify = DOMPurify();
+	const domPurify = DOMPurify();
 
 	// Allow iframes for things like YouTube, see:
 	// https://github.com/cure53/DOMPurify/issues/340#issuecomment-670758980
@@ -370,7 +392,7 @@ export default function SCEditor(original, userOptions) {
 		const allowedUrls = options.allowedIframeUrls;
 
 		if (data.tagName === 'iframe') {
-			const src = dom.attr(node, 'src') || '';
+			const src = dom.attr(node as Element, 'src') || '';
 
 			for (let i = 0; i < allowedUrls.length; i++) {
 				const url = allowedUrls[i];
@@ -380,7 +402,7 @@ export default function SCEditor(original, userOptions) {
 				}
 
 				// Handle regex
-				if (url.test && url.test(src)) {
+				if (url instanceof RegExp && url.test(src)) {
 					return;
 				}
 			}
@@ -394,20 +416,18 @@ export default function SCEditor(original, userOptions) {
 	// can allow them
 	domPurify.addHook('afterSanitizeAttributes', function (node) {
 		if ('target' in node) {
-			dom.attr(node, 'data-sce-target', dom.attr(node, 'target'));
+			dom.attr(node as Element, 'data-sce-target', dom.attr(node as Element, 'target'));
 		}
 
-		dom.removeAttr(node, 'target');
+		dom.removeAttr(node as Element, 'target');
 	});
 
 	/**
 	 * Sanitize HTML to avoid XSS
 	 *
-	 * @param {string} html
-	 * @return {string} html
 	 * @private
 	 */
-	function sanitize(html) {
+	function sanitize(html: string): string {
 		const allowedTags = ['iframe'].concat(options.allowedTags);
 		const allowedAttrs = ['allowfullscreen', 'frameborder', 'target']
 			.concat(options.allowedAttributes);
@@ -416,16 +436,16 @@ export default function SCEditor(original, userOptions) {
 			ADD_TAGS: allowedTags,
 			ADD_ATTR: allowedAttrs
 		});
-	};
+	}
 
 	/**
 	* Loads a JavaScript file and returns a Promise for when it is loaded
 	*/
-	const loadScript = src => {
+	const loadScript = (src: string): Promise<void> => {
 		return new Promise((resolve, reject) => {
 			const script = document.createElement('script');
 			script.type = 'text/javascript';
-			script.onload = resolve;
+			script.onload = () => resolve();
 			script.onerror = reject;
 			script.src = src;
 			document.head.append(script);
@@ -464,10 +484,10 @@ export default function SCEditor(original, userOptions) {
 
 		editorContainer = dom.createElement('div', {
 			className: 'sceditor-container card'
-		});
+		}) as HTMLDivElement;
 
 		dom.insertBefore(editorContainer, original);
-		dom.css(editorContainer, 'z-index', options.zIndex);
+		dom.css(editorContainer, 'z-index', options.zIndex as number);
 
 		isRequired = original.required;
 		original.required = false;
@@ -480,11 +500,11 @@ export default function SCEditor(original, userOptions) {
 		 * since the bbcode format caches its handlers,
 		 * such changes must be done first.
 		 */
-		pluginManager = new PluginManager(base);
+		pluginManager = new PluginManagerCtor(base);
 		(options.plugins || '').split(',').forEach(function (plugin) {
-			pluginManager.register(plugin.trim());
+			(pluginManager as PluginManagerInstance).register(plugin.trim());
 		});
-		if ('init' in format) {
+		if ('init' in format && format.init) {
 			format.init.call(base);
 		}
 
@@ -502,7 +522,7 @@ export default function SCEditor(original, userOptions) {
 
 		updateActiveButtons();
 
-		var loaded = function () {
+		const loaded = function () {
 			dom.off(globalWin, 'load', loaded);
 
 			if (options.autofocus) {
@@ -512,8 +532,8 @@ export default function SCEditor(original, userOptions) {
 			autoExpand();
 			appendNewLine();
 			// TODO: use editor doc and window?
-			pluginManager.call('ready');
-			if ('onReady' in format) {
+			(pluginManager as PluginManagerInstance).call('ready');
+			if ('onReady' in format && format.onReady) {
 				format.onReady.call(base);
 			}
 		};
@@ -529,12 +549,10 @@ export default function SCEditor(original, userOptions) {
 	 * @return void
 	 */
 	initLocale = function () {
-		var lang;
-
 		locale = SCEditor.locale[options.locale];
 
 		if (!locale) {
-			lang = options.locale.split('-');
+			const lang = options.locale.split('-');
 			locale = SCEditor.locale[lang[0]];
 		}
 
@@ -549,15 +567,15 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	initEditor = function () {
-		sourceEditor  = dom.createElement('textarea');
+		sourceEditor = dom.createElement('textarea') as HTMLTextAreaElement;
 		wysiwygEditor = dom.createElement('iframe', {
 			frameborder: 0,
 			allowfullscreen: true
-		});
+		}) as HTMLIFrameElement;
 
 		dom.attr(wysiwygEditor, 'role', 'none');
 
-		footer = dom.createElement('div');
+		footer = dom.createElement('div') as HTMLDivElement;
 		dom.addClass(footer, 'card-footer');
 		dom.addClass(footer, 'text-body-secondary');
 		dom.addClass(footer, 'text-end');
@@ -601,13 +619,13 @@ export default function SCEditor(original, userOptions) {
 			options.height || dom.height(original)
 		);
 
-		wysiwygDocument = wysiwygEditor.contentDocument;
+		wysiwygDocument = wysiwygEditor.contentDocument as Document;
 		wysiwygDocument.open();
 
-		var styles = '';
+		let styles = '';
 
-		options.styles.forEach((style) => {
-			styles += _tmpl('style', {style: style});
+		(options.styles as string[]).forEach((style) => {
+			styles += _tmpl('style', { style: style });
 		});
 
 		wysiwygDocument.write(_tmpl('html', {
@@ -620,27 +638,27 @@ export default function SCEditor(original, userOptions) {
 		wysiwygDocument.close();
 
 		wysiwygBody = wysiwygDocument.body;
-		wysiwygWindow = wysiwygEditor.contentWindow;
+		wysiwygWindow = wysiwygEditor.contentWindow as Window;
 
 		base.readOnly(!!options.readOnly);
 
 		// iframe overflow fix for iOS
 		if (browser.ios) {
 			dom.height(wysiwygBody, '100%');
-			dom.on(wysiwygBody, 'touchend', base.focus);
+			dom.on(wysiwygBody, 'touchend', base.focus as unknown as EventListener);
 		}
 
-		var tabIndex = dom.attr(original, 'tabindex');
+		const tabIndex = dom.attr(original, 'tabindex');
 		dom.attr(sourceEditor, 'tabindex', tabIndex);
 		dom.attr(wysiwygEditor, 'tabindex', tabIndex);
 
-		rangeHelper = new RangeHelper(wysiwygWindow, null, sanitize);
+		rangeHelper = new RangeHelperCtor(wysiwygWindow, null, sanitize);
 
 		// load any textarea value into the editor
 		dom.hide(original);
 		base.val(original.value);
 
-		var placeholder = options.placeholder ||
+		const placeholder = (options.placeholder as string) ||
 			dom.attr(original, 'placeholder');
 
 		if (placeholder) {
@@ -676,7 +694,7 @@ export default function SCEditor(original, userOptions) {
 			initResize();
 		}
 
-		dom.attr(editorContainer, 'id', options.id);
+		dom.attr(editorContainer, 'id', options.id as string);
 	};
 
 	/**
@@ -691,7 +709,7 @@ export default function SCEditor(original, userOptions) {
 			'selectionchange' :
 			'keyup focus blur contextmenu mouseup touchend click';
 
-		dom.on(globalDoc, 'click', handleDocumentClick);
+		dom.on(globalDoc, 'click', handleDocumentClick as EventListener);
 
 		if (form) {
 			dom.on(form, 'reset', handleFormReset);
@@ -700,14 +718,14 @@ export default function SCEditor(original, userOptions) {
 
 		dom.on(window, 'pagehide', base.updateOriginal);
 		dom.on(window, 'pageshow', handleFormReset);
-		dom.on(wysiwygBody, 'keypress', handleKeyPress);
-		dom.on(wysiwygBody, 'keydown', handleKeyDown);
-		dom.on(wysiwygBody, 'keydown', handleBackSpace);
+		dom.on(wysiwygBody, 'keypress', handleKeyPress as EventListener);
+		dom.on(wysiwygBody, 'keydown', handleKeyDown as EventListener);
+		dom.on(wysiwygBody, 'keydown', handleBackSpace as EventListener);
 		dom.on(wysiwygBody, 'keyup', appendNewLine);
 		dom.on(wysiwygBody, 'blur', valueChangedBlur);
-		dom.on(wysiwygBody, 'keyup', valueChangedKeyUp);
-		dom.on(wysiwygBody, 'paste', handlePasteEvt);
-		dom.on(wysiwygBody, 'cut copy', handleCutCopyEvt);
+		dom.on(wysiwygBody, 'keyup', valueChangedKeyUp as EventListener);
+		dom.on(wysiwygBody, 'paste', handlePasteEvt as EventListener);
+		dom.on(wysiwygBody, 'cut copy', handleCutCopyEvt as EventListener);
 		dom.on(wysiwygBody, compositionEvents, handleComposition);
 		dom.on(wysiwygBody, checkSelectionEvents, checkSelectionChanged);
 		dom.on(wysiwygBody, eventsToForward, handleEvent);
@@ -723,8 +741,8 @@ export default function SCEditor(original, userOptions) {
 		});
 
 		dom.on(sourceEditor, 'blur', valueChangedBlur);
-		dom.on(sourceEditor, 'keyup', valueChangedKeyUp);
-		dom.on(sourceEditor, 'keydown', handleKeyDown);
+		dom.on(sourceEditor, 'keyup', valueChangedKeyUp as EventListener);
+		dom.on(sourceEditor, 'keydown', handleKeyDown as EventListener);
 		dom.on(sourceEditor, compositionEvents, handleComposition);
 		dom.on(sourceEditor, eventsToForward, handleEvent);
 
@@ -747,38 +765,37 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	initToolBar = function () {
-		var	group,
-			commands = base.commands,
-			exclude  = (options.toolbarExclude || '').split(',');
+		let group: HTMLDivElement;
+		const commands = base.commands;
+		const exclude = (options.toolbarExclude || '').split(',');
 		const groups = options.toolbar.split('|');
 
 		toolbar = dom.createElement('div', {
 			className: 'card-header btn-toolbar',
 			unselectable: 'on'
-		});
+		}) as HTMLDivElement;
 
 		if (options.icons in SCEditor.icons) {
 			icons = new SCEditor.icons[options.icons]();
 		}
 
-		utils.each(groups, function (_, menuItems) {
+		utils.each(groups, function (_, menuItems: string) {
 			group = dom.createElement('div', {
 				className: 'btn-group btn-group-sm m-1'
-			});
+			}) as HTMLDivElement;
 
-			utils.each(menuItems.split(','), function (_, commandName) {
-				var	button, shortcut,
-					command  = commands[commandName];
+			utils.each(menuItems.split(','), function (_, commandName: string) {
+				const command = commands[commandName];
 
 				// The commandName must be a valid command and not excluded
 				if (!command || exclude.indexOf(commandName) > -1) {
 					return;
 				}
 
-				shortcut = command.shortcut;
-				button   = _tmpl('toolbarButton', {
+				const shortcut = command.shortcut;
+				const button = _tmpl('toolbarButton', {
 					name: commandName
-				}, true).firstChild;
+				}, true).firstChild as HTMLElement;
 
 				if (commandName === 'source') {
 					button.classList.add('btn-secondary');
@@ -789,8 +806,8 @@ export default function SCEditor(original, userOptions) {
 				if (icons && icons.create) {
 					const icon = icons.create(commandName);
 					if (icon) {
-						dom.insertBefore(icons.create(commandName),
-							button.firstChild);
+						dom.insertBefore(icons.create(commandName) as Node,
+							button.firstChild as Node);
 					}
 				}
 
@@ -847,7 +864,7 @@ export default function SCEditor(original, userOptions) {
 		});
 
 		// Append the toolbar to the toolbarContainer option if given
-		dom.appendChild(options.toolbarContainer || editorContainer, toolbar);
+		dom.appendChild((options.toolbarContainer || editorContainer) as Node, toolbar);
 	};
 
 	/**
@@ -855,44 +872,50 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	initResize = function () {
-		var	minHeight, maxHeight, minWidth, maxWidth,
-			mouseMoveFunc, mouseUpFunc;
+		let minHeight: number;
+		let maxHeight: number;
+		let minWidth: number;
+		let maxWidth: number;
+		let mouseMoveFunc: (e: MouseEvent | TouchEvent) => void;
+		let mouseUpFunc: (e: MouseEvent | TouchEvent) => void;
 		const grip = dom.createElement('div', {
 			className: 'sceditor-grip'
 		});
-		var moveEvents  = 'touchmove mousemove',
-			endEvents   = 'touchcancel touchend mouseup',
-			startX      = 0,
-			startY      = 0,
-			newX        = 0,
-			newY        = 0,
-			startWidth  = 0,
-			startHeight = 0;
+		const moveEvents = 'touchmove mousemove';
+		const endEvents = 'touchcancel touchend mouseup';
+		let startX = 0;
+		let startY = 0;
+		let newX = 0;
+		let newY = 0;
+		let startWidth = 0;
+		let startHeight = 0;
 		const origWidth = dom.width(editorContainer);
 		const origHeight = dom.height(editorContainer);
-		var isDragging  = false,
-			rtl         = base.rtl();
+		let isDragging = false;
+		const rtl = base.rtl();
 
-		minHeight = options.resizeMinHeight || origHeight / 1.5;
-		maxHeight = options.resizeMaxHeight || origHeight * 2.5;
-		minWidth  = options.resizeMinWidth  || origWidth  / 1.25;
-		maxWidth  = options.resizeMaxWidth  || origWidth  * 1.25;
+		minHeight = (options.resizeMinHeight as number) || origHeight / 1.5;
+		maxHeight = (options.resizeMaxHeight as number) || origHeight * 2.5;
+		minWidth = (options.resizeMinWidth as number) || origWidth / 1.25;
+		maxWidth = (options.resizeMaxWidth as number) || origWidth * 1.25;
 
-		mouseMoveFunc = function (e) {
+		mouseMoveFunc = function (evt) {
+			let e = evt;
+
 			// iOS uses window.event
 			if (e.type === 'touchmove') {
-				e    = globalWin.event;
-				newX = e.changedTouches[0].pageX;
-				newY = e.changedTouches[0].pageY;
+				e = (globalWin as unknown as { event: TouchEvent }).event;
+				newX = (e as TouchEvent).changedTouches[0].pageX;
+				newY = (e as TouchEvent).changedTouches[0].pageY;
 			} else {
-				newX = e.pageX;
-				newY = e.pageY;
+				newX = (e as MouseEvent).pageX;
+				newY = (e as MouseEvent).pageY;
 			}
 
-			var	newHeight = startHeight + (newY - startY),
-				newWidth  = rtl ?
-					startWidth - (newX - startX) :
-					startWidth + (newX - startX);
+			let newHeight: number | false = startHeight + (newY - startY);
+			let newWidth: number | false = rtl ?
+				startWidth - (newX - startX) :
+				startWidth + (newX - startX);
 
 			if (maxWidth > 0 && newWidth > maxWidth) {
 				newWidth = maxWidth;
@@ -929,8 +952,8 @@ export default function SCEditor(original, userOptions) {
 			isDragging = false;
 
 			dom.removeClass(editorContainer, 'resizing');
-			dom.off(globalDoc, moveEvents, mouseMoveFunc);
-			dom.off(globalDoc, endEvents, mouseUpFunc);
+			dom.off(globalDoc, moveEvents, mouseMoveFunc as EventListener);
+			dom.off(globalDoc, endEvents, mouseUpFunc as EventListener);
 
 			e.preventDefault();
 		};
@@ -945,24 +968,26 @@ export default function SCEditor(original, userOptions) {
 		dom.appendChild(editorContainer, footer);
 		dom.appendChild(editorContainer, grip);
 
-		dom.on(grip, 'touchstart mousedown', function (e) {
+		dom.on(grip, 'touchstart mousedown', function (evt) {
+			let e = evt;
+
 			// iOS uses window.event
 			if (e.type === 'touchstart') {
-				e      = globalWin.event;
-				startX = e.touches[0].pageX;
-				startY = e.touches[0].pageY;
+				e = (globalWin as unknown as { event: TouchEvent }).event;
+				startX = (e as TouchEvent).touches[0].pageX;
+				startY = (e as TouchEvent).touches[0].pageY;
 			} else {
-				startX = e.pageX;
-				startY = e.pageY;
+				startX = (e as MouseEvent).pageX;
+				startY = (e as MouseEvent).pageY;
 			}
 
-			startWidth  = dom.width(editorContainer);
+			startWidth = dom.width(editorContainer);
 			startHeight = dom.height(editorContainer);
-			isDragging  = true;
+			isDragging = true;
 
 			dom.addClass(editorContainer, 'resizing');
-			dom.on(globalDoc, moveEvents, mouseMoveFunc);
-			dom.on(globalDoc, endEvents, mouseUpFunc);
+			dom.on(globalDoc, moveEvents, mouseMoveFunc as EventListener);
+			dom.on(globalDoc, endEvents, mouseUpFunc as EventListener);
 
 			e.preventDefault();
 		});
@@ -973,8 +998,9 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	autofocus = function (focusEnd) {
-		var	range, txtPos,
-			node = wysiwygBody.firstChild;
+		let range: Range;
+		let txtPos: number;
+		let node: Node | null = wysiwygBody.firstChild;
 
 		// Can't focus invisible elements
 		if (!dom.isVisible(editorContainer)) {
@@ -1009,18 +1035,18 @@ export default function SCEditor(original, userOptions) {
 
 		range = wysiwygDocument.createRange();
 
-		if (!dom.canHaveChildren(node)) {
-			range.setStartBefore(node);
+		if (!dom.canHaveChildren(node as Node)) {
+			range.setStartBefore(node as Node);
 
 			if (focusEnd) {
-				range.setStartAfter(node);
+				range.setStartAfter(node as Node);
 			}
 		} else {
-			range.selectNodeContents(node);
+			range.selectNodeContents(node as Node);
 		}
 
 		range.collapse(!focusEnd);
-		rangeHelper.selectRange(range);
+		(rangeHelper as RangeHelperInstance).selectRange(range);
 		currentSelection = range;
 
 		if (focusEnd) {
@@ -1037,30 +1063,27 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name readOnly
-	 * @return {boolean}
 	 */
 	/**
 	 * Sets if the editor is read only
 	 *
-	 * @param {boolean} readOnly
 	 * @since 1.3.5
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name readOnly^2
-	 * @return {this}
 	 */
-	base.readOnly = function (readOnly) {
+	base.readOnly = function (readOnly?: boolean) {
 		if (typeof readOnly !== 'boolean') {
-			return !sourceEditor.readonly;
+			return !sourceEditor.readOnly;
 		}
 
-		wysiwygBody.contentEditable = !readOnly;
-		sourceEditor.readonly = !readOnly;
+		wysiwygBody.contentEditable = String(!readOnly);
+		sourceEditor.readOnly = !readOnly;
 
 		updateToolBar(readOnly);
 
 		return base;
-	};
+	} as SCEditorInstance['readOnly'];
 
 	/**
 	 * Gets if the editor is in RTL mode
@@ -1069,19 +1092,16 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name rtl
-	 * @return {boolean}
 	 */
 	/**
 	 * Sets if the editor is in RTL mode
 	 *
-	 * @param {boolean} rtl
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name rtl^2
-	 * @return {this}
 	 */
-	base.rtl = function (rtl) {
+	base.rtl = function (rtl?: boolean) {
 		const dir = rtl ? 'rtl' : 'ltr';
 
 		if (typeof rtl !== 'boolean') {
@@ -1100,17 +1120,17 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['rtl'];
 
 	/**
 	 * Updates the toolbar to disable/enable the appropriate buttons
 	 * @private
 	 */
 	updateToolBar = function (disable) {
-		var mode = base.inSourceMode() ? '_sceTxtMode' : '_sceWysiwygMode';
+		const mode = base.inSourceMode() ? '_sceTxtMode' : '_sceWysiwygMode';
 
 		utils.each(toolbarButtons, function (_, button) {
-			dom.toggleClass(button, 'disabled', disable || !button[mode]);
+			dom.toggleClass(button, 'disabled', !!disable || !button[mode]);
 		});
 	};
 
@@ -1121,17 +1141,14 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name width
-	 * @return {number}
 	 */
 	/**
 	 * Sets the width of the editor
 	 *
-	 * @param {number} width Width in pixels
 	 * @since 1.3.5
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name width^2
-	 * @return {this}
 	 */
 	/**
 	 * Sets the width of the editor
@@ -1139,15 +1156,12 @@ export default function SCEditor(original, userOptions) {
 	 * The saveWidth specifies if to save the width. The stored width can be
 	 * used for things like restoring from maximized state.
 	 *
-	 * @param {number}     width            Width in pixels
-	 * @param {boolean}	[saveWidth=true] If to store the width
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name width^3
-	 * @return {this}
 	 */
-	base.width = function (width, saveWidth) {
+	base.width = function (width?: number | string, saveWidth?: boolean) {
 		if (!width && width !== 0) {
 			return dom.width(editorContainer);
 		}
@@ -1155,7 +1169,7 @@ export default function SCEditor(original, userOptions) {
 		base.dimensions(width, null, saveWidth);
 
 		return base;
-	};
+	} as SCEditorInstance['width'];
 
 	/**
 	 * Returns an object with the properties width and height
@@ -1165,20 +1179,16 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name dimensions
-	 * @return {object}
 	 */
 	/**
 	 * <p>Sets the width and/or height of the editor.</p>
 	 *
 	 * <p>If width or height is not numeric it is ignored.</p>
 	 *
-	 * @param {number}	width	Width in px
-	 * @param {number}	height	Height in px
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name dimensions^2
-	 * @return {this}
 	 */
 	/**
 	 * <p>Sets the width and/or height of the editor.</p>
@@ -1189,19 +1199,19 @@ export default function SCEditor(original, userOptions) {
 	 * The saved sizes can be used for things like restoring from
 	 * maximized state. This should normally be left as true.</p>
 	 *
-	 * @param {number}		width		Width in px
-	 * @param {number}		height		Height in px
-	 * @param {boolean}	[save=true]	If to store the new sizes
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name dimensions^3
-	 * @return {this}
 	 */
-	base.dimensions = function (width, height, save) {
+	base.dimensions = function (
+		widthArg?: number | string | false | null,
+		heightArg?: number | string | false | null,
+		save?: boolean
+	) {
 		// set undefined width/height to boolean false
-		width  = (!width && width !== 0) ? false : width;
-		height = (!height && height !== 0) ? false : height;
+		const width = (!widthArg && widthArg !== 0) ? false : widthArg;
+		const height = (!heightArg && heightArg !== 0) ? false : heightArg;
 
 		if (width === false && height === false) {
 			return { width: base.width(), height: base.height() };
@@ -1224,7 +1234,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['dimensions'];
 
 	/**
 	 * Gets the height of the editor in px
@@ -1233,17 +1243,14 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name height
-	 * @return {number}
 	 */
 	/**
 	 * Sets the height of the editor
 	 *
-	 * @param {number} height Height in px
 	 * @since 1.3.5
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name height^2
-	 * @return {this}
 	 */
 	/**
 	 * Sets the height of the editor
@@ -1253,15 +1260,12 @@ export default function SCEditor(original, userOptions) {
 	 * The stored height can be used for things like
 	 * restoring from maximized state.
 	 *
-	 * @param {number} height Height in px
-	 * @param {boolean} [saveHeight=true] If to store the height
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name height^3
-	 * @return {this}
 	 */
-	base.height = function (height, saveHeight) {
+	base.height = function (height?: number | string, saveHeight?: boolean) {
 		if (!height && height !== 0) {
 			return dom.height(editorContainer);
 		}
@@ -1269,7 +1273,7 @@ export default function SCEditor(original, userOptions) {
 		base.dimensions(null, height, saveHeight);
 
 		return base;
-	};
+	} as SCEditorInstance['height'];
 
 	/**
 	 * Gets if the editor is maximised or not
@@ -1278,36 +1282,33 @@ export default function SCEditor(original, userOptions) {
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name maximize
-	 * @return {boolean}
 	 */
 	/**
 	 * Sets if the editor is maximised or not
 	 *
-	 * @param {boolean} maximize If to maximise the editor
 	 * @since 1.4.1
 	 * @function
 	 * @memberOf SCEditor.prototype
 	 * @name maximize^2
-	 * @return {this}
 	 */
-	base.maximize = function (maximize) {
-		const maximizeSize = 'sceditor-maximize';
+	base.maximize = function (maximizeArg?: boolean) {
+		const maximizeClass = 'sceditor-maximize';
 
-		if (utils.isUndefined(maximize)) {
-			return dom.hasClass(editorContainer, maximizeSize);
+		if (utils.isUndefined(maximizeArg)) {
+			return dom.hasClass(editorContainer, maximizeClass);
 		}
 
-		maximize = !!maximize;
+		const maximize = !!maximizeArg;
 
 		if (maximize) {
 			maximizeScrollPosition = globalWin.scrollY;
 		}
 
-		dom.toggleClass(globalDoc.documentElement, maximizeSize, maximize);
-		dom.toggleClass(globalDoc.body, maximizeSize, maximize);
-		dom.toggleClass(editorContainer, maximizeSize, maximize);
-		base.width(maximize ? '100%' : options.width, false);
-		base.height(maximize ? '100%' : options.height, false);
+		dom.toggleClass(globalDoc.documentElement, maximizeClass, maximize);
+		dom.toggleClass(globalDoc.body, maximizeClass, maximize);
+		dom.toggleClass(editorContainer, maximizeClass, maximize);
+		base.width(maximize ? '100%' : options.width as number | string, false);
+		base.height(maximize ? '100%' : options.height as number | string, false);
 
 		if (!maximize) {
 			globalWin.scrollTo(0, maximizeScrollPosition);
@@ -1316,7 +1317,7 @@ export default function SCEditor(original, userOptions) {
 		autoExpand();
 
 		return base;
-	};
+	} as SCEditorInstance['maximize'];
 
 	autoExpand = function () {
 		if (options.autoExpand && !autoExpandThrottle) {
@@ -1331,27 +1332,26 @@ export default function SCEditor(original, userOptions) {
 	 * higher than the maxHeight option.
 	 *
 	 * @since 1.3.5
-	 * @param {boolean} [ignoreMaxHeight=false]
 	 * @function
 	 * @name expandToContent
 	 * @memberOf SCEditor.prototype
 	 * @see #resizeToContent
 	 */
-	base.expandToContent = function (ignoreMaxHeight) {
+	base.expandToContent = function (ignoreMaxHeight?: boolean) {
 		if (base.maximize()) {
 			return;
 		}
 
-		clearTimeout(autoExpandThrottle);
+		clearTimeout(autoExpandThrottle as ReturnType<typeof setTimeout>);
 		autoExpandThrottle = false;
 
 		if (!autoExpandBounds) {
-			const height = options.resizeMinHeight || options.height ||
+			const height = (options.resizeMinHeight as number) || (options.height as number) ||
                 dom.height(original);
 
 			autoExpandBounds = {
 				min: height,
-				max: options.resizeMaxHeight || (height * 2)
+				max: (options.resizeMaxHeight as number) || (height * 2)
 			};
 		}
 
@@ -1361,7 +1361,7 @@ export default function SCEditor(original, userOptions) {
 		const rect = range.getBoundingClientRect();
 		const current = wysiwygDocument.documentElement.clientHeight - 1;
 		const spaceNeeded = rect.bottom - rect.top;
-		var newHeight = base.height() + 1 + (spaceNeeded - current);
+		let newHeight = base.height() + 1 + (spaceNeeded - current);
 
 		if (!ignoreMaxHeight && autoExpandBounds.max !== -1) {
 			newHeight = Math.min(newHeight, autoExpandBounds.max);
@@ -1388,14 +1388,14 @@ export default function SCEditor(original, userOptions) {
 
 		pluginManager.destroy();
 
-		rangeHelper   = null;
+		rangeHelper = null;
 		pluginManager = null;
 
 		if (dropdown) {
 			dom.remove(dropdown);
 		}
 
-		dom.off(globalDoc, 'click', handleDocumentClick);
+		dom.off(globalDoc, 'click', handleDocumentClick as EventListener);
 
 		const form = original.form;
 		if (form) {
@@ -1419,17 +1419,16 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Creates a menu item drop down
 	 *
-	 * @param  {HTMLElement} menuItem The button to align the dropdown with
-	 * @param  {string} name          Used for styling the dropdown, will be
-	 *                                a class sceditor-name
-	 * @param  {HTMLElement} content  The HTML content of the dropdown
+	 * @param  menuItem The button to align the dropdown with
+	 * @param  name     Used for styling the dropdown, will be
+	 *                  a class sceditor-name
+	 * @param  content  The HTML content of the dropdown
 	 * @function
 	 * @name createDropDown
 	 * @memberOf SCEditor.prototype
 	 */
-	base.createDropDown = function (menuItem, name, content) {
+	base.createDropDown = function (menuItem: HTMLElement, name: string, content: HTMLElement) {
 		// first click for create second click for close
-		var	dropDownCss;
 		const dropDownClass = 'sceditor-' + name;
 
 		base.closeDropDown();
@@ -1439,16 +1438,16 @@ export default function SCEditor(original, userOptions) {
 			return;
 		}
 
-		dropDownCss = utils.extend({
+		const dropDownCss = utils.extend({
 			top: menuItem.offsetTop,
-			left: menuItem.parentElement.offsetLeft + menuItem.offsetLeft,
+			left: (menuItem.parentElement as HTMLElement).offsetLeft + menuItem.offsetLeft,
 			marginTop: menuItem.clientHeight
 		},
-		options.dropDownCss);
+		options.dropDownCss) as Record<string, string | number>;
 
 		dropdown = dom.createElement('div', {
 			className: 'dropdown-menu show sceditor-dropdown ' + dropDownClass
-		});
+		}) as HTMLDivElement;
 
 		dom.css(dropdown, dropDownCss);
 		dom.appendChild(dropdown, content);
@@ -1459,7 +1458,7 @@ export default function SCEditor(original, userOptions) {
 		});
 
 		if (dropdown) {
-			const first = dom.find(dropdown, 'input,textarea')[0];
+			const first = dom.find(dropdown, 'input,textarea')[0] as HTMLElement | undefined;
 			if (first) {
 				first.focus();
 			}
@@ -1489,17 +1488,17 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	handleCutCopyEvt = function (e) {
-		const range = rangeHelper.selectedRange();
+		const range = (rangeHelper as RangeHelperInstance).selectedRange();
 		if (range) {
 			const container = dom.createElement('div', {}, wysiwygDocument);
-			let firstParent;
+			let firstParent: HTMLElement | undefined;
 
 			// Copy all inline parent nodes up to the first block parent so can
 			// copy inline styles
-			let parent = range.commonAncestorContainer;
+			let parent: Node | null = range.commonAncestorContainer;
 			while (parent && dom.isInline(parent, true)) {
 				if (parent.nodeType === dom.ELEMENT_NODE) {
-					const clone = parent.cloneNode();
+					const clone = (parent as Element).cloneNode() as HTMLElement;
 					if (container.firstChild) {
 						dom.appendChild(clone, container.firstChild);
 					}
@@ -1513,7 +1512,7 @@ export default function SCEditor(original, userOptions) {
 			dom.appendChild(firstParent || container, range.cloneContents());
 			dom.removeWhiteSpace(container);
 
-			e.clipboardData.setData('text/html', container.innerHTML);
+			(e.clipboardData as DataTransfer).setData('text/html', container.innerHTML);
 
 			// TODO: Refactor into private shared module with plaintext plugin
 			// innerText adds two newlines after <p> tags so convert them to
@@ -1532,7 +1531,7 @@ export default function SCEditor(original, userOptions) {
 			// selection.toString() seems to use the same method as innerText
 			// but needs to be normalised first so using container.innerText
 			dom.appendChild(wysiwygBody, container);
-			e.clipboardData.setData('text/plain', container.innerText);
+			(e.clipboardData as DataTransfer).setData('text/plain', (container as HTMLElement).innerText);
 			dom.remove(container);
 
 			if (e.type === 'cut') {
@@ -1548,14 +1547,14 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	handlePasteEvt = function (e) {
-		var editable = wysiwygBody;
+		const editable = wysiwygBody;
 		const clipboard = e.clipboardData;
 
 		// Modern browsers with clipboard API - everything other than _very_
 		// old android web views and UC browser which doesn't support the
 		// paste event at all.
 		if (clipboard) {
-			const data = {};
+			const data: PasteData = {};
 			const types = clipboard.types;
 			const items = clipboard.items;
 
@@ -1566,7 +1565,8 @@ export default function SCEditor(original, userOptions) {
 					// Normalise image pasting to paste as a data-uri
 					if (globalWin.FileReader && items &&
 						IMAGE_MIME_REGEX.test(items[i].type)) {
-						pluginManager.call('pasteHtml', items[i].getAsFile());
+						(pluginManager as PluginManagerInstance)
+							.call('pasteHtml', items[i].getAsFile());
 						return;
 					}
 				}
@@ -1574,9 +1574,9 @@ export default function SCEditor(original, userOptions) {
 				data[types[i]] = clipboard.getData(types[i]);
 			}
 			// Call plugins here with file?
-			data.text = data['text/plain'];
+			data.text = data['text/plain'] as string;
 			if (!options.enablePasteFiltering) {
-				data.html = sanitize(data['text/html']);
+				data.html = sanitize(data['text/html'] as string);
 			}
 
 			handlePasteData(data);
@@ -1585,9 +1585,9 @@ export default function SCEditor(original, userOptions) {
 		} else if (!pasteContentFragment) {
 			// Save the scroll position so can be restored
 			// when contents is restored
-			var scrollTop = editable.scrollTop;
+			const scrollTop = editable.scrollTop;
 
-			rangeHelper.saveRange();
+			(rangeHelper as RangeHelperInstance).saveRange();
 
 			pasteContentFragment = globalDoc.createDocumentFragment();
 			while (editable.firstChild) {
@@ -1598,11 +1598,11 @@ export default function SCEditor(original, userOptions) {
 				const html = editable.innerHTML;
 
 				editable.innerHTML = '';
-				dom.appendChild(editable, pasteContentFragment);
+				dom.appendChild(editable, pasteContentFragment as DocumentFragment);
 				editable.scrollTop = scrollTop;
 				pasteContentFragment = false;
 
-				rangeHelper.restoreRange();
+				(rangeHelper as RangeHelperInstance).restoreRange();
 
 				handlePasteData({ html: sanitize(html) });
 			}, 0);
@@ -1613,13 +1613,12 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Gets the pasted data, filters it and then inserts it.
-	 * @param {Object} data
 	 * @private
 	 */
 	handlePasteData = function (data) {
 		const pasteArea = dom.createElement('div', {}, wysiwygDocument);
 
-		pluginManager.call('pasteRaw', data);
+		(pluginManager as PluginManagerInstance).call('pasteRaw', data);
 		dom.trigger(editorContainer, 'pasteraw', data);
 
 		if (data.html) {
@@ -1629,44 +1628,44 @@ export default function SCEditor(original, userOptions) {
 			// fix any invalid nesting
 			dom.fixNesting(pasteArea);
 		} else {
-			pasteArea.innerHTML = escape.entities(data.text || '');
+			pasteArea.innerHTML = escape.entities(data.text || '') as string;
 		}
 
-		const paste = {
+		const paste: PasteData = {
 			val: pasteArea.innerHTML
 		};
 
-		if ('fragmentToSource' in format) {
+		if ('fragmentToSource' in format && format.fragmentToSource) {
 			paste.val = format
-				.fragmentToSource(paste.val, wysiwygDocument, currentNode);
+				.fragmentToSource(paste.val as string, wysiwygDocument, currentNode);
 		}
 
-		pluginManager.call('paste', paste);
+		(pluginManager as PluginManagerInstance).call('paste', paste);
 		dom.trigger(editorContainer, 'paste', paste);
 
-		if ('fragmentToHtml' in format) {
+		if ('fragmentToHtml' in format && format.fragmentToHtml) {
 			paste.val = format
-				.fragmentToHtml(paste.val, currentNode);
+				.fragmentToHtml(paste.val as string, currentNode);
 		}
 
-		pluginManager.call('pasteHtml', paste);
+		(pluginManager as PluginManagerInstance).call('pasteHtml', paste);
 
-		const parent = rangeHelper.getFirstBlockParent();
-		base.wysiwygEditorInsertHtml(paste.val, null, true);
+		const parent = (rangeHelper as RangeHelperInstance).getFirstBlockParent();
+		base.wysiwygEditorInsertHtml(paste.val as string, null, true);
 
-		dom.merge(parent);
+		dom.merge(parent as Node);
 	};
 
 	/**
 	 * Closes any currently open drop down
 	 *
-	 * @param {boolean} [focus=false] If to focus the editor
-	 *                             after closing the drop down
+	 * @param [focus=false] If to focus the editor
+	 *                       after closing the drop down
 	 * @function
 	 * @name closeDropDown
 	 * @memberOf SCEditor.prototype
 	 */
-	base.closeDropDown = function (focus) {
+	base.closeDropDown = function (focus?: boolean) {
 		if (dropdown) {
 			dom.remove(dropdown);
 			dropdown = null;
@@ -1685,20 +1684,18 @@ export default function SCEditor(original, userOptions) {
 	 * between html and endHtml. If there is no selected text html
 	 * and endHtml will just be concatenate together.
 	 *
-	 * @param {string} html
-	 * @param {string} [endHtml=null]
-	 * @param {boolean} [overrideCodeBlocking=false] If to insert the html
-	 *                                               into code tags, by
-	 *                                               default code tags only
-	 *                                               support text.
+	 * @param [endHtml=null]
+	 * @param [overrideCodeBlocking=false] If to insert the html
+	 *                                     into code tags, by
+	 *                                     default code tags only
+	 *                                     support text.
 	 * @function
 	 * @name wysiwygEditorInsertHtml
 	 * @memberOf SCEditor.prototype
 	 */
 	base.wysiwygEditorInsertHtml = function (
-		html, endHtml, overrideCodeBlocking
+		html: string, endHtml?: string | null, overrideCodeBlocking?: boolean
 	) {
-		var	marker, scrollTop, scrollTo;
 		const editorHeight = dom.height(wysiwygEditor);
 
 		base.focus();
@@ -1713,8 +1710,8 @@ export default function SCEditor(original, userOptions) {
 		// Insert the HTML and save the range so the editor can be scrolled
 		// to the end of the selection. Also allows emoticons to be replaced
 		// without affecting the cursor position
-		rangeHelper.insertHTML(html, endHtml);
-		rangeHelper.saveRange();
+		(rangeHelper as RangeHelperInstance).insertHTML(html, endHtml as string);
+		(rangeHelper as RangeHelperInstance).saveRange();
 
 		// Fix any invalid nesting, e.g. if a quote or other block is inserted
 		// into a paragraph
@@ -1723,10 +1720,10 @@ export default function SCEditor(original, userOptions) {
 		wrapInlines(wysiwygBody, wysiwygDocument);
 
 		// Scroll the editor after the end of the selection
-		marker   = dom.find(wysiwygBody, '#sceditor-end-marker')[0];
+		const marker = dom.find(wysiwygBody, '#sceditor-end-marker')[0] as HTMLElement;
 		dom.show(marker);
-		scrollTop = wysiwygBody.scrollTop;
-		scrollTo  = (dom.getOffset(marker).top +
+		const scrollTop = wysiwygBody.scrollTop;
+		const scrollTo = (dom.getOffset(marker).top +
 			(marker.offsetHeight * 1.5)) - editorHeight;
 		dom.hide(marker);
 
@@ -1736,7 +1733,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		triggerValueChanged(false);
-		rangeHelper.restoreRange();
+		(rangeHelper as RangeHelperInstance).restoreRange();
 
 		// Add a new line after the last block element
 		// so can always add text after it
@@ -1747,15 +1744,14 @@ export default function SCEditor(original, userOptions) {
 	 * Like wysiwygEditorInsertHtml except it will convert any HTML
 	 * into text before inserting it.
 	 *
-	 * @param {string} text
-	 * @param {string} [endText=null]
+	 * @param [endText=null]
 	 * @function
 	 * @name wysiwygEditorInsertText
 	 * @memberOf SCEditor.prototype
 	 */
-	base.wysiwygEditorInsertText = function (text, endText) {
+	base.wysiwygEditorInsertText = function (text: string, endText?: string) {
 		base.wysiwygEditorInsertHtml(
-			escape.entities(text), escape.entities(endText)
+			escape.entities(text) as string, escape.entities(endText ?? null)
 		);
 	};
 
@@ -1767,14 +1763,13 @@ export default function SCEditor(original, userOptions) {
 	 * text and endText. If no text is selected text and endText will
 	 * just be concatenate together.
 	 *
-	 * @param {string} text
-	 * @param {string} [endText=null]
+	 * @param [endText=null]
 	 * @since 1.3.5
 	 * @function
 	 * @name insertText
 	 * @memberOf SCEditor.prototype
 	 */
-	base.insertText = function (text, endText) {
+	base.insertText = function (text: string, endText?: string) {
 		if (base.inSourceMode()) {
 			base.sourceEditorInsertText(text, endText);
 		} else {
@@ -1801,21 +1796,19 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * [b]Selected text|[/b]
 	 *
-	 * @param {string} text
-	 * @param {string} [endText=null]
+	 * @param [endText=null]
 	 * @since 1.4.0
 	 * @function
 	 * @name sourceEditorInsertText
 	 * @memberOf SCEditor.prototype
 	 */
-	base.sourceEditorInsertText = function (text, endText) {
-		var scrollTop, currentValue;
+	base.sourceEditorInsertText = function (text: string, endText?: string) {
 		const startPos = sourceEditor.selectionStart;
 		const endPos = sourceEditor.selectionEnd;
 
-		scrollTop = sourceEditor.scrollTop;
+		const scrollTop = sourceEditor.scrollTop;
 		sourceEditor.focus();
-		currentValue = sourceEditor.value;
+		const currentValue = sourceEditor.value;
 
 		if (endText) {
 			text += currentValue.substring(startPos, endPos) + endText;
@@ -1839,40 +1832,37 @@ export default function SCEditor(original, userOptions) {
 	 * Gets the current instance of the rangeHelper class
 	 * for the editor.
 	 *
-	 * @return {RangeHelper}
 	 * @function
 	 * @name getRangeHelper
 	 * @memberOf SCEditor.prototype
 	 */
 	base.getRangeHelper = function () {
-		return rangeHelper;
+		return rangeHelper as RangeHelperInstance;
 	};
 
 	/**
 	 * Gets or sets the source editor caret position.
 	 *
-	 * @param {Object} [position]
-	 * @return {this}
 	 * @function
 	 * @since 1.4.5
 	 * @name sourceEditorCaret
 	 * @memberOf SCEditor.prototype
 	 */
-	base.sourceEditorCaret = function (position) {
+	base.sourceEditorCaret = function (position?: { start: number; end: number }) {
 		sourceEditor.focus();
 
 		if (position) {
 			sourceEditor.selectionStart = position.start;
 			sourceEditor.selectionEnd = position.end;
 
-			return this;
+			return base;
 		}
 
 		return {
 			start: sourceEditor.selectionStart,
 			end: sourceEditor.selectionEnd
 		};
-	};
+	} as SCEditorInstance['sourceEditorCaret'];
 
 	/**
 	 * Gets the value of the editor.
@@ -1884,7 +1874,6 @@ export default function SCEditor(original, userOptions) {
 	 * BBCode again).
 	 *
 	 * @since 1.3.5
-	 * @return {string}
 	 * @function
 	 * @name val
 	 * @memberOf SCEditor.prototype
@@ -1896,15 +1885,12 @@ export default function SCEditor(original, userOptions) {
 	 * function. If using the BBCode plugin it will pass the val to
 	 * the BBCode filter to convert any BBCode into HTML.
 	 *
-	 * @param {string} val
-	 * @param {boolean} [filter=true]
-	 * @return {this}
 	 * @since 1.3.5
 	 * @function
 	 * @name val^2
 	 * @memberOf SCEditor.prototype
 	 */
-	base.val = function (val, filter) {
+	base.val = function (val?: string, filter?: boolean) {
 		if (!utils.isString(val)) {
 			return base.inSourceMode() ?
 				base.getSourceEditorValue(false) :
@@ -1912,7 +1898,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (!base.inSourceMode()) {
-			if (filter !== false && 'toHtml' in format) {
+			if (filter !== false && 'toHtml' in format && format.toHtml) {
 				val = format.toHtml(val);
 			}
 
@@ -1922,7 +1908,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['val'];
 
 	/**
 	 * Inserts HTML/BBCode into the editor
@@ -1935,11 +1921,9 @@ export default function SCEditor(original, userOptions) {
 	 * passed through any plugin filters. If using the BBCode plugin
 	 * this will convert any BBCode into HTML.
 	 *
-	 * @param {string} start
-	 * @param {string} [end=null]
-	 * @param {boolean} [filter=true]
-	 * @param {boolean} [convertEmoticons=true] If to convert emoticons
-	 * @return {this}
+	 * @param [end=null]
+	 * @param [filter=true]
+	 * @param [convertEmoticons=true] If to convert emoticons
 	 * @since 1.3.5
 	 * @function
 	 * @name insert
@@ -1959,12 +1943,10 @@ export default function SCEditor(original, userOptions) {
 	 * If the allowMixed param is set to true, HTML any will not be
 	 * escaped
 	 *
-	 * @param {string} start
-	 * @param {string} [end=null]
-	 * @param {boolean} [filter=true]
-	 * @param {boolean} [convertEmoticons=true] If to convert emoticons
-	 * @param {boolean} [allowMixed=false]
-	 * @return {this}
+	 * @param [end=null]
+	 * @param [filter=true]
+	 * @param [convertEmoticons=true] If to convert emoticons
+	 * @param [allowMixed=false]
 	 * @since 1.4.3
 	 * @function
 	 * @name insert^2
@@ -1972,7 +1954,7 @@ export default function SCEditor(original, userOptions) {
 	 */
 	// eslint-disable-next-line max-params
 	base.insert = function (
-		start, end, filter, convertEmoticons, allowMixed
+		start: string, end?: string, filter?: boolean, _convertEmoticons?: boolean, allowMixed?: boolean
 	) {
 		if (base.inSourceMode()) {
 			base.sourceEditorInsertText(start, end);
@@ -1981,9 +1963,9 @@ export default function SCEditor(original, userOptions) {
 
 		// Add the selection between start and end
 		if (end) {
-			let html = rangeHelper.selectedHtml();
+			let html = (rangeHelper as RangeHelperInstance).selectedHtml();
 
-			if (filter !== false && 'fragmentToSource' in format) {
+			if (filter !== false && 'fragmentToSource' in format && format.fragmentToSource) {
 				html = format
 					.fragmentToSource(html, wysiwygDocument, currentNode);
 			}
@@ -1991,7 +1973,7 @@ export default function SCEditor(original, userOptions) {
 			start += html + end;
 		}
 		// TODO: This filter should allow empty tags as it's inserting.
-		if (filter !== false && 'fragmentToHtml' in format) {
+		if (filter !== false && 'fragmentToHtml' in format && format.fragmentToHtml) {
 			start = format.fragmentToHtml(start, currentNode);
 		}
 
@@ -2014,14 +1996,13 @@ export default function SCEditor(original, userOptions) {
 	 * it will return the result of the filtering (BBCode) unless the
 	 * filter param is set to false.
 	 *
-	 * @param {boolean} [filter=true]
-	 * @return {string}
+	 * @param [filter=true]
 	 * @function
 	 * @name getWysiwygEditorValue
 	 * @memberOf SCEditor.prototype
 	 */
-	base.getWysiwygEditorValue = function (filter) {
-		var	html;
+	base.getWysiwygEditorValue = function (filter?: boolean) {
+		let html: string;
 		// Create a tmp node to store contents so it can be modified
 		// without affecting anything else.
 		const tmp = dom.createElement('div', {}, wysiwygDocument);
@@ -2038,7 +2019,7 @@ export default function SCEditor(original, userOptions) {
 		html = tmp.innerHTML;
 
 		// filter the HTML and DOM through any plugins
-		if (filter !== false && format.hasOwnProperty('toSource')) {
+		if (filter !== false && format.hasOwnProperty('toSource') && format.toSource) {
 			html = format.toSource(html, wysiwygDocument);
 		}
 
@@ -2048,7 +2029,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Gets the WYSIWYG editor's iFrame Body.
 	 *
-	 * @return {HTMLElement}
 	 * @function
 	 * @since 1.4.3
 	 * @name getBody
@@ -2061,7 +2041,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Gets the WYSIWYG editors container area (whole iFrame).
 	 *
-	 * @return {HTMLElement}
 	 * @function
 	 * @since 1.4.3
 	 * @name getContentAreaContainer
@@ -2079,17 +2058,16 @@ export default function SCEditor(original, userOptions) {
 	 * HTML so it will return HTML. If filter is set to false it will
 	 * just return the contents of the source editor (BBCode).
 	 *
-	 * @param {boolean} [filter=true]
-	 * @return {string}
+	 * @param [filter=true]
 	 * @function
 	 * @since 1.4.0
 	 * @name getSourceEditorValue
 	 * @memberOf SCEditor.prototype
 	 */
-	base.getSourceEditorValue = function (filter) {
-		var val = sourceEditor.value;
+	base.getSourceEditorValue = function (filter?: boolean) {
+		let val = sourceEditor.value;
 
-		if (filter !== false && 'toHtml' in format) {
+		if (filter !== false && 'toHtml' in format && format.toHtml) {
 			val = format.toHtml(val);
 		}
 
@@ -2104,12 +2082,11 @@ export default function SCEditor(original, userOptions) {
 	 * Sets the WYSIWYG HTML editor value. Should only be the HTML
 	 * contained within the body tags
 	 *
-	 * @param {string} value
 	 * @function
 	 * @name setWysiwygEditorValue
 	 * @memberOf SCEditor.prototype
 	 */
-	base.setWysiwygEditorValue = function (value) {
+	base.setWysiwygEditorValue = function (value: string) {
 		if (!value) {
 			value = '<p><br /></p>';
 		}
@@ -2124,12 +2101,11 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Sets the text editor value
 	 *
-	 * @param {string} value
 	 * @function
 	 * @name setSourceEditorValue
 	 * @memberOf SCEditor.prototype
 	 */
-	base.setSourceEditorValue = function (value) {
+	base.setSourceEditorValue = function (value: string) {
 		sourceEditor.value = value;
 
 		triggerValueChanged();
@@ -2151,7 +2127,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * If the editor is in source code mode
 	 *
-	 * @return {boolean}
 	 * @function
 	 * @name inSourceMode
 	 * @memberOf SCEditor.prototype
@@ -2163,7 +2138,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Gets if the editor is in sourceMode
 	 *
-	 * @return boolean
 	 * @function
 	 * @name sourceMode
 	 * @memberOf SCEditor.prototype
@@ -2171,13 +2145,11 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Sets if the editor is in sourceMode
 	 *
-	 * @param {boolean} enable
-	 * @return {this}
 	 * @function
 	 * @name sourceMode^2
 	 * @memberOf SCEditor.prototype
 	 */
-	base.sourceMode = function (enable) {
+	base.sourceMode = function (enable?: boolean) {
 		const inSourceMode = base.inSourceMode();
 
 		if (typeof enable !== 'boolean') {
@@ -2189,7 +2161,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['sourceMode'];
 
 	/**
 	 * Switches between the WYSIWYG and source modes
@@ -2208,8 +2180,8 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (!isInSourceMode) {
-			rangeHelper.saveRange();
-			rangeHelper.clear();
+			(rangeHelper as RangeHelperInstance).saveRange();
+			(rangeHelper as RangeHelperInstance).clear();
 		}
 
 		currentSelection = null;
@@ -2237,7 +2209,6 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Gets the selected text of the source editor
-	 * @return {string}
 	 * @private
 	 */
 	sourceEditorSelectedText = function () {
@@ -2258,7 +2229,8 @@ export default function SCEditor(original, userOptions) {
 		if (base.inSourceMode()) {
 			if (cmd.txtExec) {
 				if (Array.isArray(cmd.txtExec)) {
-					base.sourceEditorInsertText.apply(base, cmd.txtExec);
+					(base.sourceEditorInsertText as (...args: unknown[]) => void)
+						.apply(base, cmd.txtExec);
 				} else {
 					cmd.txtExec.call(base, caller, sourceEditorSelectedText());
 				}
@@ -2269,7 +2241,7 @@ export default function SCEditor(original, userOptions) {
 			} else {
 				base.execCommand(
 					cmd.exec,
-					cmd.hasOwnProperty('execParam') ? cmd.execParam : null
+					cmd.hasOwnProperty('execParam') ? cmd.execParam as string | boolean : null
 				);
 			}
 		}
@@ -2279,27 +2251,25 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Executes a command on the WYSIWYG editor
 	 *
-	 * @param {string} command
-	 * @param {String|Boolean} [param]
 	 * @function
 	 * @name execCommand
 	 * @memberOf SCEditor.prototype
 	 */
-	base.execCommand = function (command, param) {
-		var	executed    = false;
+	base.execCommand = function (command: string, param?: string | boolean | null) {
+		let executed = false;
 		const commandObj = base.commands[command];
 
 		base.focus();
 
 		// TODO: make configurable
 		// don't apply any commands to code elements
-		if (dom.closest(rangeHelper.parentNode(), 'code')) {
+		if (dom.closest((rangeHelper as RangeHelperInstance).parentNode() ?? null, 'code')) {
 			return;
 		}
 
 		try {
-			executed = wysiwygDocument.execCommand(command, false, param);
-		} catch (_) { }
+			executed = wysiwygDocument.execCommand(command, false, param as string);
+		} catch (_) { /* empty */ }
 
 		// show error if execution failed and an error message exists
 		if (!executed && commandObj && commandObj.errorMessage) {
@@ -2322,18 +2292,18 @@ export default function SCEditor(original, userOptions) {
 		function check() {
 			// Don't create new selection if there isn't one (like after
 			// blur event in iOS)
-			if (wysiwygWindow.getSelection() &&
-				wysiwygWindow.getSelection().rangeCount <= 0) {
+			const sel = wysiwygWindow.getSelection();
+			if (sel && sel.rangeCount <= 0) {
 				currentSelection = null;
 			// rangeHelper could be null if editor was destroyed
 			// before the timeout had finished
-			} else if (rangeHelper && !rangeHelper.compare(currentSelection)) {
-				currentSelection = rangeHelper.cloneSelected();
+			} else if (rangeHelper && !rangeHelper.compare(currentSelection ?? undefined)) {
+				currentSelection = rangeHelper.cloneSelected() ?? null;
 
 				// If the selection is in an inline wrap it in a block.
 				// Fixes #331
 				if (currentSelection && currentSelection.collapsed) {
-					let parent = currentSelection.startContainer;
+					let parent: Node | null = currentSelection.startContainer;
 					const offset = currentSelection.startOffset;
 
 					// Handle if selection is placed before/after an element
@@ -2379,13 +2349,13 @@ export default function SCEditor(original, userOptions) {
 	 */
 	checkNodeChanged = function () {
 		// check if node has changed
-		var	oldNode;
-		const node = rangeHelper.parentNode();
+		const node = (rangeHelper as RangeHelperInstance).parentNode() ?? null;
 
 		if (currentNode !== node) {
-			oldNode          = currentNode;
-			currentNode      = node;
-			currentBlockNode = rangeHelper.getFirstBlockParent(node);
+			const oldNode = currentNode;
+			currentNode = node;
+			currentBlockNode = ((rangeHelper as RangeHelperInstance)
+				.getFirstBlockParent(node ?? undefined) ?? null) as HTMLElement | null;
 
 			dom.trigger(editorContainer, 'nodechanged', {
 				oldNode: oldNode,
@@ -2394,7 +2364,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (backSpaceHandled) {
-			currentBlockNode.querySelectorAll('span[style]').forEach(span => {
+			(currentBlockNode as HTMLElement).querySelectorAll('span[style]').forEach(span => {
 				if (span) {
 					span.outerHTML = span.innerHTML;
 				}
@@ -2410,7 +2380,6 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * Will be null in sourceMode or if there is no selection.
 	 *
-	 * @return {?Node}
 	 * @function
 	 * @name currentNode
 	 * @memberOf SCEditor.prototype
@@ -2425,7 +2394,6 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * Will be null in sourceMode or if there is no selection.
 	 *
-	 * @return {?Node}
 	 * @function
 	 * @name currentBlockNode
 	 * @memberOf SCEditor.prototype
@@ -2440,25 +2408,26 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	updateActiveButtons = function () {
-		var firstBlock, parent;
-		var activeClass = 'active';
+		let parent: Node | undefined;
+		let firstBlock: Node | null | undefined;
+		const activeClass = 'active';
 		const doc = wysiwygDocument;
 		const isSource = base.sourceMode();
 
 		if (base.readOnly()) {
 			utils.each(dom.find(toolbar, activeClass), function (_, menuItem) {
-				dom.removeClass(menuItem, activeClass);
+				dom.removeClass(menuItem as HTMLElement, activeClass);
 			});
 			return;
 		}
 
 		if (!isSource) {
-			parent     = rangeHelper.parentNode();
-			firstBlock = rangeHelper.getFirstBlockParent(parent);
+			parent = (rangeHelper as RangeHelperInstance).parentNode();
+			firstBlock = (rangeHelper as RangeHelperInstance).getFirstBlockParent(parent);
 		}
 
 		for (let j = 0; j < btnStateHandlers.length; j++) {
-			let state = 0;
+			let state: boolean | number | void = 0;
 			const btn = toolbarButtons[btnStateHandlers[j].name];
 			const stateFn = btnStateHandlers[j].state;
 			const isDisabled = (isSource && !btn._sceTxtMode) ||
@@ -2473,18 +2442,18 @@ export default function SCEditor(original, userOptions) {
 						if (state > -1) {
 							state = doc.queryCommandState(stateFn) ? 1 : 0;
 						}
-					} catch (_) {}
+					} catch (_) { /* empty */ }
 				}
-			} else if (!isDisabled) {
-				state = stateFn.call(base, parent, firstBlock);
+			} else if (!isDisabled && stateFn) {
+				state = stateFn.call(base, parent, firstBlock as Node | undefined);
 			}
 
-			dom.toggleClass(btn, 'disabled', isDisabled || state < 0);
-			dom.toggleClass(btn, activeClass, state > 0);
+			dom.toggleClass(btn, 'disabled', isDisabled || (Number(state) < 0));
+			dom.toggleClass(btn, activeClass, Number(state) > 0);
 		}
 
 		if (icons && icons.update) {
-			icons.update(isSource, parent, firstBlock);
+			icons.update(isSource, parent as Node | undefined, firstBlock as Node | undefined);
 		}
 	};
 
@@ -2508,14 +2477,14 @@ export default function SCEditor(original, userOptions) {
 			// "Fix" (cludge) for blocklevel elements being duplicated in some
 			// browsers when enter is pressed instead of inserting a newline
 			if (!dom.is(currentBlockNode, LIST_TAGS) &&
-				dom.hasStyling(currentBlockNode)) {
+				dom.hasStyling(currentBlockNode as HTMLElement)) {
 
 				const br = dom.createElement('br', {}, wysiwygDocument);
-				rangeHelper.insertNode(br);
+				(rangeHelper as RangeHelperInstance).insertNode(br);
 
 				// Last <br> of a block will be collapsed  so need to make sure
 				// the <br> that was inserted isn't the last node of a block.
-				const parent = br.parentNode;
+				const parent = br.parentNode as HTMLElement;
 				let lastChild = parent.lastChild;
 
 				// Sometimes an empty next node is created after the <br>
@@ -2531,7 +2500,7 @@ export default function SCEditor(original, userOptions) {
 				// collapsed. Fixes issue #248
 				if (!dom.isInline(parent, true) && lastChild === br &&
 					dom.isInline(br.previousSibling)) {
-					rangeHelper.insertHTML('<br>');
+					(rangeHelper as RangeHelperInstance).insertHTML('<br>');
 				}
 
 				e.preventDefault();
@@ -2545,7 +2514,6 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * If there wasn't a new line at the end you wouldn't be able
 	 * to enter any text after a code/quote tag
-	 * @return {void}
 	 * @private
 	 */
 	appendNewLine = function () {
@@ -2555,10 +2523,10 @@ export default function SCEditor(original, userOptions) {
 		dom.rTraverse(wysiwygBody, function (node) {
 			// Last block, add new line after if has styling
 			if (node.nodeType === dom.ELEMENT_NODE &&
-				!/inline/.test(dom.css(node, 'display'))) {
+				!/inline/.test(dom.css(node as HTMLElement, 'display') as string)) {
 
 				// Add line break after if has styling
-				if (!dom.is(node, '.sceditor-nlf') && dom.hasStyling(node)) {
+				if (!dom.is(node, '.sceditor-nlf') && dom.hasStyling(node as HTMLElement)) {
 					const paragraph = dom.createElement('p', {}, wysiwygDocument);
 					paragraph.className = 'sceditor-nlf';
 					paragraph.innerHTML = '<br />';
@@ -2569,10 +2537,12 @@ export default function SCEditor(original, userOptions) {
 
 			// Last non-empty text node or line break.
 			// No need to add line-break after them
-			if ((node.nodeType === 3 && !/^\s*$/.test(node.nodeValue)) ||
+			if ((node.nodeType === 3 && !/^\s*$/.test(node.nodeValue as string)) ||
 				dom.is(node, 'br')) {
 				return false;
 			}
+
+			return undefined;
 		});
 	};
 
@@ -2597,19 +2567,15 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * Replaces any {0}, {1}, {2}, ect. with the params provided.
 	 *
-	 * @param {string} str
-	 * @param {...String} args
-	 * @return {string}
 	 * @function
 	 * @name _
 	 * @memberOf SCEditor.prototype
 	 */
-	base._ = function () {
-		var	undef,
-			args = arguments;
+	base._ = function (...args: unknown[]) {
+		const undef = undefined;
 
-		if (locale && locale[args[0]]) {
-			args[0] = locale[args[0]];
+		if (locale && locale[args[0] as string]) {
+			args[0] = locale[args[0] as string];
 		} else {
 			if (options.locale !== 'en') {
 				/*(async () => {
@@ -2621,9 +2587,9 @@ export default function SCEditor(original, userOptions) {
 			}
 		}
 
-		return args[0].replace(/\{(\d+)\}/g, function (str, p1) {
-			return args[p1 - 0 + 1] !== undef ?
-				args[p1 - 0 + 1] :
+		return (args[0] as string).replace(/\{(\d+)\}/g, function (str, p1) {
+			return args[Number(p1) + 1] !== undef ?
+				args[Number(p1) + 1] as string :
 				`{${p1}}`;
 		});
 	};
@@ -2698,26 +2664,26 @@ export default function SCEditor(original, userOptions) {
 	 * to bind this handler to. If multiple, they should be separated
 	 * by spaces.
 	 *
-	 * @param  {string} events
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  if to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  if to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name bind
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.bind = function (events, handler, excludeWysiwyg, excludeSource) {
-		events = events.split(' ');
+	base.bind = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		events: string, handler: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
+		const eventList = events.split(' ');
 
-		var i  = events.length;
+		let i = eventList.length;
 		while (i--) {
 			if (utils.isFunction(handler)) {
-				const wysEvent = 'scewys' + events[i];
-				const srcEvent = 'scesrc' + events[i];
+				const wysEvent = 'scewys' + eventList[i];
+				const srcEvent = 'scesrc' + eventList[i];
 				// Use custom events to allow passing the instance as the
 				// 2nd argument.
 				// Also allows unbinding without unbinding the editors own
@@ -2733,7 +2699,7 @@ export default function SCEditor(original, userOptions) {
 				}
 
 				// Start sending value changed events
-				if (events[i] === 'valuechanged') {
+				if (eventList[i] === 'valuechanged') {
 					triggerValueChanged.hasHandler = true;
 				}
 			}
@@ -2745,33 +2711,33 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Unbinds an event that was bound using bind().
 	 *
-	 * @param  {string} events
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude unbinding this
-	 *                                  handler from the WYSIWYG editor
-	 * @param  {boolean} excludeSource  if to exclude unbinding this
-	 *                                  handler from the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude unbinding this
+	 *                        handler from the WYSIWYG editor
+	 * @param  excludeSource  if to exclude unbinding this
+	 *                        handler from the source editor
 	 * @function
 	 * @name unbind
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 * @see bind
 	 */
-	base.unbind = function (events, handler, excludeWysiwyg, excludeSource) {
-		events = events.split(' ');
+	base.unbind = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		events: string, handler: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
+		const eventList = events.split(' ');
 
-		var i  = events.length;
+		let i = eventList.length;
 		while (i--) {
 			if (utils.isFunction(handler)) {
 				if (!excludeWysiwyg) {
 					utils.arrayRemove(
-						eventHandlers['scewys' + events[i]] || [], handler);
+						eventHandlers['scewys' + eventList[i]] || [], handler);
 				}
 
 				if (!excludeSource) {
 					utils.arrayRemove(
-						eventHandlers['scesrc' + events[i]] || [], handler);
+						eventHandlers['scesrc' + eventList[i]] || [], handler);
 				}
 			}
 		}
@@ -2782,7 +2748,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Blurs the editors input area
 	 *
-	 * @return {this}
 	 * @function
 	 * @name blur
 	 * @memberOf SCEditor.prototype
@@ -2791,18 +2756,19 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Adds a handler to the editors blur event
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  if to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  if to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name blur^2
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.blur = function (handler, excludeWysiwyg, excludeSource) {
+	base.blur = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler?: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
 		if (utils.isFunction(handler)) {
 			base.bind('blur', handler, excludeWysiwyg, excludeSource);
 		} else if (!base.sourceMode()) {
@@ -2812,12 +2778,11 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['blur'];
 
 	/**
 	 * Focuses the editors input area
 	 *
-	 * @return {this}
 	 * @function
 	 * @name focus
 	 * @memberOf SCEditor.prototype
@@ -2825,27 +2790,28 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Adds an event handler to the focus event
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  if to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  if to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name focus^2
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.focus = function (handler, excludeWysiwyg, excludeSource) {
+	base.focus = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler?: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
 		if (utils.isFunction(handler)) {
 			base.bind('focus', handler, excludeWysiwyg, excludeSource);
 		} else if (!base.inSourceMode()) {
 			// Already has focus so do nothing
 			if (dom.find(wysiwygDocument, ':focus').length) {
-				return;
+				return undefined;
 			}
 
-			const rng = rangeHelper.selectedRange();
+			const rng = (rangeHelper as RangeHelperInstance).selectedRange();
 
 			// Fix FF bug where it shows the cursor in the wrong place
 			// if the editor hasn't had focus before. See issue #393
@@ -2857,14 +2823,13 @@ export default function SCEditor(original, userOptions) {
 			// child of the parent. In Firefox this causes a line break
 			// to occur when something is typed. See issue #321
 			if (rng && rng.endOffset === 1 && rng.collapsed) {
-				let container;
-				container = rng.endContainer;
+				const container = rng.endContainer;
 
 				if (container && container.childNodes.length === 1 &&
 					dom.is(container.firstChild, 'br')) {
-					rng.setStartBefore(container.firstChild);
+					rng.setStartBefore(container.firstChild as Node);
 					rng.collapse(true);
-					rangeHelper.selectRange(rng);
+					(rangeHelper as RangeHelperInstance).selectRange(rng);
 				}
 			}
 
@@ -2877,77 +2842,79 @@ export default function SCEditor(original, userOptions) {
 		updateActiveButtons();
 
 		return base;
-	};
+	} as SCEditorInstance['focus'];
 
 	/**
 	 * Adds a handler to the key down event
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  If to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  If to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name keyDown
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.keyDown = function (handler, excludeWysiwyg, excludeSource) {
-		return base.bind('keydown', handler, excludeWysiwyg, excludeSource);
+	base.keyDown = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler?: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
+		return base.bind('keydown', handler as (this: SCEditorInstance) => void, excludeWysiwyg, excludeSource);
 	};
 
 	/**
 	 * Adds a handler to the key press event
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  If to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  If to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name keyPress
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.keyPress = function (handler, excludeWysiwyg, excludeSource) {
+	base.keyPress = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler?: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
 		return base
-			.bind('keypress', handler, excludeWysiwyg, excludeSource);
+			.bind('keypress', handler as (this: SCEditorInstance) => void, excludeWysiwyg, excludeSource);
 	};
 
 	/**
 	 * Adds a handler to the key up event
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  If to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  If to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name keyUp
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.keyUp = function (handler, excludeWysiwyg, excludeSource) {
-		return base.bind('keyup', handler, excludeWysiwyg, excludeSource);
+	base.keyUp = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler?: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
+		return base.bind('keyup', handler as (this: SCEditorInstance) => void, excludeWysiwyg, excludeSource);
 	};
 
 	/**
 	 * Adds a handler to the node changed event.
 	 *
-	 * Happens whenever the node containing the selection/caret
+	 * Happens whenever the current node containing the selection/caret
 	 * changes in WYSIWYG mode.
 	 *
-	 * @param  {Function} handler
-	 * @return {this}
 	 * @function
 	 * @name nodeChanged
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.nodeChanged = function (handler) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	base.nodeChanged = function (handler: (this: SCEditorInstance, ...args: any[]) => void) {
 		return base.bind('nodechanged', handler, false, true);
 	};
 
@@ -2956,14 +2923,13 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * Happens whenever the selection changes in WYSIWYG mode.
 	 *
-	 * @param  {Function} handler
-	 * @return {this}
 	 * @function
 	 * @name selectionChanged
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.1
 	 */
-	base.selectionChanged = function (handler) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	base.selectionChanged = function (handler: (this: SCEditorInstance, ...args: any[]) => void) {
 		return base.bind('selectionchanged', handler, false, true);
 	};
 
@@ -2977,18 +2943,19 @@ export default function SCEditor(original, userOptions) {
 	 * cause the event to be triggered immediately instead of
 	 * after 1.5 seconds
 	 *
-	 * @param  {Function} handler
-	 * @param  {boolean} excludeWysiwyg If to exclude adding this handler
-	 *                                  to the WYSIWYG editor
-	 * @param  {boolean} excludeSource  If to exclude adding this handler
-	 *                                  to the source editor
-	 * @return {this}
+	 * @param  excludeWysiwyg If to exclude adding this handler
+	 *                        to the WYSIWYG editor
+	 * @param  excludeSource  If to exclude adding this handler
+	 *                        to the source editor
 	 * @function
 	 * @name valueChanged
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.5
 	 */
-	base.valueChanged = function (handler, excludeWysiwyg, excludeSource) {
+	base.valueChanged = function (
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		handler: (this: SCEditorInstance, ...args: any[]) => void, excludeWysiwyg?: boolean, excludeSource?: boolean
+	) {
 		return base
 			.bind('valuechanged', handler, excludeWysiwyg, excludeSource);
 	};
@@ -2996,7 +2963,6 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Gets the current WYSIWYG editors inline CSS
 	 *
-	 * @return {string}
 	 * @function
 	 * @name css
 	 * @memberOf SCEditor.prototype
@@ -3005,42 +2971,40 @@ export default function SCEditor(original, userOptions) {
 	/**
 	 * Sets inline CSS for the WYSIWYG editor
 	 *
-	 * @param {string} css
-	 * @return {this}
 	 * @function
 	 * @name css^2
 	 * @memberOf SCEditor.prototype
 	 * @since 1.4.3
 	 */
-	base.css = function (css) {
+	base.css = function (css?: string) {
 		if (!inlineCss) {
 			inlineCss = dom.createElement('style', {
 				id: 'inline'
-			}, wysiwygDocument);
+			}, wysiwygDocument) as HTMLStyleElement;
 
 			dom.appendChild(wysiwygDocument.head, inlineCss);
 		}
 
 		if (!utils.isString(css)) {
-			return inlineCss.styleSheet ?
-				inlineCss.styleSheet.cssText : inlineCss.innerHTML;
+			return (inlineCss as HTMLStyleElement & { styleSheet?: { cssText: string } }).styleSheet ?
+				(inlineCss as unknown as { styleSheet: { cssText: string } }).styleSheet.cssText : inlineCss.innerHTML;
 		}
 
-		if (inlineCss.styleSheet) {
-			inlineCss.styleSheet.cssText = css;
+		if ((inlineCss as HTMLStyleElement & { styleSheet?: { cssText: string } }).styleSheet) {
+			(inlineCss as unknown as { styleSheet: { cssText: string } }).styleSheet.cssText = css;
 		} else {
 			inlineCss.innerHTML = css;
 		}
 
 		return base;
-	};
+	} as SCEditorInstance['css'];
 
 	/**
 	 * Handles the keydown event, used for shortcuts
 	 * @private
 	 */
 	handleKeyDown = function (e) {
-		var autoClosingTags = [
+		const autoClosingTags = [
 			'b', 'i', 'u', 'h', 'code', 'img', 'quote', 'left', 'center', 'right',
 			'list', 'color',
 			'size', 'albumimg', 'attach', 'youtube', 'vimeo',
@@ -3049,110 +3013,110 @@ export default function SCEditor(original, userOptions) {
 			'audio', 'media','note'
 		];
 
-		var	shortcut   = [],
-			SHIFT_KEYS = {
-				'`': '~',
-				'1': '!',
-				'2': '@',
-				'3': '#',
-				'4': '$',
-				'5': '%',
-				'6': '^',
-				'7': '&',
-				'8': '*',
-				'9': '(',
-				'0': ')',
-				'-': '_',
-				'=': '+',
-				';': ': ',
-				'\'': '"',
-				',': '<',
-				'.': '>',
-				'/': '?',
-				'\\': '|',
-				'[': '{',
-				']': '}'
-			},
-			SPECIAL_KEYS = {
-				8: 'backspace',
-				9: 'tab',
-				13: 'enter',
-				19: 'pause',
-				20: 'capslock',
-				27: 'esc',
-				32: 'space',
-				33: 'pageup',
-				34: 'pagedown',
-				35: 'end',
-				36: 'home',
-				37: 'left',
-				38: 'up',
-				39: 'right',
-				40: 'down',
-				45: 'insert',
-				46: 'del',
-				91: 'win',
-				92: 'win',
-				93: 'select',
-				96: '0',
-				97: '1',
-				98: '2',
-				99: '3',
-				100: '4',
-				101: '5',
-				102: '6',
-				103: '7',
-				104: '8',
-				105: '9',
-				106: '*',
-				107: '+',
-				109: '-',
-				110: '.',
-				111: '/',
-				112: 'f1',
-				113: 'f2',
-				114: 'f3',
-				115: 'f4',
-				116: 'f5',
-				117: 'f6',
-				118: 'f7',
-				119: 'f8',
-				120: 'f9',
-				121: 'f10',
-				122: 'f11',
-				123: 'f12',
-				144: 'numlock',
-				145: 'scrolllock',
-				186: ';',
-				187: '=',
-				188: ',',
-				189: '-',
-				190: '.',
-				191: '/',
-				192: '`',
-				219: '[',
-				220: '\\',
-				221: ']',
-				222: '\''
-			},
-			NUMPAD_SHIFT_KEYS = {
-				109: '-',
-				110: 'del',
-				111: '/',
-				96: '0',
-				97: '1',
-				98: '2',
-				99: '3',
-				100: '4',
-				101: '5',
-				102: '6',
-				103: '7',
-				104: '8',
-				105: '9'
-			},
-			which     = e.which,
-			character = SPECIAL_KEYS[which] ||
-				String.fromCharCode(which).toLowerCase();
+		const shortcut: string[] = [];
+		const SHIFT_KEYS: Record<string, string> = {
+			'`': '~',
+			'1': '!',
+			'2': '@',
+			'3': '#',
+			'4': '$',
+			'5': '%',
+			'6': '^',
+			'7': '&',
+			'8': '*',
+			'9': '(',
+			'0': ')',
+			'-': '_',
+			'=': '+',
+			';': ': ',
+			'\'': '"',
+			',': '<',
+			'.': '>',
+			'/': '?',
+			'\\': '|',
+			'[': '{',
+			']': '}'
+		};
+		const SPECIAL_KEYS: Record<number, string> = {
+			8: 'backspace',
+			9: 'tab',
+			13: 'enter',
+			19: 'pause',
+			20: 'capslock',
+			27: 'esc',
+			32: 'space',
+			33: 'pageup',
+			34: 'pagedown',
+			35: 'end',
+			36: 'home',
+			37: 'left',
+			38: 'up',
+			39: 'right',
+			40: 'down',
+			45: 'insert',
+			46: 'del',
+			91: 'win',
+			92: 'win',
+			93: 'select',
+			96: '0',
+			97: '1',
+			98: '2',
+			99: '3',
+			100: '4',
+			101: '5',
+			102: '6',
+			103: '7',
+			104: '8',
+			105: '9',
+			106: '*',
+			107: '+',
+			109: '-',
+			110: '.',
+			111: '/',
+			112: 'f1',
+			113: 'f2',
+			114: 'f3',
+			115: 'f4',
+			116: 'f5',
+			117: 'f6',
+			118: 'f7',
+			119: 'f8',
+			120: 'f9',
+			121: 'f10',
+			122: 'f11',
+			123: 'f12',
+			144: 'numlock',
+			145: 'scrolllock',
+			186: ';',
+			187: '=',
+			188: ',',
+			189: '-',
+			190: '.',
+			191: '/',
+			192: '`',
+			219: '[',
+			220: '\\',
+			221: ']',
+			222: '\''
+		};
+		const NUMPAD_SHIFT_KEYS: Record<number, string> = {
+			109: '-',
+			110: 'del',
+			111: '/',
+			96: '0',
+			97: '1',
+			98: '2',
+			99: '3',
+			100: '4',
+			101: '5',
+			102: '6',
+			103: '7',
+			104: '8',
+			105: '9'
+		};
+		const which = e.which;
+		let character = SPECIAL_KEYS[which] ||
+			String.fromCharCode(which).toLowerCase();
 
 		if (e.ctrlKey || e.metaKey) {
 			shortcut.push('ctrl');
@@ -3177,9 +3141,9 @@ export default function SCEditor(original, userOptions) {
 			shortcut.push(character);
 		}
 
-		shortcut = shortcut.join('+');
-		if (shortcutHandlers[shortcut] &&
-			shortcutHandlers[shortcut].call(base) === false) {
+		const shortcutStr = shortcut.join('+');
+		if (shortcutHandlers[shortcutStr] &&
+			shortcutHandlers[shortcutStr].call(base) === false) {
 
 			e.stopPropagation();
 			e.preventDefault();
@@ -3187,20 +3151,21 @@ export default function SCEditor(original, userOptions) {
 
 		// Close tag ']'
 		if (e.key === ']' && base.inSourceMode()) {
-			var input = sourceEditor;
+			const input = sourceEditor;
 
-			const position = input.selectionStart;
+			const position = input.selectionStart as number;
 			const before = input.value.slice(0, position);
-			const after = input.value.slice(input.selectionEnd, input.value.length);
-			let tagName;
+			const after = input.value.slice(input.selectionEnd as number, input.value.length);
+			let tagName: string | undefined;
 
 			try {
-				tagName = before.match(/\[([^\]]+)$/)[1].match(/^([a-z1-6]+)/)[1];
+				tagName = (before.match(/\[([^\]]+)$/) as RegExpMatchArray)[1]
+					.match(/^([a-z1-6]+)/)?.[1];
 			} catch (_) {
 				// ignore
 			}
 
-			if (autoClosingTags.indexOf(tagName) > -1) {
+			if (tagName && autoClosingTags.indexOf(tagName) > -1) {
 				const closeTag = `[/${tagName}]`;
 
 				input.value = before + closeTag + after;
@@ -3213,21 +3178,18 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Adds a shortcut handler to the editor
-	 * @param  {string}          shortcut
-	 * @param  {String|Function} cmd
-	 * @return {sceditor}
 	 */
-	base.addShortcut = function (shortcut, cmd) {
-		shortcut = shortcut.toLowerCase();
+	base.addShortcut = function (shortcut: string, cmd: string | ((this: SCEditorInstance) => boolean | void)) {
+		const shortcutKey = shortcut.toLowerCase();
 
 		if (utils.isString(cmd)) {
-			shortcutHandlers[shortcut] = function () {
+			shortcutHandlers[shortcutKey] = function () {
 				handleCommand(toolbarButtons[cmd], base.commands[cmd]);
 
 				return false;
 			};
 		} else {
-			shortcutHandlers[shortcut] = cmd;
+			shortcutHandlers[shortcutKey] = cmd;
 		}
 
 		return base;
@@ -3235,10 +3197,8 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Removes a shortcut handler
-	 * @param  {string} shortcut
-	 * @return {sceditor}
 	 */
-	base.removeShortcut = function (shortcut) {
+	base.removeShortcut = function (shortcut: string) {
 		delete shortcutHandlers[shortcut.toLowerCase()];
 
 		return base;
@@ -3251,7 +3211,10 @@ export default function SCEditor(original, userOptions) {
 	 * @private
 	 */
 	handleBackSpace = function (e) {
-		var node, offset, range, parent;
+		let node: Node;
+		let offset: number;
+		let range: Range | undefined;
+		let parent: HTMLElement | undefined;
 
 		// 8 is the backspace key
 		if (e.which !== 8) {
@@ -3261,11 +3224,11 @@ export default function SCEditor(original, userOptions) {
 		backSpaceHandled = true;
 
 		if (options.disableBlockRemove ||
-			!(range = rangeHelper.selectedRange())) {
+			!(range = (rangeHelper as RangeHelperInstance).selectedRange())) {
 			return;
 		}
 
-		node   = range.startContainer;
+		node = range.startContainer;
 		offset = range.startOffset;
 
 		if (offset !== 0 || !(parent = currentStyledBlockNode()) ||
@@ -3284,7 +3247,7 @@ export default function SCEditor(original, userOptions) {
 				}
 			}
 
-			if (!(node = node.parentNode)) {
+			if (!(node = node.parentNode as Node)) {
 				return;
 			}
 		}
@@ -3297,14 +3260,13 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Gets the first styled block node that contains the cursor
-	 * @return {HTMLElement}
 	 */
 	currentStyledBlockNode = function () {
-		var block = currentBlockNode;
+		let block: HTMLElement | null = currentBlockNode;
 
-		while (!dom.hasStyling(block) || dom.isInline(block, true)) {
-			if (!(block = block.parentNode) || dom.is(block, 'body')) {
-				return;
+		while (!block || !dom.hasStyling(block) || dom.isInline(block, true)) {
+			if (!block || !(block = block.parentNode as HTMLElement | null) || dom.is(block, 'body')) {
+				return undefined;
 
 			}
 		}
@@ -3317,17 +3279,16 @@ export default function SCEditor(original, userOptions) {
 	 *
 	 * If block is false, if will clear the styling of the first
 	 * block level element that contains the cursor.
-	 * @param  {HTMLElement} block
 	 * @since 1.4.4
 	 */
-	base.clearBlockFormatting = function (block) {
-		block = block || currentStyledBlockNode();
+	base.clearBlockFormatting = function (blockArg?: HTMLElement | false) {
+		const block = blockArg || currentStyledBlockNode();
 
 		if (!block || dom.is(block, 'body')) {
 			return base;
 		}
 
-		rangeHelper.saveRange();
+		(rangeHelper as RangeHelperInstance).saveRange();
 
 		block.className = '';
 
@@ -3337,7 +3298,7 @@ export default function SCEditor(original, userOptions) {
 			dom.convertElement(block, 'p');
 		}
 
-		rangeHelper.restoreRange();
+		(rangeHelper as RangeHelperInstance).restoreRange();
 		return base;
 	};
 
@@ -3350,19 +3311,19 @@ export default function SCEditor(original, userOptions) {
 	 * to prevent the range being saved twice.
 	 *
 	 * @since 1.4.5
-	 * @param {boolean} saveRange If to call rangeHelper.saveRange().
+	 * @param saveRange If to call rangeHelper.saveRange().
 	 * @private
 	 */
-	triggerValueChanged = function (saveRange) {
+	triggerValueChanged = function (saveRangeArg?: boolean) {
 		if (!pluginManager ||
 			(!pluginManager.hasHandler('valuechangedEvent') &&
 				!triggerValueChanged.hasHandler)) {
 			return;
 		}
 
-		var	currentHtml;
+		let currentHtml: string;
 		const sourceMode = base.sourceMode();
-		const hasSelection = !sourceMode && rangeHelper.hasSelection();
+		const hasSelection = !sourceMode && (rangeHelper as RangeHelperInstance).hasSelection();
 
 		// Composition end isn't guaranteed to fire but must have
 		// ended when triggerValueChanged() is called so reset it
@@ -3370,7 +3331,7 @@ export default function SCEditor(original, userOptions) {
 
 		// Don't need to save the range if sceditor-start-marker
 		// is present as the range is already saved
-		saveRange = saveRange !== false &&
+		const saveRange = saveRangeArg !== false &&
 			!wysiwygDocument.getElementById('sceditor-start-marker');
 
 		// Clear any current timeout as it's now been triggered
@@ -3380,7 +3341,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (hasSelection && saveRange) {
-			rangeHelper.saveRange();
+			(rangeHelper as RangeHelperInstance).saveRange();
 		}
 
 		currentHtml = sourceMode ? sourceEditor.value : wysiwygBody.innerHTML;
@@ -3395,7 +3356,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		if (hasSelection && saveRange) {
-			rangeHelper.removeMarkers();
+			(rangeHelper as RangeHelperInstance).removeMarkers();
 		}
 	};
 
@@ -3411,7 +3372,7 @@ export default function SCEditor(original, userOptions) {
 
 	/**
 	 * Should be called whenever there is a keypress event
-	 * @param  {Event} e The keypress event
+	 * @param  e The keypress event
 	 * @private
 	 */
 	valueChangedKeyUp = function (e) {
@@ -3446,7 +3407,7 @@ export default function SCEditor(original, userOptions) {
 		}
 
 		// Clear the previous timeout and set a new one.
-		clearTimeout(valueChangedKeyUpTimer);
+		clearTimeout(valueChangedKeyUpTimer as ReturnType<typeof setTimeout>);
 
 		// Trigger the event 1.5s after the last keypress if space
 		// isn't pressed. This might need to be lowered, will need
@@ -3472,19 +3433,18 @@ export default function SCEditor(original, userOptions) {
 
 	// run the initializer
 	loadScripts();
-};
+}
 
 
 /**
  * Map containing the loaded SCEditor locales
- * @type {Object}
  * @name locale
  * @memberOf sceditor
  */
-SCEditor.locale = {};
+SCEditor.locale = {} as Record<string, Partial<LocaleStrings>>;
 
-SCEditor.formats = {};
-SCEditor.icons = {};
+SCEditor.formats = {} as Record<string, new () => Format>;
+SCEditor.icons = {} as Record<string, new () => IconPack>;
 
 
 /**
@@ -3498,11 +3458,9 @@ SCEditor.command =
 	/**
 	 * Gets a command
 	 *
-	 * @param {string} name
-	 * @return {Object|null}
 	 * @since v1.3.5
 	 */
-	get: function (name) {
+	get: function (name: string): Command | null {
 		return defaultCommands[name] || null;
 	},
 
@@ -3523,35 +3481,31 @@ SCEditor.command =
 	 *     }
 	 * });
 	 *
-	 * @param {string} name
-	 * @param {Object} cmd
-	 * @return {this|false} Returns false if name or cmd is false
+	 * @return Returns false if name or cmd is false
 	 * @since v1.3.5
 	 */
-	set: function (name, cmd) {
+	set: function (name: string, cmd: Command) {
 		if (!name || !cmd) {
 			return false;
 		}
 
 		// merge any existing command properties
-		cmd = utils.extend(defaultCommands[name] || {}, cmd);
+		const merged = utils.extend(defaultCommands[name] || {}, cmd) as Command;
 
-		cmd.remove = function () {
+		merged.remove = function () {
 			SCEditor.command.remove(name);
 		};
 
-		defaultCommands[name] = cmd;
+		defaultCommands[name] = merged;
 		return this;
 	},
 
 	/**
 	 * Removes a command
 	 *
-	 * @param {string} name
-	 * @return {this}
 	 * @since v1.3.5
 	 */
-	remove: function (name) {
+	remove: function (name: string) {
 		if (defaultCommands[name]) {
 			delete defaultCommands[name];
 		}

@@ -1,33 +1,25 @@
-var USER_AGENT = navigator.userAgent;
+const USER_AGENT = navigator.userAgent;
 
 /**
  * Detects if the browser is iOS
  *
  * Needed to fix iOS specific bugs
- *
- * @function
- * @name ios
- * @memberOf sceditor
- * @type {boolean}
  */
-export var ios = /iPhone|iPod|iPad| wosbrowser\//i.test(USER_AGENT);
+export const ios = /iPhone|iPod|iPad| wosbrowser\//i.test(USER_AGENT);
 
 /**
  * If the browser supports WYSIWYG editing (e.g. older mobile browsers).
- *
- * @function
- * @name isWysiwygSupported
- * @return {boolean}
  */
-export var isWysiwygSupported = (function () {
-	var match, isUnsupported;
+export const isWysiwygSupported = (function (): boolean {
+	let match: RegExpExecArray | null;
+	let isUnsupported: boolean;
 
 	// IE is the only browser to support documentMode
-	const ie = !!window.document.documentMode;
+	const ie = !!(window.document as Document & { documentMode?: unknown }).documentMode;
 	const legacyEdge = '-ms-ime-align' in document.documentElement.style;
 
 	const div = document.createElement('div');
-	div.contentEditable = true;
+	div.contentEditable = 'true';
 
 	// Check if the contentEditable attribute is supported
 	if (!('contentEditable' in document.documentElement) ||
@@ -55,7 +47,7 @@ export var isWysiwygSupported = (function () {
 			// Android browser 534+ supports content editable
 			// This also matches Chrome which supports content editable too
 			match = /Safari\/(\d+)/.exec(USER_AGENT);
-			isUnsupported = (!match || !match[1] ? true : match[1] < 534);
+			isUnsupported = (!match || !match[1] ? true : Number(match[1]) < 534);
 		}
 	}
 
@@ -64,7 +56,7 @@ export var isWysiwygSupported = (function () {
 	// working at versions >= 534
 	if (/ Silk\//i.test(USER_AGENT)) {
 		match = /AppleWebKit\/(\d+)/.exec(USER_AGENT);
-		isUnsupported = (!match || !match[1] ? true : match[1] < 534);
+		isUnsupported = (!match || !match[1] ? true : Number(match[1]) < 534);
 	}
 
 	// iOS 5+ supports content editable

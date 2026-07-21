@@ -1,49 +1,54 @@
 (function () {
 	'use strict';
 
-	var _assert = {
-		ok: function (actual, description, info) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type Any = any;
+
+	const _assert = {
+		ok: function (actual: Any, description: Any, info?: Any) {
 			console.assert(actual, description);
 
 			if (!actual && info) {
 				console.info(info);
 			}
 		},
-		equal: function (actual, expected, description) {
+		equal: function (actual: Any, expected: Any, description: Any) {
 			_assert.ok(
 				actual == expected,
 				description,
 				`Expected "${actual}" == "${expected}"`
 			);
 		},
-		strictEqual: function (actual, expected, description) {
+		strictEqual: function (actual: Any, expected: Any, description: Any) {
 			_assert.ok(
 				actual === expected,
 				description,
 				`Expected "${actual}" === "${expected}"`
 			);
 		},
-		notEqual: function (actual, expected, description) {
+		notEqual: function (actual: Any, expected: Any, description: Any) {
 			_assert.ok(
 				actual != expected,
 				description,
 				`Expected "${actual}" != "${expected}"`
 			);
 		},
-		notStrictEqual: function (actual, expected, description) {
+		notStrictEqual: function (actual: Any, expected: Any, description: Any) {
 			_assert.ok(
 				actual !== expected,
 				description,
 				`Expected "${actual}" !== "${expected}"`
 			);
 		},
-		throws: function (method, expected, description) {
-			var undef;
-			var exception = false;
+		throws: function (method: Any, expectedArg?: Any, descriptionArg?: Any) {
+			const undef = undefined;
+			let exception: Any = false;
+			let expected = expectedArg;
+			let description = descriptionArg;
 
 			if (description === undef) {
 				description = expected;
-				expected    = undef;
+				expected = undef;
 			}
 
 			try {
@@ -68,14 +73,19 @@
 		}
 	};
 
-	var _bind = function (fn, that) {
-		return function () {
-			return fn.apply(that, arguments);
+	const _bind = function (fn: Any, that: Any) {
+		return function (this: Any, ...args: Any[]) {
+			return fn.apply(that, args);
 		};
 	};
 
 
 	class TestRunner {
+		assert: Any;
+		_tests: Any[];
+		_currentTestIndex: number;
+		_testObjectThis: Any;
+
 		constructor() {
 			this.assert = _assert;
 			this._tests = [];
@@ -84,7 +94,7 @@
 			this._testObjectThis = {};
 		}
 		_currentTest() {
-			var undef;
+			const undef = undefined;
 
 			if (this._currentTestIndex < 0) {
 				return undef;
@@ -115,8 +125,8 @@
 			return skipped;
 		}
 		_incrementTest() {
-			var title, instructions, totalFailed;
-			const $currentTestDisplay = document.querySelector('.current-test');
+			let title, instructions, totalFailed;
+			const $currentTestDisplay = document.querySelector('.current-test') as HTMLElement;
 
 			this._currentTestIndex++;
 			this._updateProgress();
@@ -133,15 +143,15 @@
 				$currentTestDisplay.classList.add(totalFailed ? 'failed' : 'passed');
 			}
 
-			$currentTestDisplay.querySelector('h3').textContent = title;
-			$currentTestDisplay.querySelector('p').textContent = instructions;
+			($currentTestDisplay.querySelector('h3') as HTMLElement).textContent = title;
+			($currentTestDisplay.querySelector('p') as HTMLElement).textContent = instructions;
 		}
 		_updateProgress() {
 			const currentPercent = (this._currentPosition() / this._totalTests()) * 100;
 
-			document.getElementById('progress-info').textContent = this._currentPosition() + ' / ' + this._totalTests();
+			(document.getElementById('progress-info') as HTMLElement).textContent = this._currentPosition() + ' / ' + this._totalTests();
 
-			document.getElementById('progress').style.width = currentPercent + '%';
+			(document.getElementById('progress') as HTMLElement).style.width = currentPercent + '%';
 		}
 		_currentPosition() {
 			return Math.min(
@@ -152,7 +162,8 @@
 			return this._tests.length;
 		}
 		_setupTests() {
-			var test, testIdx, that = this;
+			let test, testIdx;
+			const that = this;
 
 			for (testIdx = 0; testIdx < this._tests.length; testIdx++) {
 				test = this._tests[testIdx];
@@ -170,16 +181,16 @@
 				$test.append(p);
 
 				this._tests[testIdx].display = $test;
-				document.getElementById('tests').append($test);
+				(document.getElementById('tests') as HTMLElement).append($test);
 			}
 
-			document.querySelector('.current-test a').addEventListener('click', () => {
+			(document.querySelector('.current-test a') as HTMLElement).addEventListener('click', () => {
 				that._skipTest();
 
 				return false;
 			});
 		}
-		_done(passed) {
+		_done(passed?: boolean) {
 			const currentTest = this._currentTest();
 
 			if (currentTest) {
@@ -211,8 +222,8 @@
 			this._runNext();
 		}
 		_runNext() {
-			var currentTest;
-			const $testsContainer = document.getElementById('tests');
+			let currentTest;
+			const $testsContainer = document.getElementById('tests') as Any;
 
 			currentTest = this._currentTest();
 			if (currentTest) {
@@ -238,7 +249,7 @@
 
 				currentTest.test.call(this._testObjectThis, _bind(this._done, this));
 			} else {
-				scrollTop($testsContainer,$testsContainer[0].scrollHeight);
+				scrollTop($testsContainer, $testsContainer[0].scrollHeight);
 
 				console.info('Test finished!');
 			}
@@ -252,7 +263,7 @@
 
 			this._runNext();
 		}
-		test(options, test) {
+		test(options: Any, test: Any) {
 			this._tests.push({
 				title: options.title,
 				instructions: options.instructions,
@@ -261,43 +272,33 @@
 				test: test
 			});
 		}
-		setup(init) {
+		setup(init: Any) {
 			init.call(this._testObjectThis);
 		}
 	}
 
 
+	function scrollTop(el: Any, value?: Any) {
+		let win;
+		if (el.window === el) {
+			win = el;
+		} else if (el.nodeType === 9) {
+			win = el.defaultView;
+		}
 
+		if (value === undefined) {
+			return win ? win.pageYOffset : el.scrollTop;
+		}
 
+		if (win) {
+			win.scrollTo(win.pageXOffset, value);
+		} else {
+			el.scrollTop = value;
+		}
 
-
-
-
-
-
-
-
-function scrollTop(el, value) {
-  var win;
-  if (el.window === el) {
-    win = el;
-  } else if (el.nodeType === 9) {
-    win = el.defaultView;
-  }
-
-  if (value === undefined) {
-    return win ? win.pageYOffset : el.scrollTop;
-  }
-
-  if (win) {
-    win.scrollTo(win.pageXOffset, value);
-  } else {
-    el.scrollTop = value;
-  }
-}
+		return undefined;
+	}
 
 
 	window.runner = new TestRunner();
 }());
-
-

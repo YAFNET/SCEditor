@@ -1,19 +1,16 @@
 // Regex used by DOMPurify to filter URLs. Might as well match here as otherwise
 // URLs will be filtered out by DOMPurify anyway
-var VALID_URI_REGEX = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+const VALID_URI_REGEX = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
 // Safe image data URIs
-var VALID_DATA_REGEX = /^data:image\/(png|bmp|gif|p?jpe?g);/i;
-var WHITESPACE_REGEX = /[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g;
+const VALID_DATA_REGEX = /^data:image\/(png|bmp|gif|p?jpe?g);/i;
+const WHITESPACE_REGEX = /[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g;
 
 /**
  * Escapes a string so it's safe to use in regex
- *
- * @param {string} str
- * @return {string}
  */
-export function regex(str) {
+export function regex(str: string): string {
 	return str.replace(/([\-.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
-};
+}
 
 /**
  * Escapes all HTML entities in a string
@@ -21,17 +18,14 @@ export function regex(str) {
  * If noQuotes is set to false, all single and double
  * quotes will also be escaped
  *
- * @param {string} str
- * @param {boolean} [noQuotes=true]
- * @return {string}
  * @since 1.4.1
  */
-export function entities(str, noQuotes) {
+export function entities(str: string | null, noQuotes?: boolean): string | null {
 	if (!str) {
 		return str;
 	}
 
-	var replacements = {
+	const replacements: Record<string, string> = {
 		'&': '&amp;',
 		'<': '&lt;',
 		'>': '&gt;',
@@ -47,13 +41,11 @@ export function entities(str, noQuotes) {
 		replacements['`'] = '&#96;';
 	}
 
-	str = str.replace(/ {2}|\r\n|[&<>\r\n'"`]/g,
+	return str.replace(/ {2}|\r\n|[&<>\r\n'"`]/g,
 		function (match) {
 			return replacements[match] || match;
 		});
-
-	return str;
-};
+}
 
 /**
  * Escape URI scheme.
@@ -79,13 +71,10 @@ export function entities(str, noQuotes) {
  * **IMPORTANT**: This does not escape any HTML in a url, for
  * that use the escape.entities() method.
  *
- * @param  {string} url
- * @return {string}
  * @since 1.4.5
  */
-export function uriScheme(url) {
-	var	path,
-		location = window.location;
+export function uriScheme(url: string): string {
+	const location = window.location;
 
 	// Match previous behaviour for empty or data: URIs
 	if (!url || VALID_DATA_REGEX.test(url)) {
@@ -94,7 +83,7 @@ export function uriScheme(url) {
 
 	// Invalid scheme so make relative
 	if (!VALID_URI_REGEX.test(url.replace(WHITESPACE_REGEX, ''))) {
-		path = location.pathname.split('/');
+		const path = location.pathname.split('/');
 		path.pop();
 
 		url = location.protocol + '//' +
@@ -108,4 +97,4 @@ export function uriScheme(url) {
 	}
 
 	return url;
-};
+}
