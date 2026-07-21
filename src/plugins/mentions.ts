@@ -15,6 +15,26 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	type Any = any;
 
+	/**
+	 * Renders `${path.to.value}` placeholders against the given context
+	 * objects, e.g. `${item.name}` or `${opts.lookup}`.
+	 *
+	 * Used instead of `eval()`-ing a template literal built from
+	 * `opts.item_template` (which may come from external config) so a
+	 * placeholder can never execute arbitrary code - only simple dotted
+	 * property lookups are supported, matching the only usage in the
+	 * default template.
+	 */
+	function renderTemplate(template: string, context: Record<string, Any>): string {
+		return template.replace(/\$\{\s*([\w.]+)\s*\}/g, function (match, path) {
+			const value = String(path).split('.').reduce(function (obj: Any, key: string) {
+				return obj == null ? obj : obj[key];
+			}, context);
+
+			return value === undefined || value === null ? '' : String(value);
+		});
+	}
+
 	sceditor.plugins.mentions = function (this: Any) {
 		let editor: Any;
 
@@ -60,7 +80,7 @@
 				return console.error('Invalid element selector', opts);
 
 			const $lookup = document.createElement('div');
-			($lookup as Any).classList = `fixed-top autohide ${opts.lookup}`;
+			$lookup.className = `fixed-top autohide ${opts.lookup}`;
 			$e.parentNode.insertBefore($lookup, $e.nextSibling);
 
 			$e.addEventListener('keydown', processKey);
@@ -151,13 +171,12 @@
 
 				const items = opts.items
 					.filter((e: Any) => e.name.toLowerCase().includes(word.slice(1).toLowerCase()))
-					// `item` is referenced dynamically inside the eval'd template
-					// string below (via closure), not statically - can't rename it.
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					.map((item: Any) => eval(
-						'`<li class="mention-li-nt ${opts.lookup}" data-name = "${item.name}" data-id = "${item.id}">' +
+					.map((item: Any) => renderTemplate(
+						`<li class="mention-li-nt ${opts.lookup}" data-name = "${item.name}" data-id = "${item.id}">` +
 						opts.item_template +
-						'</li>`'));
+						'</li>',
+						{ item, opts }
+					));
 
 				if (!items.length)
 					return hideLookup();

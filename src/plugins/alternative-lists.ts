@@ -126,11 +126,7 @@
 		insertListTag = function (editor: Any, listType: string, selected: string) {
 			let content = '';
 
-			// NOTE: utils.each() calls fn(index, value) for arrays, but this
-			// callback only declares one param - so `item` actually receives
-			// the numeric index, not the line text. Pre-existing bug in the
-			// original .js, preserved as-is rather than silently fixed here.
-			utils.each(selected.split(/\r?\n/), function (item: Any) {
+			utils.each(selected.split(/\r?\n/), function (_index: Any, item: Any) {
 				content += (content ? '\n' : '') +
 					'[*]' + item;
 			});
