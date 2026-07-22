@@ -1031,6 +1031,11 @@ export default function SCEditor(
 					node = node.previousSibling;
 				}
 			}
+		} else if (!node) {
+			// wysiwygBody has no children (e.g. initial content sanitized
+			// to nothing) - create a node to focus instead of dereferencing null
+			node = dom.createElement('p', {}, wysiwygDocument);
+			dom.appendChild(wysiwygBody, node);
 		}
 
 		range = wysiwygDocument.createRange();
@@ -1078,7 +1083,7 @@ export default function SCEditor(
 		}
 
 		wysiwygBody.contentEditable = String(!readOnly);
-		sourceEditor.readOnly = !readOnly;
+		sourceEditor.readOnly = readOnly;
 
 		updateToolBar(readOnly);
 
@@ -1388,6 +1393,16 @@ export default function SCEditor(
 
 		pluginManager.destroy();
 
+		if (autoExpandThrottle) {
+			clearTimeout(autoExpandThrottle);
+			autoExpandThrottle = false;
+		}
+
+		if (valueChangedKeyUpTimer) {
+			clearTimeout(valueChangedKeyUpTimer);
+			valueChangedKeyUpTimer = false;
+		}
+
 		rangeHelper = null;
 		pluginManager = null;
 
@@ -1580,6 +1595,11 @@ export default function SCEditor(
 			}
 
 			handlePasteData(data);
+
+			// The clipboard API path handles the paste itself, so cancel the
+			// browser's native paste. The legacy fallback below relies on
+			// the native paste actually happening, so must not do this.
+			e.preventDefault();
 		// If contentsFragment exists then we are already waiting for a
 		// previous paste so let the handler for that handle this one too
 		} else if (!pasteContentFragment) {
@@ -1607,8 +1627,6 @@ export default function SCEditor(
 				handlePasteData({ html: sanitize(html) });
 			}, 0);
 		}
-
-		e.preventDefault();
 	};
 
 	/**
@@ -2290,6 +2308,13 @@ export default function SCEditor(
 	 */
 	checkSelectionChanged = function () {
 		function check() {
+			// rangeHelper is null if the editor was destroyed before this
+			// (possibly deferred) check ran
+			if (!rangeHelper) {
+				isSelectionCheckPending = false;
+				return;
+			}
+
 			// Don't create new selection if there isn't one (like after
 			// blur event in iOS)
 			const sel = wysiwygWindow.getSelection();
@@ -2364,11 +2389,13 @@ export default function SCEditor(
 		}
 
 		if (backSpaceHandled) {
-			(currentBlockNode as HTMLElement).querySelectorAll('span[style]').forEach(span => {
-				if (span) {
-					span.outerHTML = span.innerHTML;
-				}
-			});
+			if (currentBlockNode) {
+				currentBlockNode.querySelectorAll('span[style]').forEach(span => {
+					if (span) {
+						span.outerHTML = span.innerHTML;
+					}
+				});
+			}
 
 			backSpaceHandled = false;
 		}

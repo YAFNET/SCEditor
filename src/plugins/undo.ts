@@ -9,6 +9,7 @@
 		let sourceEditor: Any;
 		let editor: Any;
 		let body: Any;
+		let countField: Any;
 		let lastInputType = '';
 		let charChangedCount = 0;
 		let isInPatchedFn = false;
@@ -97,7 +98,12 @@
 
 			lastState = {};
 			updateLastState();
-			undoStates.push(lastState);
+
+			// updateLastState() calls base.undo() (which nulls lastState)
+			// when content exceeds maxLength - don't push a stale/null state
+			if (lastState) {
+				undoStates.push(lastState);
+			}
 		}
 
 		/**
@@ -113,14 +119,17 @@
 				editor.getSourceEditorValue(false) :
 				editor.getBody().innerHTML;
 
-			const countField = document.getElementById('editor-Counter');
 			const maxLimit = editor.opts.maxLength;
 
-			// Update counter
-			if (editor.val().length > maxLimit) {
+			// Update counter (maxLength is opt-in; null/unset means no limit)
+			if (typeof maxLimit === 'number' && editor.val().length > maxLimit) {
+				lastState.value = value;
 				base.undo();
-			} else {
-				(countField as HTMLElement).textContent = String(maxLimit - editor.val().length);
+				return;
+			}
+
+			if (countField && typeof maxLimit === 'number') {
+				countField.textContent = String(maxLimit - editor.val().length);
 			}
 
 			lastState.value = value;
@@ -148,6 +157,12 @@
 		base.signalReady = function () {
 			sourceEditor = editor.getContentAreaContainer().nextSibling;
 			body = editor.getBody();
+			// Scope the counter lookup to this editor instance's own
+			// container - the "editor-Counter" id is not unique across
+			// multiple editor instances on the same page, so a global
+			// document.getElementById() would always hit the first instance
+			countField = editor.getContentAreaContainer().parentNode
+				.querySelector('#editor-Counter');
 
 			// Store initial state
 			storeState();

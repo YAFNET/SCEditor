@@ -436,11 +436,12 @@ const defaultCmds: Record<string, Command> = {
 				'click',
 				'.button',
 				function (e: Event) {
+					const maxDimension = 100;
 					const rows = Number((dom.find(content, '#rows')[0] as HTMLInputElement).value);
 					const cols = Number((dom.find(content, '#cols')[0] as HTMLInputElement).value);
 					let html = '<table class="table">';
 
-					if (rows > 0 && cols > 0) {
+					if (rows > 0 && cols > 0 && rows <= maxDimension && cols <= maxDimension) {
 						html += Array(rows + 1).join(
 							'<tr>' +
 							Array(cols + 1).join(
@@ -545,7 +546,7 @@ const defaultCmds: Record<string, Command> = {
 
 					if (val) {
 						editor.wysiwygEditorInsertHtml(
-							`<div class="alert alert-${type}" role="alert">${val}</div>`);
+							`<div class="alert alert-${escape.entities(type)}" role="alert">${escape.entities(val)}</div>`);
 					}
 
 					editor.closeDropDown(true);
@@ -663,7 +664,7 @@ const defaultCmds: Record<string, Command> = {
 						attrs += ` alt="${escape.entities(text)}"`;
 					}
 
-					attrs += ` src="${escape.entities(url)}"`;
+					attrs += ` src="${escape.entities(escape.uriScheme(url))}"`;
 
 					editor.wysiwygEditorInsertHtml(
 						`<img${attrs} class="img-user-posted img-thumbnail" />`
@@ -772,10 +773,10 @@ const defaultCmds: Record<string, Command> = {
 				function (url: string, text: string) {
 					if (text || !editor.getRangeHelper().selectedHtml()) {
 						editor.wysiwygEditorInsertHtml(
-							`<a href="${escape.entities(url)}">${escape.entities(text || url)}</a>`
+							`<a href="${escape.entities(escape.uriScheme(url))}">${escape.entities(text || url)}</a>`
 						);
 					} else {
-						editor.execCommand('createlink', url);
+						editor.execCommand('createlink', escape.uriScheme(url));
 					}
 				} as DropDownCallback);
 		},
@@ -869,7 +870,7 @@ const defaultCmds: Record<string, Command> = {
 			(defaultCmds.media._dropDown as DropDownFn)(editor,
 				btn as HTMLElement,
 				function (url: string) {
-					editor.wysiwygEditorInsertHtml(`[media]${url}[/media]`);
+					editor.wysiwygEditorInsertHtml(`[media]${escape.entities(url)}[/media]`);
 				} as DropDownCallback);
 		},
 		tooltip: 'Insert an embed media like a YouTube video, facebook post or twitter status.'
@@ -896,9 +897,11 @@ const defaultCmds: Record<string, Command> = {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
 
 					if (url !== '') {
-						const matches = url.match(/vimeo\..*\/(\d+)(?:$|\/)/) as RegExpMatchArray;
+						const matches = url.match(/vimeo\..*\/(\d+)(?:$|\/)/);
 
-						callback(url, matches[1]);
+						if (matches) {
+							callback(url, matches[1]);
+						}
 					}
 
 					editor.closeDropDown(true);
@@ -915,8 +918,8 @@ const defaultCmds: Record<string, Command> = {
 				function (url: string, id: string) {
 					editor.wysiwygEditorInsertHtml(_tmpl('vimeo',
 						{
-							url: url,
-							vimeoId: id
+							url: escape.entities(escape.uriScheme(url)),
+							vimeoId: escape.entities(id)
 						}));
 				} as DropDownCallback);
 		},
@@ -967,8 +970,8 @@ const defaultCmds: Record<string, Command> = {
 				function (url: string, id: string) {
 					editor.wysiwygEditorInsertHtml(_tmpl('instagram',
 						{
-							url: url,
-							id: id
+							url: escape.entities(escape.uriScheme(url)),
+							id: escape.entities(id)
 						}));
 				} as DropDownCallback);
 		},
@@ -995,7 +998,9 @@ const defaultCmds: Record<string, Command> = {
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
 
-					callback(url);
+					if (url !== '') {
+						callback(url);
+					}
 
 					editor.closeDropDown(true);
 					e.preventDefault();
@@ -1011,7 +1016,7 @@ const defaultCmds: Record<string, Command> = {
 				function (url: string) {
 					editor.wysiwygEditorInsertHtml(_tmpl('facebook',
 						{
-							url: url
+							url: escape.entities(escape.uriScheme(url))
 						}));
 				} as DropDownCallback);
 		},
@@ -1037,10 +1042,12 @@ const defaultCmds: Record<string, Command> = {
 				'.button',
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
-					const idMatch = url.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/);
+					const urlMatch = url.match(
+						/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/
+					);
+					const idMatch = urlMatch || (/^[a-zA-Z0-9_-]{11}$/.test(url.trim()) ? [url, url.trim()] : null);
 
-
-					if (idMatch && /^[a-zA-Z0-9_\-]{11}$/.test(idMatch[1])) {
+					if (idMatch) {
 						callback(url, idMatch[1]);
 					}
 
@@ -1058,8 +1065,8 @@ const defaultCmds: Record<string, Command> = {
 				function (url: string, id: string) {
 					editor.wysiwygEditorInsertHtml(_tmpl('youtube',
 						{
-							url: url,
-							id: id
+							url: escape.entities(escape.uriScheme(url)),
+							id: escape.entities(id)
 						}));
 				} as DropDownCallback);
 		},

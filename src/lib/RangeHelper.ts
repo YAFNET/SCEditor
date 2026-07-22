@@ -195,7 +195,7 @@ export default function RangeHelper(
 			// Webkit won't allow the cursor to be placed inside an
 			// empty tag, so add a zero width space to it.
 			if (!lastChild.lastChild) {
-				dom.appendChild(lastChild, document.createTextNode('\u200B'));
+				dom.appendChild(lastChild, doc.createTextNode('\u200B'));
 			}
 		} else {
 			lastChild = frag;

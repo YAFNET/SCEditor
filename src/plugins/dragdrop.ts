@@ -183,6 +183,24 @@
 			editor.getBody().addEventListener('drop', hideCover);
 		};
 
+		base.destroy = function () {
+			if (!container) {
+				return;
+			}
+
+			container.removeEventListener('dragover', handleDragOver);
+			container.removeEventListener('dragleave', hideCover);
+			container.removeEventListener('dragend', hideCover);
+			container.removeEventListener('drop', handleDrop);
+
+			editor.getBody().removeEventListener('dragover', handleDragOver);
+			editor.getBody().removeEventListener('drop', hideCover);
+
+			if (cover && cover.parentNode) {
+				cover.parentNode.removeChild(cover);
+			}
+		};
+
 		base.signalPasteHtml = function (file: Any) {
 
 			if (!file)

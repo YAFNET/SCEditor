@@ -718,9 +718,9 @@
 				return `[userlink]${attr(element, 'data-user')}[/userlink]`;
 			},
 			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
-
-				return `<span class="badge rounded-pill text-bg-secondary fs-6" data-user="${escapeEntities(content)
-				}">${escapeEntities(content)}</span>`;
+				// content is already entity-escaped by convertToHTML - don't re-escape
+				return `<span class="badge rounded-pill text-bg-secondary fs-6" data-user="${content
+				}">${content}</span>`;
 			}
 		},
 		// END_COMMAND
@@ -994,8 +994,13 @@
 			},
 			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
+				const match = url.match(/\/(p|tv|reel)\/(.*?)(?:\/|$)/);
 
-				const id = (url.match(/\/(p|tv|reel)\/(.*?)\//) as RegExpMatchArray)[2];
+				if (!match) {
+					return `<a href="${escapeUriScheme(url)}">${url}</a>`;
+				}
+
+				const id = match[2];
 
 				return `<div class="ratio ratio-1x1" data-oembed-url="https://www.instagram.com/p/${id
 				}" data-instagram-url="${url}"><iframe src="https://www.instagram.com/p/${id
@@ -1019,8 +1024,13 @@
 			},
 			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
+				const match = url.match(/vimeo\..*\/(\d+)(?:$|\/)/);
 
-				const id = (url.match(/vimeo\..*\/(\d+)(?:$|\/)/) as RegExpMatchArray)[1];
+				if (!match) {
+					return `<a href="${escapeUriScheme(url)}">${url}</a>`;
+				}
+
+				const id = match[1];
 
 				return `<div data-oembed-url="https://vimeo.com/${id}" data-vimeo-url="${url
 				}" class="ratio ratio-16x9 border"><iframe src="https://player.vimeo.com/video/${id
@@ -1045,8 +1055,13 @@
 			},
 			html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 				const url = content;
+				const match = content.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/);
 
-				const id = (content.match(/(?:v=|v\/|embed\/|youtu.be\/)?([a-zA-Z0-9_-]{11})/) as RegExpMatchArray)[1];
+				if (!match) {
+					return `<a href="${escapeUriScheme(url)}">${url}</a>`;
+				}
+
+				const id = match[1];
 
 				return `<div data-oembed-url="https://youtube.com/embed/${id}" data-youtube-url="${url
 				}" class="ratio ratio-16x9 border"><iframe src="https://youtube.com/embed/${id
@@ -1382,6 +1397,13 @@
 		 * @private
 		 */
 		function tokenizeAttrs(attrs: string): BBCodeAttrs {
+			// Bound input length to avoid worst-case backtracking in the
+			// unquoted-value branch of attrRegex on pathologically long tags
+			const maxAttrsLength = 10000;
+			if (attrs.length > maxAttrsLength) {
+				attrs = attrs.substring(0, maxAttrsLength);
+			}
+
 			let matches
 				/*
 				([^\s=]+)				Anything that's not a space or equals

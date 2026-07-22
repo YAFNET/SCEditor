@@ -747,9 +747,9 @@ export function fixNesting(node: Node): void {
 		if (isBlock && parent && (isInline(parent, true) || (parent as Element).tagName === 'P')) {
 			// Find the last inline parent node
 			let lastInlineParent = node;
-			while (isInline(lastInlineParent.parentNode as Node, true) ||
-				(lastInlineParent.parentNode as Element).tagName === 'P') {
-				lastInlineParent = lastInlineParent.parentNode as Node;
+			while (lastInlineParent.parentNode && (isInline(lastInlineParent.parentNode, true) ||
+				(lastInlineParent.parentNode as Element).tagName === 'P')) {
+				lastInlineParent = lastInlineParent.parentNode;
 			}
 
 			const before = extractContents(lastInlineParent, node);
@@ -795,6 +795,10 @@ export function fixNesting(node: Node): void {
  * Finds the common parent of two nodes
  */
 export function findCommonAncestor(node1: Node, node2: Node): Node | undefined {
+	if (node1 === node2 || contains(node1, node2)) {
+		return node1;
+	}
+
 	let current: Node | null = node1;
 
 	while ((current = current.parentNode)) {
@@ -826,7 +830,7 @@ export function removeWhiteSpace(root: HTMLElement): void {
 	let nodeType: number;
 	let next: Node | null;
 	let previous: Node | null;
-	let previousSibling: Node;
+	let previousSibling: Node | null;
 	let trimStart: boolean;
 
 	const cssWhiteSpace = css(root, 'whiteSpace') as string;
@@ -861,16 +865,16 @@ export function removeWhiteSpace(root: HTMLElement): void {
 			if (isInline(node) && previous) {
 				previousSibling = previous;
 
-				while (previousSibling.lastChild) {
+				while (previousSibling && previousSibling.lastChild) {
 					previousSibling = previousSibling.lastChild;
 
 					// eslint-disable-next-line max-depth
-					while (hasClass(previousSibling as HTMLElement, 'sceditor-ignore')) {
+					while (previousSibling && hasClass(previousSibling as HTMLElement, 'sceditor-ignore')) {
 						previousSibling = getSibling(previousSibling, true) as Node;
 					}
 				}
 
-				trimStart = previousSibling.nodeType === TEXT_NODE ?
+				trimStart = !previousSibling ? false : previousSibling.nodeType === TEXT_NODE ?
 					/[\t\n\r ]$/.test(previousSibling.nodeValue as string) :
 					!isInline(previousSibling);
 			}

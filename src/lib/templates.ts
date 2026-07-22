@@ -134,9 +134,12 @@ const _templates: Record<string, string> = {
  * If createHtml is passed it will return a DocumentFragment
  * containing the parsed template.
  *
- * NOTE: despite the `sanitize` name/default below, omitting it (as most
- * call sites do) currently disables sanitization entirely - preserved
- * as-is, see conversion notes.
+ * `sanitize` is opt-in (default false): pass `true` to HTML-escape each
+ * param value and run the rendered template through DOMPurify. Templates
+ * that interpolate pre-built trusted HTML fragments (e.g. `note`'s
+ * `{values}`) must not enable this. Callers that interpolate untrusted
+ * user input but need to keep other static markup (e.g. an `<iframe>`)
+ * should escape the risky values themselves before calling this function.
  *
  * @private
  */
@@ -161,13 +164,7 @@ export default function template(
 	let renderedTemplate = _templates[name];
 
 	Object.keys(params).forEach(function (paramName) {
-
-		if (typeof sanitize === 'undefined') {
-			sanitize = false;
-		}
-
-		// Default to sanitizing
-		if (sanitize !== false) {
+		if (sanitize) {
 			params[paramName] = escape.entities(String(params[paramName]));
 		}
 
@@ -177,8 +174,7 @@ export default function template(
 		);
 	});
 
-	// Default to sanitizing
-	if (sanitize !== false) {
+	if (sanitize) {
 		renderedTemplate = DOMPurify.sanitize(renderedTemplate, { ADD_ATTR: ['unselectable'] });
 	}
 

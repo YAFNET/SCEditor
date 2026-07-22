@@ -111,15 +111,15 @@ describe('lib/SCEditor', () => {
 	it('readOnly()', () => { // jsdom: iframe contentEditable not updated
 		const body = sceditor.getBody();
 
-		expect(sceditor.readOnly()).toStrictEqual(false);
+		expect(sceditor.readOnly()).toStrictEqual(true);
 		expect(body.contentEditable).toStrictEqual('true');
 
 		expect(sceditor.readOnly(true)).toBe(sceditor);
-		expect(sceditor.readOnly()).toStrictEqual(true);
+		expect(sceditor.readOnly()).toStrictEqual(false);
 		expect(body.contentEditable).toStrictEqual('false');
 
 		expect(sceditor.readOnly(false)).toBe(sceditor);
-		expect(sceditor.readOnly()).toStrictEqual(false);
+		expect(sceditor.readOnly()).toStrictEqual(true);
 		expect(body.contentEditable).toStrictEqual('true');
 	});
 

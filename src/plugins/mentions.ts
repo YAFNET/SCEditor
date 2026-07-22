@@ -15,6 +15,8 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	type Any = any;
 
+	const escapeHtml = (value: Any): string => sceditor.escapeEntities(String(value ?? '')) ?? '';
+
 	/**
 	 * Renders `${path.to.value}` placeholders against the given context
 	 * objects, e.g. `${item.name}` or `${opts.lookup}`.
@@ -78,6 +80,14 @@
 
 			if (!$e)
 				return console.error('Invalid element selector', opts);
+
+			// The source textarea / WYSIWYG body are reused (not recreated)
+			// across source<->WYSIWYG toggles, and initMentions() runs again
+			// on every toggle - skip re-wiring an element that's already set up
+			// to avoid stacking duplicate listeners/lookup nodes/fetches.
+			if ($e.__scMentionsInit)
+				return undefined;
+			$e.__scMentionsInit = true;
 
 			const $lookup = document.createElement('div');
 			$lookup.className = `fixed-top autohide ${opts.lookup}`;
@@ -172,10 +182,10 @@
 				const items = opts.items
 					.filter((e: Any) => e.name.toLowerCase().includes(word.slice(1).toLowerCase()))
 					.map((item: Any) => renderTemplate(
-						`<li class="mention-li-nt ${opts.lookup}" data-name = "${item.name}" data-id = "${item.id}">` +
+						`<li class="mention-li-nt ${opts.lookup}" data-name = "${escapeHtml(item.name)}" data-id = "${escapeHtml(item.id)}">` +
 						opts.item_template +
 						'</li>',
-						{ item, opts }
+						{ item: { ...item, name: escapeHtml(item.name), avatar: escapeHtml(item.avatar) }, opts }
 					));
 
 				if (!items.length)
@@ -215,7 +225,7 @@
 
 				const value = opts.element.val();
 
-				opts.element.val(value.replace(value.substring(start + 1, end), ''));
+				opts.element.val(value.replace(value.substring(start, end), ''));
 
 				hideLookup();
 			}
