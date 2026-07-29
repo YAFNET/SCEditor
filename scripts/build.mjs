@@ -14,7 +14,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build as viteBuild } from 'vite';
 import { minify } from 'terser';
-import ts from 'typescript';
 import * as sass from 'sass';
 import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
@@ -41,22 +40,34 @@ const legacyFiles = [
 	'src/plugins/mentions.ts'
 ];
 
-async function readLegacyFile(file) {
-	const code = await readFile(path.join(rootDir, file), 'utf8');
-
-	if (!file.endsWith('.ts')) {
-		return code;
-	}
-
-	const result = ts.transpileModule(code, {
-		compilerOptions: {
-			target: ts.ScriptTarget.ES2020,
-			module: ts.ModuleKind.None,
-			sourceMap: false
+// Legacy scripts have no imports/exports, so this just type-strips them via
+// vite/rolldown (the TypeScript package no longer ships an in-process
+// transpile API - see https://github.com/microsoft/typescript-go).
+async function transpileTsFiles(files) {
+	const result = await viteBuild({
+		root: rootDir,
+		configFile: false,
+		logLevel: 'warn',
+		build: {
+			write: false,
+			minify: false,
+			rollupOptions: {
+				input: Object.fromEntries(files.map((file) => [file, path.join(rootDir, file)])),
+				output: { format: 'es' }
+			}
 		}
 	});
 
-	return result.outputText;
+	const [{ output }] = Array.isArray(result) ? result : [result];
+	const codeByFile = new Map();
+
+	for (const item of output) {
+		if (item.type === 'chunk') {
+			codeByFile.set(item.name, item.code);
+		}
+	}
+
+	return codeByFile;
 }
 
 async function clean() {
@@ -114,12 +125,15 @@ async function bundleCoreJs() {
 }
 
 async function buildJs() {
-	const coreCode = await bundleCoreJs();
+	const [coreCode, legacyCode] = await Promise.all([
+		bundleCoreJs(),
+		transpileTsFiles(legacyFiles)
+	]);
 
 	const files = { 'sceditor.min.js': coreCode };
 
 	for (const file of legacyFiles) {
-		files[`../${file}`] = await readLegacyFile(file);
+		files[`../${file}`] = legacyCode.get(file);
 	}
 
 	const minified = await minify(files, {
@@ -144,9 +158,11 @@ async function buildLanguages() {
 	const { readdir } = await import('node:fs/promises');
 	const languagesDir = path.join(rootDir, 'languages');
 	const entries = (await readdir(languagesDir)).filter((name) => name.endsWith('.ts'));
+	const files = entries.map((name) => path.join('languages', name));
+	const transpiled = await transpileTsFiles(files);
 
 	for (const name of entries) {
-		const code = await readLegacyFile(path.join('languages', name));
+		const code = transpiled.get(path.join('languages', name));
 		const outName = name.replace(/\.ts$/, '.js');
 
 		const minified = await minify({ [`../../languages/${outName}`]: code }, {
