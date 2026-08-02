@@ -51,6 +51,7 @@
   "scripts": {
     "test": "eslint . && tsc --noEmit && vitest run",
     "test:watch": "vitest",
+    "dev": "vite",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "build": "node scripts/build.mjs",
