@@ -9,257 +9,256 @@
  *
  * @author Sam Clarke
  */
-(function (sceditor) {
-	'use strict';
+import { entities as escapeEntities } from '../lib/escape.js';
+import PluginManager from '../lib/PluginManager.js';
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	type Any = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Any = any;
 
-	const escapeHtml = (value: Any): string => sceditor.escapeEntities(String(value ?? '')) ?? '';
+const escapeHtml = (value: Any): string => escapeEntities(String(value ?? '')) ?? '';
 
-	/**
-	 * Renders `${path.to.value}` placeholders against the given context
-	 * objects, e.g. `${item.name}` or `${opts.lookup}`.
-	 *
-	 * Used instead of `eval()`-ing a template literal built from
-	 * `opts.item_template` (which may come from external config) so a
-	 * placeholder can never execute arbitrary code - only simple dotted
-	 * property lookups are supported, matching the only usage in the
-	 * default template.
-	 */
-	function renderTemplate(template: string, context: Record<string, Any>): string {
-		return template.replace(/\$\{\s*([\w.]+)\s*\}/g, function (match, path) {
-			const value = String(path).split('.').reduce(function (obj: Any, key: string) {
-				return obj == null ? obj : obj[key];
-			}, context);
+/**
+ * Renders `${path.to.value}` placeholders against the given context
+ * objects, e.g. `${item.name}` or `${opts.lookup}`.
+ *
+ * Used instead of `eval()`-ing a template literal built from
+ * `opts.item_template` (which may come from external config) so a
+ * placeholder can never execute arbitrary code - only simple dotted
+ * property lookups are supported, matching the only usage in the
+ * default template.
+ */
+function renderTemplate(template: string, context: Record<string, Any>): string {
+	return template.replace(/\$\{\s*([\w.]+)\s*\}/g, function (match, path) {
+		const value = String(path).split('.').reduce(function (obj: Any, key: string) {
+			return obj == null ? obj : obj[key];
+		}, context);
 
-			return value === undefined || value === null ? '' : String(value);
+		return value === undefined || value === null ? '' : String(value);
+	});
+}
+
+PluginManager.plugins.mentions = function (this: Any) {
+	let editor: Any;
+
+	this.init = function (this: Any) {
+		editor = this;
+		editor.opts.onToggleMode = initMentions;
+	};
+
+	this.signalReady = function () {
+		initMentions();
+	};
+
+	function initMentions() {
+		mentions({
+			element: editor,
+			lookup: 'user',
+			url: editor.opts.mentionsUrl,
+			onclick: function (data: Any) { editor.insert(`[userlink]${data.name}[/userlink]`); }
 		});
 	}
 
-	sceditor.plugins.mentions = function (this: Any) {
-		let editor: Any;
+	function mentions(optsArg: Any = {}) {
+		const opts = Object.assign({},
+			{
+				lookup: 'lookup',
+				id: '',
+				selector: '',
+				element: null,
+				symbol: '@',
+				items: [],
+				item_template:
+					'<a class="dropdown-item" href="#" style="font-family: var(--bs-body-font-family);"><img src="${item.avatar}" alt="avatar" class="me-2 img-thumbnail" style="max-width:20px;max-height:20px" /> ${item.name}</a>',
+				onclick: undefined,
+				url: ''
+			},
+			optsArg);
 
-		this.init = function (this: Any) {
-			editor = this;
-			editor.opts.onToggleMode = initMentions;
-		};
+		const $e = opts.element.inSourceMode()
+			? opts.element.getSourceEditor()
+			: opts.element.getContentAreaContainer().contentWindow.document.body;
 
-		this.signalReady = function () {
-			initMentions();
-		};
+		if (!$e)
+			return console.error('Invalid element selector', opts);
 
-		function initMentions() {
-			mentions({
-				element: editor,
-				lookup: 'user',
-				url: editor.opts.mentionsUrl,
-				onclick: function (data: Any) { editor.insert(`[userlink]${data.name}[/userlink]`); }
-			});
+		// The source textarea / WYSIWYG body are reused (not recreated)
+		// across source<->WYSIWYG toggles, and initMentions() runs again
+		// on every toggle - skip re-wiring an element that's already set up
+		// to avoid stacking duplicate listeners/lookup nodes/fetches.
+		if ($e.__scMentionsInit)
+			return undefined;
+		$e.__scMentionsInit = true;
+
+		const $lookup = document.createElement('div');
+		$lookup.className = `fixed-top autohide ${opts.lookup}`;
+		$e.parentNode.insertBefore($lookup, $e.nextSibling);
+
+		$e.addEventListener('keydown', processKey);
+		$e.addEventListener('keyup', showLookup);
+		$e.addEventListener('click', hideLookup);
+
+		let start: Any, end: Any, prevWord: Any;
+
+		let isFixed = false;
+		let $el: Any = $lookup.parentNode;
+		while ($el && $el.nodeName.toLowerCase() !== 'body' && !isFixed) {
+			isFixed = window.getComputedStyle($el).getPropertyValue('position').toLowerCase() === 'fixed';
+			$el = $el.parentElement;
 		}
 
-		function mentions(optsArg: Any = {}) {
-			const opts = Object.assign({},
-				{
-					lookup: 'lookup',
-					id: '',
-					selector: '',
-					element: null,
-					symbol: '@',
-					items: [],
-					item_template:
-						'<a class="dropdown-item" href="#" style="font-family: var(--bs-body-font-family);"><img src="${item.avatar}" alt="avatar" class="me-2 img-thumbnail" style="max-width:20px;max-height:20px" /> ${item.name}</a>',
-					onclick: undefined,
-					url: ''
-				},
-				optsArg);
+		function showLookup(event: Any): Any {
+			if (event.code === 'Escape') {
+				return hideLookup();
+			}
 
-			const $e = opts.element.inSourceMode()
-				? opts.element.getSourceEditor()
-				: opts.element.getContentAreaContainer().contentWindow.document.body;
+			let sel, text, curr;
 
-			if (!$e)
-				return console.error('Invalid element selector', opts);
+			if (opts.element.inSourceMode()) {
+				sel = document.getSelection();
+				const $parent = opts.element.getSourceEditor();
+				text = $parent.value || '';
+				curr = (sel as Any).baseOffset;
 
-			// The source textarea / WYSIWYG body are reused (not recreated)
-			// across source<->WYSIWYG toggles, and initMentions() runs again
-			// on every toggle - skip re-wiring an element that's already set up
-			// to avoid stacking duplicate listeners/lookup nodes/fetches.
-			if ($e.__scMentionsInit)
+			} else {
+				sel = opts.element.getContentAreaContainer().contentWindow.document.getSelection();
+
+				text = opts.element.val() || '';
+				curr = (sel as Any).baseOffset;
+			}
+
+			const getLength = (arr: Any) => arr instanceof Array && arr.length > 0 ? arr[0].length : 0;
+
+			start = curr - getLength(text.slice(0, curr).match(/[\S]+$/g));
+			end = curr + getLength(text.slice(curr).match(/^[\S]+/g));
+
+			const word = text.substring(start, end);
+
+			if (!word || word[0] !== opts.symbol) {
+				prevWord = '';
+				return hideLookup();
+			}
+
+			if (word === prevWord)
 				return undefined;
-			$e.__scMentionsInit = true;
 
-			const $lookup = document.createElement('div');
-			$lookup.className = `fixed-top autohide ${opts.lookup}`;
-			$e.parentNode.insertBefore($lookup, $e.nextSibling);
+			prevWord = word;
 
-			$e.addEventListener('keydown', processKey);
-			$e.addEventListener('keyup', showLookup);
-			$e.addEventListener('click', hideLookup);
+			const pos = { x: 0, y: 0 };
 
-			let start: Any, end: Any, prevWord: Any;
+			const parentRect = opts.element.inSourceMode()
+				? opts.element.getSourceEditor().getBoundingClientRect()
+				: opts.element.getContentAreaContainer().contentWindow.document.body.getBoundingClientRect();
 
-			let isFixed = false;
-			let $el: Any = $lookup.parentNode;
-			while ($el && $el.nodeName.toLowerCase() !== 'body' && !isFixed) {
-				isFixed = window.getComputedStyle($el).getPropertyValue('position').toLowerCase() === 'fixed';
-				$el = $el.parentElement;
+			pos.y = parentRect.top + 30;
+			pos.x = parentRect.left + 20;
+
+			$lookup.style.left = pos.x + 'px';
+			$lookup.style.top = pos.y + 'px';
+
+			// query
+			const query = word.slice(1);
+
+			let token = '';
+			const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+
+			if (tokenInput != null) {
+				token = (tokenInput as Any).value;
 			}
 
-			function showLookup(event: Any): Any {
-				if (event.code === 'Escape') {
-					return hideLookup();
-				}
-
-				let sel, text, curr;
-
-				if (opts.element.inSourceMode()) {
-					sel = document.getSelection();
-					const $parent = opts.element.getSourceEditor();
-					text = $parent.value || '';
-					curr = (sel as Any).baseOffset;
-
-				} else {
-					sel = opts.element.getContentAreaContainer().contentWindow.document.getSelection();
-
-					text = opts.element.val() || '';
-					curr = (sel as Any).baseOffset;
-				}
-
-				const getLength = (arr: Any) => arr instanceof Array && arr.length > 0 ? arr[0].length : 0;
-
-				start = curr - getLength(text.slice(0, curr).match(/[\S]+$/g));
-				end = curr + getLength(text.slice(curr).match(/^[\S]+/g));
-
-				const word = text.substring(start, end);
-
-				if (!word || word[0] !== opts.symbol) {
-					prevWord = '';
-					return hideLookup();
-				}
-
-				if (word === prevWord)
-					return undefined;
-
-				prevWord = word;
-
-				const pos = { x: 0, y: 0 };
-
-				const parentRect = opts.element.inSourceMode()
-					? opts.element.getSourceEditor().getBoundingClientRect()
-					: opts.element.getContentAreaContainer().contentWindow.document.body.getBoundingClientRect();
-
-				pos.y = parentRect.top + 30;
-				pos.x = parentRect.left + 20;
-
-				$lookup.style.left = pos.x + 'px';
-				$lookup.style.top = pos.y + 'px';
-
-				// query
-				const query = word.slice(1);
-
-				let token = '';
-				const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-
-				if (tokenInput != null) {
-					token = (tokenInput as Any).value;
-				}
-
-				if (query.length >= 3) {
-					fetch(opts.url.replace('{q}', query),
-							{
-								method: 'GET',
-								headers: {
-									'Accept': 'application/json',
-									'Content-Type': 'application/json;charset=utf-8',
-									'RequestVerificationToken': token
-								}
-							})
-						.then(response => response.json())
-						.then(data => opts.items = data);
-				}
-
-				const items = opts.items
-					.filter((e: Any) => e.name.toLowerCase().includes(word.slice(1).toLowerCase()))
-					.map((item: Any) => renderTemplate(
-						`<li class="mention-li-nt ${opts.lookup}" data-name = "${escapeHtml(item.name)}" data-id = "${escapeHtml(item.id)}">` +
-						opts.item_template +
-						'</li>',
-						{ item: { ...item, name: escapeHtml(item.name), avatar: escapeHtml(item.avatar) }, opts }
-					));
-
-				if (!items.length)
-					return hideLookup();
-
-				$lookup.innerHTML = `<ul class="dropdown-menu dropdown-mentions show">${items.join('')}</ul>`;
-				[...($lookup.firstElementChild as Any).children]
-					.forEach(($el: Any) => $el.addEventListener('click', onClick) ||
-						$el.addEventListener('mouseenter', onHover));
-				($lookup.firstElementChild as Any).children[0].classList.add('active');
-
-
-				if ($lookup.hasAttribute('hidden'))
-					$lookup.removeAttribute('hidden');
-
-				const bounding = $lookup.getBoundingClientRect();
-				if (!(bounding.top >= 0 &&
-					bounding.left >= 0 &&
-					bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-					bounding.right <= (window.innerWidth || document.documentElement.clientWidth)))
-					$lookup.style.top = parseInt($lookup.style.top) - 10 - $lookup.clientHeight + 'px';
-
-				return undefined;
+			if (query.length >= 3) {
+				fetch(opts.url.replace('{q}', query),
+						{
+							method: 'GET',
+							headers: {
+								'Accept': 'application/json',
+								'Content-Type': 'application/json;charset=utf-8',
+								'RequestVerificationToken': token
+							}
+						})
+					.then(response => response.json())
+					.then(data => opts.items = data);
 			}
 
-			function hideLookup() {
-				if (!$lookup.hasAttribute('hidden'))
-					$lookup.setAttribute('hidden', 'true');
-			}
+			const items = opts.items
+				.filter((e: Any) => e.name.toLowerCase().includes(word.slice(1).toLowerCase()))
+				.map((item: Any) => renderTemplate(
+					`<li class="mention-li-nt ${opts.lookup}" data-name = "${escapeHtml(item.name)}" data-id = "${escapeHtml(item.id)}">` +
+					opts.item_template +
+					'</li>',
+					{ item: { ...item, name: escapeHtml(item.name), avatar: escapeHtml(item.avatar) }, opts }
+				));
 
-			function onClick(event: Any) {
-				const deleteItem = event.target.classList.contains('mention-li-nt')
-					? event.target
-					: event.target.parentElement;
+			if (!items.length)
+				return hideLookup();
 
-				opts.onclick(deleteItem.dataset);
+			$lookup.innerHTML = `<ul class="dropdown-menu dropdown-mentions show">${items.join('')}</ul>`;
+			[...($lookup.firstElementChild as Any).children]
+				.forEach(($el: Any) => $el.addEventListener('click', onClick) ||
+					$el.addEventListener('mouseenter', onHover));
+			($lookup.firstElementChild as Any).children[0].classList.add('active');
 
-				const value = opts.element.val();
 
-				opts.element.val(value.replace(value.substring(start, end), ''));
+			if ($lookup.hasAttribute('hidden'))
+				$lookup.removeAttribute('hidden');
 
-				hideLookup();
-			}
+			const bounding = $lookup.getBoundingClientRect();
+			if (!(bounding.top >= 0 &&
+				bounding.left >= 0 &&
+				bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+				bounding.right <= (window.innerWidth || document.documentElement.clientWidth)))
+				$lookup.style.top = parseInt($lookup.style.top) - 10 - $lookup.clientHeight + 'px';
 
-			function onHover(event: Any) {
-				const $el = event.target.closest('.mention-li-nt');
-				if ($el.classList.contains('active'))
-					return;
-
-				[...($lookup.firstElementChild as Any).children]
-					.filter(($el: Any) => $el.classList.contains('active'))
-					.forEach(($el: Any) => $el.classList.remove('active'));
-				$el.classList.add('active');
-			}
-
-			function processKey(event: Any) {
-				const code = event.key;
-				if (['ArrowUp', 'ArrowDown', 'Enter'].indexOf(code) == -1 || $lookup.hasAttribute('hidden'))
-					return;
-
-				event.preventDefault();
-				if (code == 'Enter')
-					return ($lookup.querySelector('.active') as Any).click();
-
-				const $children = [...($lookup.firstElementChild as Any).children];
-				const curr = $children.findIndex(($el: Any) => $el.classList.contains('active'));
-				$children[curr].classList.remove('active');
-
-				const $next = $children[($children.length + curr + (code == 'ArrowUp' ? -1 : 1)) % $children.length];
-				$next.classList.add('active');
-				$next.scrollIntoView(false);
-
-				return undefined;
-			}
+			return undefined;
 		}
-	} as Any;
-}(sceditor));
+
+		function hideLookup() {
+			if (!$lookup.hasAttribute('hidden'))
+				$lookup.setAttribute('hidden', 'true');
+		}
+
+		function onClick(event: Any) {
+			const deleteItem = event.target.classList.contains('mention-li-nt')
+				? event.target
+				: event.target.parentElement;
+
+			opts.onclick(deleteItem.dataset);
+
+			const value = opts.element.val();
+
+			opts.element.val(value.replace(value.substring(start, end), ''));
+
+			hideLookup();
+		}
+
+		function onHover(event: Any) {
+			const $el = event.target.closest('.mention-li-nt');
+			if ($el.classList.contains('active'))
+				return;
+
+			[...($lookup.firstElementChild as Any).children]
+				.filter(($el: Any) => $el.classList.contains('active'))
+				.forEach(($el: Any) => $el.classList.remove('active'));
+			$el.classList.add('active');
+		}
+
+		function processKey(event: Any) {
+			const code = event.key;
+			if (['ArrowUp', 'ArrowDown', 'Enter'].indexOf(code) == -1 || $lookup.hasAttribute('hidden'))
+				return;
+
+			event.preventDefault();
+			if (code == 'Enter')
+				return ($lookup.querySelector('.active') as Any).click();
+
+			const $children = [...($lookup.firstElementChild as Any).children];
+			const curr = $children.findIndex(($el: Any) => $el.classList.contains('active'));
+			$children[curr].classList.remove('active');
+
+			const $next = $children[($children.length + curr + (code == 'ArrowUp' ? -1 : 1)) % $children.length];
+			$next.classList.add('active');
+			$next.scrollIntoView(false);
+
+			return undefined;
+		}
+	}
+} as Any;

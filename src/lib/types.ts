@@ -4,10 +4,11 @@ import type * as dom from './dom.js';
 /**
  * Shared type declarations used across the SCEditor library.
  *
- * Plugins, formats and icon sets are dynamically registered onto a global
- * `sceditor` object at runtime (see src/types/global.d.ts) rather than
- * imported, so the interfaces below describe duck-typed contracts enforced
- * by the runtime (`'x' in obj` checks), not real inheritance.
+ * Plugins, formats and icon sets (src/plugins/**, src/formats/**,
+ * src/icons/**) are real ES modules that dynamically register themselves
+ * onto `PluginManager.plugins`/`SCEditor.formats`/`SCEditor.icons` at import
+ * time, so the interfaces below describe duck-typed contracts enforced by
+ * the runtime (`'x' in obj` checks), not real inheritance.
  */
 
 export interface CodeLanguageOption {
@@ -276,10 +277,10 @@ export interface SCEditorCommandStatic {
 
 /**
  * Shape of the `window.sceditor`/global `sceditor` object created by
- * src/sceditor.js. Referenced by the legacy global-style scripts
- * (src/formats/**, src/icons/**, src/plugins/**, languages/**) via the
- * ambient `sceditor` declared in src/types/global.d.ts, since those files
- * are plain ES scripts (no imports) that mutate this object at load time.
+ * src/sceditor.js. Referenced by languages/** and tests/manual/** (still
+ * plain scripts, no imports) via the ambient `sceditor` declared in
+ * src/types/global.d.ts; formats/icons/plugins register onto the underlying
+ * `SCEditor`/`PluginManager` registries directly via real imports instead.
  */
 export interface SCEditorGlobal {
 	command: SCEditorCommandStatic;

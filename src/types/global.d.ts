@@ -10,10 +10,12 @@ import type { SCEditorInstance, SCEditorGlobal } from '../lib/types.js';
  *    retrieve it.
  *
  * Also declares the `sceditor` global itself: src/sceditor.js sets
- * `window.sceditor = {...}` and the legacy global-style scripts
- * (src/formats/**, src/icons/**, src/plugins/**, languages/**) are plain
- * scripts (no imports) that read/mutate it as an ambient global at load
- * time, relying on script load order rather than a module graph.
+ * `window.sceditor = {...}`. src/formats/**, src/icons/** and src/plugins/**
+ * are real ES modules that import SCEditor/PluginManager/lib helpers
+ * directly rather than touching this ambient global - only languages/** and
+ * tests/manual/** are still plain scripts (no imports) that read/mutate
+ * `sceditor` as an ambient global at load time, relying on script load order
+ * rather than a module graph.
  */
 
 /**

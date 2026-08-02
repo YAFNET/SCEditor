@@ -19,7 +19,19 @@ import * as dom from './lib/dom.js';
 import * as utils from './lib/utils.js';
 import defaultCommands from './lib/defaultCommands.js';
 import defaultOptions from './lib/defaultOptions.js';
-import type { SCEditorInstance, SCEditorOptions } from './lib/types.js';
+import type { SCEditorInstance, SCEditorOptions, SCEditorGlobal } from './lib/types.js';
+
+// Built-in formats, icon packs and plugins. Importing them here (for their
+// registration side effects on SCEditor.formats/icons and
+// PluginManager.plugins) is what pulls them into the sceditor.min.js bundle
+// - see scripts/build.mjs. Order matches the old build.mjs legacyFiles list.
+import './formats/bbcode.js';
+import './icons/fontawesome.js';
+import './plugins/alternative-lists.js';
+import './plugins/dragdrop.js';
+import './plugins/undo.js';
+import './plugins/plaintext.js';
+import './plugins/mentions.js';
 
 // SCEditor is a constructor function using a `this: SCEditorInstance`
 // parameter (not a real TS class), so `new SCEditor(...)` has no construct
@@ -29,7 +41,10 @@ const SCEditorCtor = SCEditor as unknown as new (
 	userOptions: Partial<SCEditorOptions>
 ) => SCEditorInstance;
 
-window.sceditor = {
+// Assigned to `window.sceditor` below for drop-in `<script>` usage (the
+// iife/umd dist builds - see scripts/build.mjs) and also exported as the
+// default export for ESM/bundler consumers of the es build.
+const sceditorApi: SCEditorGlobal = {
 	command: SCEditor.command,
 	commands: defaultCommands,
 	defaultOptions: defaultOptions,
@@ -69,6 +84,9 @@ window.sceditor = {
 	},
 	locale: SCEditor.locale,
 	icons: SCEditor.icons,
+	// Registered by src/formats/bbcode.js as a static helper, not part of
+	// the generic Format contract - see SCEditorGlobal in lib/types.js.
+	BBCodeParser: (SCEditor as unknown as { BBCodeParser: unknown }).BBCodeParser,
 	utils: {
 		each: utils.each,
 		isEmptyObject: utils.isEmptyObject,
@@ -94,3 +112,7 @@ window.sceditor = {
 		return textarea._sceditor;
 	}
 };
+
+window.sceditor = sceditorApi;
+
+export default sceditorApi;

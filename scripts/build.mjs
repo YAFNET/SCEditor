@@ -3,9 +3,12 @@
  *
  * Replaces the old Gruntfile.js pipeline:
  *  - sass -> postcss (autoprefixer + cssnano + banner)   => dist/sceditor.min.css
- *  - vite (rollup) bundles src/sceditor.ts as an IIFE, then that bundle is
- *    concatenated with the legacy global-style plugin/format/icon scripts
- *    and minified together with terser                  => dist/sceditor.min.js(.map)
+ *  - vite (rollup) bundles src/sceditor.ts - which imports the built-in
+ *    formats/icons/plugins as ES modules - into iife/es/umd variants, each
+ *    minified with terser:
+ *      iife => dist/sceditor.min.js(.map)          (drop-in <script> global)
+ *      es   => dist/sceditor.esm.min.js(.map)       (native <script type=module>/bundlers)
+ *      umd  => dist/sceditor.umd.min.js(.map)       (CommonJS/AMD/global fallback)
  *  - each languages/*.js file is minified individually    => dist/languages/*.js(.map)
  */
 import { rm, mkdir, readFile, writeFile, cp } from 'node:fs/promises';
@@ -26,23 +29,10 @@ const distDir = path.join(rootDir, 'dist');
 const pkg = JSON.parse(await readFile(path.join(rootDir, 'package.json'), 'utf8'));
 const banner = `/* SCEditor v${pkg.version} | (C) 2017-${new Date().getFullYear()}, Sam Clarke | sceditor.com/license */\n`;
 
-// Legacy global-style scripts concatenated onto the core bundle, in this
-// exact order, then minified together (mirrors the old uglify:build config).
-// These are .ts files type-stripped (not bundled - they're plain scripts,
-// not modules) before being handed to Terser, which can't parse TypeScript.
-const legacyFiles = [
-	'src/formats/bbcode.ts',
-	'src/icons/fontawesome.ts',
-	'src/plugins/alternative-lists.ts',
-	'src/plugins/dragdrop.ts',
-	'src/plugins/undo.ts',
-	'src/plugins/plaintext.ts',
-	'src/plugins/mentions.ts'
-];
-
-// Legacy scripts have no imports/exports, so this just type-strips them via
-// vite/rolldown (the TypeScript package no longer ships an in-process
-// transpile API - see https://github.com/microsoft/typescript-go).
+// languages/*.ts files are plain global-style scripts (no imports/exports,
+// loaded individually and opt-in - see buildLanguages()), so this just
+// type-strips them via vite/rolldown (the TypeScript package no longer
+// ships an in-process transpile API - see https://github.com/microsoft/typescript-go).
 async function transpileTsFiles(files) {
 	const result = await viteBuild({
 		root: rootDir,
@@ -103,7 +93,12 @@ async function copyContent() {
 	});
 }
 
-async function bundleCoreJs() {
+// src/sceditor.ts has a default export (for the es/umd builds) as well as
+// its `window.sceditor = ...` side effect (kept for iife/umd drop-in
+// <script> usage). Using `build.lib` (rather than a plain `rollupOptions.input`
+// app-style build) is what makes Vite/rolldown treat the entry's export as
+// a real library export instead of tree-shaking it away as unused.
+async function bundleCoreJs(format) {
 	const result = await viteBuild({
 		root: rootDir,
 		configFile: false,
@@ -111,9 +106,11 @@ async function bundleCoreJs() {
 		build: {
 			write: false,
 			minify: false,
-			rollupOptions: {
-				input: path.join(rootDir, 'src/sceditor.ts'),
-				output: { format: 'iife' }
+			lib: {
+				entry: path.join(rootDir, 'src/sceditor.ts'),
+				name: 'sceditor',
+				formats: [format],
+				fileName: () => 'sceditor.js'
 			}
 		}
 	});
@@ -124,24 +121,14 @@ async function bundleCoreJs() {
 	return chunk.code;
 }
 
-async function buildJs() {
-	const [coreCode, legacyCode] = await Promise.all([
-		bundleCoreJs(),
-		transpileTsFiles(legacyFiles)
-	]);
-
-	const files = { 'sceditor.min.js': coreCode };
-
-	for (const file of legacyFiles) {
-		files[`../${file}`] = legacyCode.get(file);
-	}
-
-	const minified = await minify(files, {
+async function minifyAndWrite(code, outName, { module = false } = {}) {
+	const minified = await minify({ [outName]: code }, {
+		module,
 		compress: true,
 		mangle: true,
 		sourceMap: {
-			filename: 'sceditor.min.js',
-			url: 'sceditor.min.js.map',
+			filename: outName,
+			url: `${outName}.map`,
 			includeSources: true
 		},
 		format: {
@@ -150,8 +137,22 @@ async function buildJs() {
 		}
 	});
 
-	await writeFile(path.join(distDir, 'sceditor.min.js'), minified.code);
-	await writeFile(path.join(distDir, 'sceditor.min.js.map'), minified.map);
+	await writeFile(path.join(distDir, outName), minified.code);
+	await writeFile(path.join(distDir, `${outName}.map`), minified.map);
+}
+
+async function buildJs() {
+	const [iifeCode, esCode, umdCode] = await Promise.all([
+		bundleCoreJs('iife'),
+		bundleCoreJs('es'),
+		bundleCoreJs('umd')
+	]);
+
+	await Promise.all([
+		minifyAndWrite(iifeCode, 'sceditor.min.js'),
+		minifyAndWrite(esCode, 'sceditor.esm.min.js', { module: true }),
+		minifyAndWrite(umdCode, 'sceditor.umd.min.js')
+	]);
 }
 
 async function buildLanguages() {

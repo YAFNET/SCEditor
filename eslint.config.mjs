@@ -186,7 +186,10 @@ export default [
 		}
 	},
 
-	// TypeScript replacements for the legacy global-style scripts above.
+	// Built-in formats/icons/plugins - real ES modules (import SCEditor/dom/
+	// utils/etc. directly instead of duck-typing an ambient `sceditor`
+	// global), still kept loosely checked style-wise like their old
+	// standalone eslint.config.mjs overrides.
 	...tseslint.config({
 		files: ['src/formats/**/*.ts', 'src/icons/**/*.ts', 'src/plugins/**/*.ts'],
 		extends: [tseslint.configs.recommended],
@@ -196,7 +199,7 @@ export default [
 			},
 
 			parserOptions: {
-				sourceType: 'script'
+				sourceType: 'module'
 			}
 		},
 
