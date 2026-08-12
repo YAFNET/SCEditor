@@ -893,7 +893,7 @@ export function removeWhiteSpace(root: HTMLElement): void {
 			// Strip trailing whitespace
 			if (!next || !isInline(next)) {
 				nodeValue = nodeValue.replace(
-					preserveNewLines ? /[\t ]+$/ : /[\t\n\r ]+$/,
+					preserveNewLines ? /(?<![\t ])[\t ]+$/ : /(?<![\t\n\r ])[\t\n\r ]+$/,
 					''
 				);
 			}

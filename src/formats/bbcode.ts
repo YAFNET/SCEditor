@@ -814,7 +814,7 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 
 				content = this.elementToBbcode(element);
 
-				author = `=${author.replace(/(^\s+|\s+$)/g, '')}`;
+				author = `=${author.trim()}`;
 
 				if (cite) {
 					element.insertBefore(cite, element.firstChild);
