@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YAFMET/SCEditor.git"
+    "url": "git://github.com/YAFMET/SCEditor.git"
   },
   "keywords": [
     "WYSIWYG",
