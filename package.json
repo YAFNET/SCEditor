@@ -18,6 +18,7 @@
     "LICENSE.md",
     "README.md"
   ],
+  "type": "module",
   "main": "dist/sceditor.umd.min.js",
   "module": "dist/sceditor.esm.min.js",
   "unpkg": "dist/sceditor.min.js",
@@ -33,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yafnet/SCEditor.git"
+    "url": "git+https://github.com/yafnet/SCEditor.git"
   },
   "keywords": [
     "WYSIWYG",
