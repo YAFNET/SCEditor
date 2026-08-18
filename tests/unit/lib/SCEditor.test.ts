@@ -305,6 +305,51 @@ describe('lib/SCEditor', () => {
 	});
 
 
+	it('toggleSourceMode() preserves the caret position - WYSIWYG to source', () => {
+		const iframe = sceditor.getContentAreaContainer();
+		const body = sceditor.getBody();
+		const textNode = body.firstChild.firstChild;
+		const range = rangy.createRange(body.ownerDocument);
+		const sel = rangy.getSelection(iframe);
+		const offset = textNode.nodeValue.indexOf('brown');
+
+		range.setStart(textNode, offset);
+		range.collapse(true);
+		sel.setSingleRange(range);
+
+		sceditor.toggleSourceMode();
+
+		expect(sceditor.sourceMode()).toBe(true);
+
+		const sourceEditor = sceditor.getSourceEditor();
+		expect(sourceEditor.selectionStart).toBe(sourceEditor.selectionEnd);
+		expect(sourceEditor.value.slice(sourceEditor.selectionStart))
+			.toBe('brown fox jumps over the lazy dog.<br></p>');
+	});
+
+	it('toggleSourceMode() preserves the caret position - source to WYSIWYG', () => {
+		sceditor.sourceMode(true);
+		sceditor.val('<p>The quick brown fox jumps over the lazy dog.<br /></p>');
+
+		const sourceEditor = sceditor.getSourceEditor();
+		const pos = sourceEditor.value.indexOf('brown');
+
+		sceditor.sourceEditorCaret({ start: pos, end: pos });
+
+		sceditor.toggleSourceMode();
+
+		expect(sceditor.sourceMode()).toBe(false);
+
+		const range = sceditor.getRangeHelper().selectedRange();
+		const body = sceditor.getBody();
+		const textNode = body.firstChild.firstChild;
+
+		expect(range.collapsed).toBe(true);
+		expect(range.startContainer).toBe(textNode);
+		expect(textNode.nodeValue.slice(range.startOffset))
+			.toBe('brown fox jumps over the lazy dog.');
+	});
+
 	it('sourceEditorInsertText()', () => { // jsdom: .sceditor-container not rendered
 		const sourceEditor = document.querySelector('.sceditor-container textarea');
 

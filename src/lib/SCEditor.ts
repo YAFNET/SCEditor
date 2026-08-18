@@ -2182,6 +2182,71 @@ export default function SCEditor(
 	} as SCEditorInstance['sourceMode'];
 
 	/**
+	 * Marker inserted into the content while it's converted between the
+	 * WYSIWYG and source formats when switching modes, so the caret can
+	 * be found again afterwards and placed in the equivalent position.
+	 *
+	 * Must not contain zero width spaces as those get stripped by
+	 * dom.removeWhiteSpace() during the HTML to BBCode conversion.
+	 * @private
+	 */
+	const caretMarker = 'sce-caret-marker-4f9c7a2e';
+
+	/**
+	 * Inserts the caret marker into the WYSIWYG editor at the current
+	 * caret/selection position.
+	 *
+	 * @return The inserted marker text node, or null if there's
+	 * currently no selection to mark.
+	 * @private
+	 */
+	function insertWysiwygCaretMarker(): Text | null {
+		const range = (rangeHelper as RangeHelperInstance).selectedRange();
+
+		if (!range) {
+			return null;
+		}
+
+		const marker = wysiwygDocument.createTextNode(caretMarker);
+		const markerRange = range.cloneRange();
+
+		markerRange.collapse(true);
+		markerRange.insertNode(marker);
+
+		return marker;
+	}
+
+	/**
+	 * Finds the caret marker in the WYSIWYG editor, removes it and
+	 * places the caret where it was found.
+	 * @private
+	 */
+	function restoreWysiwygCaretFromMarker(): void {
+		const walker = wysiwygDocument.createTreeWalker(
+			wysiwygBody, NodeFilter.SHOW_TEXT
+		);
+		let node: Node | null;
+
+		while ((node = walker.nextNode())) {
+			const text = node.nodeValue || '';
+			const index = text.indexOf(caretMarker);
+
+			if (index > -1) {
+				node.nodeValue = text.slice(0, index) +
+					text.slice(index + caretMarker.length);
+
+				const range = wysiwygDocument.createRange();
+				range.setStart(node, index);
+				range.collapse(true);
+
+				(rangeHelper as RangeHelperInstance).selectRange(range);
+				currentSelection = range;
+				return;
+			}
+		}
+	}
+
+	/**
 	 * Switches between the WYSIWYG and source modes
 	 *
 	 * @function
@@ -2197,18 +2262,44 @@ export default function SCEditor(
 			return;
 		}
 
-		if (!isInSourceMode) {
-			(rangeHelper as RangeHelperInstance).saveRange();
-			(rangeHelper as RangeHelperInstance).clear();
-		}
+		// Mark the current caret position before anything is touched so
+		// it can be found again after the content has been round-tripped
+		// through the format converter.
+		const wysiwygMarker = isInSourceMode ?
+			null : insertWysiwygCaretMarker();
+		const sourceCaretPos = isInSourceMode ?
+			sourceEditor.selectionStart : -1;
 
 		currentSelection = null;
 		base.blur();
 
 		if (isInSourceMode) {
-			base.setWysiwygEditorValue(base.getSourceEditorValue());
+			const value = sourceEditor.value;
+			const markedSource = value.slice(0, sourceCaretPos) +
+				caretMarker + value.slice(sourceCaretPos);
+			const markedHtml = 'toHtml' in format && format.toHtml ?
+				format.toHtml(markedSource) : markedSource;
+
+			base.setWysiwygEditorValue(markedHtml);
+			restoreWysiwygCaretFromMarker();
 		} else {
-			base.setSourceEditorValue(base.getWysiwygEditorValue());
+			const markedSource = base.getWysiwygEditorValue();
+
+			if (wysiwygMarker && wysiwygMarker.parentNode) {
+				wysiwygMarker.parentNode.removeChild(wysiwygMarker);
+			}
+
+			const caretPos = markedSource.indexOf(caretMarker);
+			const source = caretPos > -1 ?
+				markedSource.slice(0, caretPos) +
+					markedSource.slice(caretPos + caretMarker.length) :
+				markedSource;
+
+			base.setSourceEditorValue(source);
+
+			if (caretPos > -1) {
+				sourceEditor.setSelectionRange(caretPos, caretPos);
+			}
 		}
 
 		dom.toggle(sourceEditor);
