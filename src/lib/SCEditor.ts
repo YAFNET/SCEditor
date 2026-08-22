@@ -607,6 +607,7 @@ export default function SCEditor(
 
 		dom.attr(sourceEditor, 'title', 'source');
 		dom.attr(sourceEditor, 'name', 'source');
+		dom.addClass(sourceEditor, 'font-monospace');
 
 		// Add the editor to the container
 		dom.appendChild(editorContainer, wysiwygEditor);
