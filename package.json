@@ -61,8 +61,8 @@
     "update-deps": "set npm_config_allow_scripts=&& npm-check -y"
   },
   "devDependencies": {
-    "@vitest/browser": "^5.0.1",
-    "@vitest/browser-playwright": "^5.0.1",
+    "@vitest/browser": "^5.0.2",
+    "@vitest/browser-playwright": "^5.0.2",
     "autoprefixer": "^10.6.1",
     "cssnano": "^9.0.5",
     "globals": "^17.12.0",
@@ -78,7 +78,7 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.1",
-    "vitest": "^5.0.1",
+    "vitest": "^5.0.2",
     "webpack": "^5.111.1",
     "webpack-dev-server": "^6.0.0"
   },
