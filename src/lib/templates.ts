@@ -38,7 +38,7 @@ const _templates: Record<string, string> = {
 		'data-font="{font}"><font face="{font}">{font}</font></a>',
 
 	sizeOpt: '<a class="sceditor-fontsize-option dropdown-item" data-size="{size}" ' +
-		'href="#"><font size="{size}">{size}</font></a>',
+		'href="#"><span style="font-size:{percent}%">{label}</span></a>',
 
 	albums:
 		'<form class="m-3"><div id="AlbumsListBox" class="content">' +

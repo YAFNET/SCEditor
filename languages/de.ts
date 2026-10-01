@@ -23,6 +23,7 @@
 		'Justify': 'Blocksatz',
 		'Font Name': 'Schriftname',
 		'Font Size': 'Schriftgröße',
+		'Default': 'Standard',
 		'Font Color': 'Schriftfarbe',
 		'Remove Formatting': 'Formatierung entfernen',
 		'Cut': 'Ausschneiden',

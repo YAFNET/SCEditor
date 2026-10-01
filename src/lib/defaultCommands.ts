@@ -1,6 +1,7 @@
 import * as dom from './dom.js';
 import * as escape from './escape.js';
 import _tmpl from './templates.js';
+import { sizeToPercent } from './fontSizes.js';
 import type { Command, SCEditorLike } from './types.js';
 
 interface BootstrapModal {
@@ -260,7 +261,9 @@ const defaultCmds: Record<string, Command> = {
 				dom.appendChild(content,
 					_tmpl('sizeOpt',
 						{
-							size: i
+							size: i,
+							percent: sizeToPercent(i),
+							label: i === 5 ? `${i} (${editor._('Default')})` : i
 						},
 						true));
 			}
@@ -273,7 +276,10 @@ const defaultCmds: Record<string, Command> = {
 			(defaultCmds.size._dropDown as DropDownFn)(editor,
 				caller as HTMLElement,
 				function (fontSize: string) {
-					editor.execCommand('fontsize', fontSize);
+					editor.wysiwygEditorInsertHtml(
+						`<span style="font-size:${sizeToPercent(fontSize)}%">`,
+						'</span>'
+					);
 				} as DropDownCallback);
 		},
 		tooltip: 'Font Size'

@@ -249,4 +249,16 @@ describe('plugins/bbcode - Matching', () => {
 		sceditor.formats.bbcode.remove('tag');
 	});
 
+	it('Should convert percentage font-size spans back to size 1-7', () => {
+		const mockEditor = { opts: defaultOptions };
+		(new sceditor.formats.bbcode()).init.call(mockEditor);
+
+		expect(mockEditor.toBBCode('<span style="font-size:50%">a</span>')).toBe('[size=1]a[/size]');
+		expect(mockEditor.toBBCode('<span style="font-size:90%">a</span>')).toBe('[size=4]a[/size]');
+		expect(mockEditor.toBBCode('<span style="font-size:120%">a</span>')).toBe('[size=6]a[/size]');
+		expect(mockEditor.toBBCode('<span style="font-size:140%">a</span>')).toBe('[size=7]a[/size]');
+		expect(mockEditor.toBBCode('<span style="font-size:115%">a</span>'), 'Nearest').toBe('[size=6]a[/size]');
+		expect(mockEditor.toBBCode('<font size="3">a</font>'), 'Legacy font tag').toBe('[size=3]a[/size]');
+	});
+
 });

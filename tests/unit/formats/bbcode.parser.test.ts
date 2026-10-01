@@ -442,7 +442,10 @@ describe('formats/bbcode#Parser - To HTML', () => {
 	});
 
 	it('Size', () => {
-		expect(parser.toHTML('[size=4]test[/size]'), 'Normal').toBeHtmlEqual('<div><font size="4">test</font></div>\n');
+		expect(parser.toHTML('[size=4]test[/size]'), 'Normal').toBeHtmlEqual('<div><span style="font-size:90%">test</span></div>\n');
+		expect(parser.toHTML('[size=1]test[/size]'), 'Min').toBeHtmlEqual('<div><span style="font-size:50%">test</span></div>\n');
+		expect(parser.toHTML('[size=7]test[/size]'), 'Max').toBeHtmlEqual('<div><span style="font-size:140%">test</span></div>\n');
+		expect(parser.toHTML('[size=99]test[/size]'), 'Clamped').toBeHtmlEqual('<div><span style="font-size:140%">test</span></div>\n');
 	});
 
 	it('Font colour', () => {

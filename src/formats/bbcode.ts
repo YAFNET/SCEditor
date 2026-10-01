@@ -15,6 +15,7 @@ import { entities as escapeEntities, uriScheme as escapeUriScheme } from '../lib
 import * as dom from '../lib/dom.js';
 import * as utils from '../lib/utils.js';
 import SCEditor from '../lib/SCEditor.js';
+import { sizeToPercent, percentToSize } from '../lib/fontSizes.js';
 
 interface BBCodeAttrs {
 	defaultattr?: string;
@@ -511,6 +512,13 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 			let fontSize = attr(element, 'size');
 			let size: Any = 2;
 
+			// Inline percentage sizes (from the [size] html output) map
+			// back to the closest 1-7 size
+			const inlineSize = element.style && element.style.fontSize;
+			if (!fontSize && inlineSize && inlineSize.indexOf('%') > -1) {
+				return `[size=${percentToSize(parseFloat(inlineSize))}]${content}[/size]`;
+			}
+
 			if (!fontSize) {
 				fontSize = css(element, 'fontSize');
 			}
@@ -544,7 +552,9 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 
 			return `[size=${size}]${content}[/size]`;
 		},
-		html: '<font size="{defaultattr}">{!0}</font>'
+		html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
+			return `<span style="font-size:${sizeToPercent(attrs.defaultattr)}%">${content}</span>`;
+		}
 	},
 	// END_COMMAND
 
