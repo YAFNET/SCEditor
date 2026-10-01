@@ -1062,7 +1062,7 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 
 			return `<div data-oembed-url="https://youtube.com/embed/${id}" data-youtube-url="${url
 			}" class="ratio ratio-16x9 border"><iframe src="https://youtube.com/embed/${id
-			}?hd=1"></iframe></div>`;
+			}?hd=1" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>`;
 		}
 	},
 	// END_COMMAND

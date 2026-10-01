@@ -429,7 +429,7 @@ export default function SCEditor(
 	 */
 	function sanitize(html: string): string {
 		const allowedTags = ['iframe'].concat(options.allowedTags);
-		const allowedAttrs = ['allowfullscreen', 'frameborder', 'target']
+		const allowedAttrs = ['allowfullscreen', 'frameborder', 'target', 'referrerpolicy']
 			.concat(options.allowedAttributes);
 
 		return domPurify.sanitize(html, {

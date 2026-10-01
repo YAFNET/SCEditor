@@ -122,7 +122,7 @@ const _templates: Record<string, string> = {
 		'<div class="ratio ratio-1x1 border" data-oembed-url="https://www.instagram.com/p/{id}" data-instagram-url="{url}"><iframe src="https://www.instagram.com/p/{id}/embed/captioned/"></iframe></div>',
 
 	youtube:
-		'<div data-oembed-url="https://youtube.com/embed/{id}" data-youtube-url="{url}" class="ratio ratio-16x9 border"><iframe src="https://youtube.com/embed/{id}?hd=1"></iframe></div>',
+		'<div data-oembed-url="https://youtube.com/embed/{id}" data-youtube-url="{url}" class="ratio ratio-16x9 border"><iframe src="https://youtube.com/embed/{id}?hd=1" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>',
 
 	vimeo:
 		'<div data-oembed-url="https://vimeo.com/{vimeoId}" data-vimeo-url="{url}" class="ratio ratio-16x9 border"><iframe src="https://player.vimeo.com/video/{vimeoId}?show_title=1&show_byline=1&show_portrait=1&fullscreen=1"></iframe></div>'
