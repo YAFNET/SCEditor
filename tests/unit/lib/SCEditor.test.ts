@@ -241,7 +241,19 @@ describe('lib/SCEditor', () => {
 		));
 	});
 
-	it('wysiwygEditorInsertHtml() - Start and end', () => { // jsdom: rangy.getIframeSelection not supported
+	it('wysiwygEditorInsertHtml() - Start and end', async () => { // jsdom: rangy.getIframeSelection not supported
+		let valueChangedFired = false;
+		let nodeChangedFired = false;
+		const onValueChanged = () => {
+			valueChangedFired = true;
+		};
+		const onNodeChanged = () => {
+			nodeChangedFired = true;
+		};
+
+		sceditor.bind('valuechanged', onValueChanged);
+		sceditor.bind('nodechanged', onNodeChanged);
+
 		sceditor.focus();
 		const iframe = sceditor.getContentAreaContainer();
 		const body = sceditor.getBody();
@@ -260,6 +272,65 @@ describe('lib/SCEditor', () => {
 			'<p>The quick <b>brown|</b> fox ' +
 				'jumps over the lazy dog.<br /></p>'
 		));
+
+		// Allow event handlers to fire
+		await new Promise(resolve => setTimeout(resolve, 50));
+
+		sceditor.unbind('valuechanged', onValueChanged);
+		sceditor.unbind('nodechanged', onNodeChanged);
+
+		expect(valueChangedFired, 'valuechanged event should fire after bold formatting').toBe(true);
+		expect(nodeChangedFired, 'nodechanged event should fire after bold formatting').toBe(true);
+	});
+
+	it('Bold formatting via toolbar triggers valuechanged', async () => {
+		let valueChangedFired = false;
+		let nodeChangedFired = false;
+		const onValueChanged = () => {
+			valueChangedFired = true;
+		};
+		const onNodeChanged = () => {
+			nodeChangedFired = true;
+		};
+
+		sceditor.bind('valuechanged', onValueChanged);
+		sceditor.bind('nodechanged', onNodeChanged);
+
+		sceditor.focus();
+		const iframe = sceditor.getContentAreaContainer();
+		const body = sceditor.getBody();
+		const range = rangy.createRange(body.ownerDocument);
+		const sel = rangy.getSelection(iframe);
+
+		range.setStart(body.firstChild.firstChild, 10);
+		range.setEnd(body.firstChild.firstChild, 15);
+		sel.setSingleRange(range);
+
+		sceditor.execCommand('bold');
+
+		expect(body.firstChild).toBeNodesEqual(utils.htmlToNode(
+			'<p>The quick <b>brown</b> fox ' +
+				'jumps over the lazy dog.<br /></p>'
+		));
+
+		// This is the easiest way to make sure the cursor is still in the
+		// correct position.
+		sceditor.wysiwygEditorInsertHtml('|');
+
+		// Did it overwrite the selection?
+		expect(body.firstChild).toBeNodesEqual(utils.htmlToNode(
+			'<p>The quick <b>|</b> fox ' +
+				'jumps over the lazy dog.<br /></p>'
+		));
+
+		// Allow event handlers to fire
+		await new Promise(resolve => setTimeout(resolve, 50));
+
+		sceditor.unbind('valuechanged', onValueChanged);
+		sceditor.unbind('nodechanged', onNodeChanged);
+
+		expect(valueChangedFired, 'valuechanged event should fire after bold formatting').toBe(true);
+		expect(nodeChangedFired, 'nodechanged event should fire after bold formatting').toBe(true);
 	});
 
 
