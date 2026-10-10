@@ -850,9 +850,7 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 	// START_COMMAND: Code
 	code: {
 		tags: {
-			code: {
-				class: null
-			}
+			code: null
 		},
 		isInline: false,
 		allowedChildren: ['#', '#newline'],
@@ -860,13 +858,22 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 			let codeLanguage;
 
 			if (!is(element, 'code') || !(codeLanguage = attr(element, 'class'))) {
-				codeLanguage = element.className.replace('lang-', '');
+				codeLanguage = element.className;
 			}
 
-			return `[code=${codeLanguage.replace('lang-', '')}]${content}[/code]`;
+			codeLanguage = (codeLanguage || '').replace('lang-', '');
+
+			return codeLanguage
+				? `[code=${codeLanguage}]${content}[/code]`
+				: `[code]${content}[/code]`;
 		},
-		html:
-			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-{defaultattr}">{0}</code></pre>'
+		html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
+			const codeClass = attrs.defaultattr
+				? ` class="lang-${escapeEntities(attrs.defaultattr, true)}"`
+				: '';
+
+			return `<pre class="border border-danger rounded m-2 p-2"><code${codeClass}>${content}</code></pre>`;
+		}
 	},
 
 	// END_COMMAND
@@ -884,13 +891,22 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 			let type;
 
 			if (!(type = attr(element, 'class'))) {
-				type = element.className.replace('alert alert-', '');
+				type = element.className;
 			}
 
-			return `[note=${type.replace('alert alert-', '')}]${content}[/note]`;
+			type = (type || '').replace('alert alert-', '').replace(/^alert$/, '');
+
+			return type
+				? `[note=${type}]${content}[/note]`
+				: `[note]${content}[/note]`;
 		},
-		html:
-			'<div class="alert alert-{defaultattr}" role="alert">{0}</div>'
+		html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
+			const typeClass = attrs.defaultattr
+				? ` alert-${escapeEntities(attrs.defaultattr, true)}`
+				: '';
+
+			return `<div class="alert${typeClass}" role="alert">${content}</div>`;
+		}
 	},
 
 	// END_COMMAND

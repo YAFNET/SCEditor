@@ -549,6 +549,9 @@ describe('formats/bbcode#Parser - To HTML', () => {
 		expect(parser.toHTML('[code=markup]Testing [b]test[/b][/code]'), 'Normal').toBeHtmlEqual(
 			'<pre class="border border-danger rounded m-2 p-2"><code class="lang-markup">Testing [b]test[/b]</code></pre>'
 		);
+		expect(parser.toHTML('[code]Testing 1.2.3....[/code]'), 'No language').toBeHtmlEqual(
+			'<pre class="border border-danger rounded m-2 p-2"><code>Testing 1.2.3....</code></pre>'
+		);
 	});
 
 	it('Left', () => {

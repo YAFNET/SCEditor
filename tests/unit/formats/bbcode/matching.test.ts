@@ -261,4 +261,16 @@ describe('plugins/bbcode - Matching', () => {
 		expect(mockEditor.toBBCode('<font size="3">a</font>'), 'Legacy font tag').toBe('[size=3]a[/size]');
 	});
 
+	it('Should round-trip code and note without a default attribute', () => {
+		const mockEditor = { opts: defaultOptions };
+		(new sceditor.formats.bbcode()).init.call(mockEditor);
+
+		const roundTrip = (bbcode) => mockEditor.toBBCode(mockEditor.fromBBCode(bbcode)).trim();
+
+		expect(roundTrip('[code]a[/code]')).toBe('[code]a[/code]');
+		expect(roundTrip('[code=markup]a[/code]')).toBe('[code=markup]a[/code]');
+		expect(roundTrip('[note]a[/note]')).toBe('[note]a[/note]');
+		expect(roundTrip('[note=info]a[/note]')).toBe('[note=info]a[/note]');
+	});
+
 });
