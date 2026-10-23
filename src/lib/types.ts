@@ -74,6 +74,12 @@ export interface SCEditorInstance {
 	readOnly(): boolean;
 	readOnly(readOnly: boolean): SCEditorInstance;
 
+	/**
+	 * Sanitizes HTML using this editor's DOMPurify config. Not part of the
+	 * stable public API.
+	 */
+	__UNSTABLE__sanitize(html: string): string;
+
 	rtl(): boolean;
 	rtl(rtl: boolean): SCEditorInstance;
 

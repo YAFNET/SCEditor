@@ -438,6 +438,9 @@ export default function SCEditor(
 		});
 	}
 
+	// eslint-disable-next-line camelcase
+	base.__UNSTABLE__sanitize = sanitize;
+
 	/**
 	* Loads a JavaScript file and returns a Promise for when it is loaded
 	*/
@@ -625,8 +628,14 @@ export default function SCEditor(
 
 		let styles = '';
 
+		if (!/^[a-z\-0-9 ]+$/i.test(options.charset as string)) {
+			options.charset = 'UTF-8';
+		}
+
 		(options.styles as string[]).forEach((style) => {
-			styles += _tmpl('style', { style: style });
+			if (domPurify.isValidAttribute('link', 'href', style)) {
+				styles += _tmpl('style', { style: escape.entities(style) });
+			}
 		});
 
 		wysiwygDocument.write(_tmpl('html', {
@@ -1080,7 +1089,7 @@ export default function SCEditor(
 	 */
 	base.readOnly = function (readOnly?: boolean) {
 		if (typeof readOnly !== 'boolean') {
-			return !sourceEditor.readOnly;
+			return sourceEditor.readOnly;
 		}
 
 		wysiwygBody.contentEditable = String(!readOnly);
@@ -3147,7 +3156,7 @@ export default function SCEditor(
 			'0': ')',
 			'-': '_',
 			'=': '+',
-			';': ': ',
+			';': ':',
 			'\'': '"',
 			',': '<',
 			'.': '>',

@@ -12,7 +12,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'match'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div title="not test" test="value"></div>'), 'Non-matching title').toBe('');
@@ -29,7 +29,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'match'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div title="not test" test="value"></div>'), 'Non-matching title').toBe('match');
@@ -46,7 +46,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'match'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div title="not test" test="value"></div>'), 'Non-matching title').toBe('match');
@@ -64,7 +64,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'match{0}'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div title="test" style="padding:1em"></div>')).toBe('matchmatch');
@@ -79,7 +79,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: true
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div style="padding:1em;margin:1em;"></div>')).toBe('passed');
@@ -95,7 +95,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div style="padding:1em;margin:1em;"></div>')).toBe('passed');
@@ -112,7 +112,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div style="padding:1em;margin:1em;"></div>')).toBe('passed');
@@ -129,7 +129,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div><span></span></div>')).toBe('xx');
@@ -144,7 +144,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(
@@ -161,7 +161,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: true
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(
@@ -183,7 +183,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'match{0}'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(
@@ -206,7 +206,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div style="font-weight: bold"></div>')).toBe('matched');
@@ -221,7 +221,7 @@ describe('plugins/bbcode - Matching', () => {
 			strictMatch: false
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div></div>'), 'No style attribute').toBe('');
@@ -240,7 +240,7 @@ describe('plugins/bbcode - Matching', () => {
 			format: 'tag({0})'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<div style="padding:1em"></div>')).toBe('tag(style)');
@@ -250,7 +250,7 @@ describe('plugins/bbcode - Matching', () => {
 	});
 
 	it('Should convert percentage font-size spans back to size 1-7', () => {
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		expect(mockEditor.toBBCode('<span style="font-size:50%">a</span>')).toBe('[size=1]a[/size]');
@@ -262,7 +262,7 @@ describe('plugins/bbcode - Matching', () => {
 	});
 
 	it('Should round-trip code and note without a default attribute', () => {
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		(new sceditor.formats.bbcode()).init.call(mockEditor);
 
 		const roundTrip = (bbcode) => mockEditor.toBBCode(mockEditor.fromBBCode(bbcode)).trim();

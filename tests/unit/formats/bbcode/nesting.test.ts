@@ -29,7 +29,7 @@ describe('plugins/bbcode - Nesting', () => {
 			html: '<inline>{0}</inline>'
 		});
 
-		const mockEditor = { opts: defaultOptions };
+		const mockEditor = { opts: defaultOptions, __UNSTABLE__sanitize: x => x };
 		const format = new sceditor.formats.bbcode;
 		format.init.call(mockEditor);
 

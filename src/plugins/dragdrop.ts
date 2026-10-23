@@ -100,6 +100,7 @@ PluginManager.plugins.dragdrop = function (this: Any) {
 
 			if (node) {
 				if (typeof html === 'string') {
+					html = editor.__UNSTABLE__sanitize(html);
 					node.insertAdjacentHTML('afterend', html);
 				}
 

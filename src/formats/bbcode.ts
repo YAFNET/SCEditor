@@ -2772,6 +2772,8 @@ function bbcodeFormat(this: Any) {
 		return toBBCode(element, hasCodeParent);
 	}
 
+	let sanitize: (html: string) => string;
+
 	/**
 	 * Initializer
 	 * @private
@@ -2793,6 +2795,7 @@ function bbcodeFormat(this: Any) {
 		// Add BBCode helper methods
 		this.toBBCode = base.toSource;
 		this.fromBBCode = base.toHtml;
+		sanitize = this.__UNSTABLE__sanitize;
 	};
 
 	/**
@@ -2821,7 +2824,7 @@ function bbcodeFormat(this: Any) {
 		const container = context.createElement('div');
 		const parser = new BBCodeParserCtor(base.opts.parserOptions);
 
-		container.innerHTML = html;
+		container.innerHTML = sanitize(html);
 		css(containerParent, 'visibility', 'hidden');
 		containerParent.appendChild(container);
 		context.body.appendChild(containerParent);

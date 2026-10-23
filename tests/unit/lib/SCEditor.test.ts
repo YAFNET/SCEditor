@@ -111,16 +111,21 @@ describe('lib/SCEditor', () => {
 	it('readOnly()', () => { // jsdom: iframe contentEditable not updated
 		const body = sceditor.getBody();
 
-		expect(sceditor.readOnly()).toStrictEqual(true);
+		const sourceEditor = sceditor.getSourceEditor();
+
+		expect(sceditor.readOnly()).toStrictEqual(false);
 		expect(body.contentEditable).toStrictEqual('true');
+		expect(sourceEditor.readOnly).toStrictEqual(false);
 
 		expect(sceditor.readOnly(true)).toBe(sceditor);
-		expect(sceditor.readOnly()).toStrictEqual(false);
+		expect(sceditor.readOnly()).toStrictEqual(true);
 		expect(body.contentEditable).toStrictEqual('false');
+		expect(sourceEditor.readOnly).toStrictEqual(true);
 
 		expect(sceditor.readOnly(false)).toBe(sceditor);
-		expect(sceditor.readOnly()).toStrictEqual(true);
+		expect(sceditor.readOnly()).toStrictEqual(false);
 		expect(body.contentEditable).toStrictEqual('true');
+		expect(sourceEditor.readOnly).toStrictEqual(false);
 	});
 
 
@@ -569,6 +574,23 @@ describe('lib/SCEditor', () => {
 		body.dispatchEvent(new Event('selectionchange'));
 
 		expect(body.innerHTML).toBeHtmlEqual(testHtml);
+	});
+
+
+	it('Invalid charset and styles options are ignored', () => {
+		reloadEditor({
+			charset: 'utf-8" /><script>alert(1)</script><meta x="',
+			styles: ['javascript:alert(1)', '/valid.css?a=1&b=2']
+		});
+
+		const head = sceditor.getBody().ownerDocument.head;
+		const links = head.querySelectorAll('link[rel="stylesheet"]');
+
+		expect(head.querySelector('script')).toBeNull();
+		expect(head.querySelector('meta[http-equiv]').getAttribute('content'))
+			.toBe('text/html;charset=UTF-8');
+		expect(links.length).toBe(1);
+		expect(links[0].getAttribute('href')).toBe('/valid.css?a=1&b=2');
 	});
 
 });
