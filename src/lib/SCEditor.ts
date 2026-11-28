@@ -180,6 +180,13 @@ export default function SCEditor(
 	let dropdown: HTMLDivElement | null;
 
 	/**
+	 * The toolbar button that opened the current dropdown
+	 *
+	 * @private
+	 */
+	let dropdownCaller: HTMLElement | null = null;
+
+	/**
 	 * If the user is currently composing text via IME
 	 */
 	let isComposing: boolean;
@@ -823,7 +830,12 @@ export default function SCEditor(
 				});
 				// Prevent editor losing focus when button clicked
 				dom.on(button, 'mousedown', function (e) {
-					base.closeDropDown();
+					// the dropdown of this button is closed by the click
+					// (a second click on a button closes its dropdown)
+					if (dropdownCaller !== button) {
+						base.closeDropDown();
+					}
+
 					e.preventDefault();
 				});
 
@@ -1444,12 +1456,12 @@ export default function SCEditor(
 		// first click for create second click for close
 		const dropDownClass = 'sceditor-' + name;
 
-		base.closeDropDown();
-
-		// Only close the dropdown if it was already open
-		if (dropdown && dom.hasClass(dropdown, dropDownClass)) {
+		if (dropdown && dropdownCaller === menuItem) {
+			base.closeDropDown(true);
 			return;
 		}
+
+		base.closeDropDown();
 
 		// Below the button, also when the toolbar wraps into several rows
 		const containerRect = editorContainer.getBoundingClientRect();
@@ -1490,6 +1502,14 @@ export default function SCEditor(
 		dom.on(dropdown, 'submit', function (e) {
 			e.preventDefault();
 		});
+		dom.on(dropdown, 'keydown', function (e) {
+			if ((e as KeyboardEvent).key === 'Escape') {
+				e.preventDefault();
+				base.closeDropDown(true);
+			}
+		});
+
+		dropdownCaller = menuItem;
 
 		if (dropdown) {
 			const first = dom.find(dropdown, 'input,textarea')[0] as HTMLElement | undefined;
@@ -1707,6 +1727,8 @@ export default function SCEditor(
 			dom.remove(dropdown);
 			dropdown = null;
 		}
+
+		dropdownCaller = null;
 
 		if (focus === true) {
 			base.focus();

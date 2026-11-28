@@ -8,6 +8,7 @@ describe('lib/SCEditor - dropdowns', () => {
 	const $fixture = document.getElementById('qunit-module-fixture');
 	let editor;
 	let submitted;
+	let style;
 
 	// records a form submit nobody stopped and stops it, so a failing
 	// test does not reload the test page
@@ -43,10 +44,19 @@ describe('lib/SCEditor - dropdowns', () => {
 		SCEditor.defaultOptions = defaultOptions;
 		submitted = false;
 		window.addEventListener('submit', recordSubmit);
+
+		// The layout of a Bootstrap page: positioned card and button groups
+		style = document.createElement('style');
+		style.textContent = '.sceditor-container{position:relative}' +
+			'.btn-group{position:relative;display:inline-flex}' +
+			'.sceditor-button{display:inline-block;width:40px;height:30px}' +
+			'.dropdown-menu{position:absolute}';
+		document.head.append(style);
 	});
 
 	afterEach(() => {
 		window.removeEventListener('submit', recordSubmit);
+		style.remove();
 
 		if (editor) {
 			editor.destroy();
@@ -83,15 +93,9 @@ describe('lib/SCEditor - dropdowns', () => {
 	});
 
 	it('a dialog opens below its button when the toolbar wraps and stays inside the editor', () => {
-		// The layout of a Bootstrap page: positioned card and button groups
-		const style = document.createElement('style');
-		style.textContent = '.sceditor-container{position:relative;width:240px!important}' +
-			'.btn-group{position:relative;display:inline-flex}' +
-			'.sceditor-button{display:inline-block;width:40px;height:30px}' +
-			'.dropdown-menu{position:absolute}';
-		document.head.append(style);
+		style.textContent += '.sceditor-container{width:240px!important}';
 
-		try {
+		{
 			createEditor({ toolbar: 'bold,italic,underline|strike,mark|youtube,email,link' });
 
 			const button = container().querySelector('.sceditor-button-link');
@@ -110,9 +114,34 @@ describe('lib/SCEditor - dropdowns', () => {
 			expect(Math.round(dropdownRect.top)).toBe(Math.round(buttonRect.bottom));
 			expect(dropdownRect.right).toBeLessThanOrEqual(containerRect.right);
 			expect(dropdownRect.left).toBeGreaterThanOrEqual(containerRect.left);
-		} finally {
-			style.remove();
 		}
+	});
+
+	it('a second click on the button closes its dialog', async () => {
+		createEditor();
+
+		const button = container().querySelector('.sceditor-button-link');
+
+		await userEvent.click(button);
+		expect(dropdown()).not.toBeNull();
+
+		await userEvent.click(button);
+		expect(dropdown()).toBeNull();
+
+		// a click on another button opens the other dialog
+		await userEvent.click(button);
+		await userEvent.click(container().querySelector('.sceditor-button-email'));
+		expect(dropdown().querySelector('#email')).not.toBeNull();
+	});
+
+	it('Escape closes the dialog', async () => {
+		createEditor();
+
+		open('link').querySelector('#link').focus();
+
+		await userEvent.keyboard('{Escape}');
+
+		expect(dropdown()).toBeNull();
 	});
 
 	it('Enter in the e-mail dialog inserts the address', async () => {
