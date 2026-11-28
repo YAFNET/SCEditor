@@ -347,6 +347,7 @@ export default function SCEditor(
 	let handleComposition: (e: Event) => void;
 	let handleEvent: (e: Event) => void;
 	let handleDocumentClick: (e: MouseEvent) => void;
+	let handleDropDownKeyDown: (e: KeyboardEvent) => void;
 	let loadScripts: () => void;
 	let updateToolBar: (disable?: boolean) => void;
 	let updateActiveButtons: () => void;
@@ -1420,6 +1421,7 @@ export default function SCEditor(
 			dom.remove(dropdown);
 		}
 
+		dom.off(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
 		dom.off(globalDoc, 'click', handleDocumentClick as EventListener);
 
 		const form = original.form;
@@ -1502,12 +1504,9 @@ export default function SCEditor(
 		dom.on(dropdown, 'submit', function (e) {
 			e.preventDefault();
 		});
-		dom.on(dropdown, 'keydown', function (e) {
-			if ((e as KeyboardEvent).key === 'Escape') {
-				e.preventDefault();
-				base.closeDropDown(true);
-			}
-		});
+		// before the key handler of Bootstrap dropdowns, which listens on
+		// the document in the capture phase
+		dom.on(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
 
 		dropdownCaller = menuItem;
 
@@ -1516,6 +1515,29 @@ export default function SCEditor(
 			if (first) {
 				first.focus();
 			}
+		}
+	};
+
+	/**
+	 * Handles the keys in an open dropdown: Escape closes it.
+	 *
+	 * The dropdown has the dropdown-menu class of Bootstrap but no
+	 * Bootstrap toggle button: the Escape and arrow key handler of
+	 * Bootstrap dropdowns threw an error for it (and stopped the arrow
+	 * keys in a select), so these keys do not get to it.
+	 * @private
+	 */
+	handleDropDownKeyDown = function (e) {
+		if (!dropdown || !dropdown.contains(e.target as Node)) {
+			return;
+		}
+
+		if (e.key === 'Escape') {
+			e.stopPropagation();
+			e.preventDefault();
+			base.closeDropDown(true);
+		} else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+			e.stopPropagation();
 		}
 	};
 
@@ -1728,6 +1750,7 @@ export default function SCEditor(
 			dropdown = null;
 		}
 
+		dom.off(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
 		dropdownCaller = null;
 
 		if (focus === true) {

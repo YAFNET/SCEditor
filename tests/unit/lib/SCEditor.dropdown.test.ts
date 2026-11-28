@@ -144,6 +144,37 @@ describe('lib/SCEditor - dropdowns', () => {
 		expect(dropdown()).toBeNull();
 	});
 
+	it('Escape and the arrow keys in a dialog do not reach the key handler of Bootstrap dropdowns', async () => {
+		createEditor({ toolbar: 'link,note' });
+
+		// Bootstrap listens for these keys in .dropdown-menu elements on
+		// the document in the capture phase
+		const reached = [];
+		const bootstrapHandler = (e) => {
+			if (e.target.closest && e.target.closest('.dropdown-menu')) {
+				reached.push(e.key);
+			}
+		};
+
+		document.addEventListener('keydown', bootstrapHandler, true);
+
+		try {
+			const select = open('note').querySelector('#type');
+			select.focus();
+
+			await userEvent.keyboard('{ArrowDown}');
+
+			open('link').querySelector('#link').focus();
+
+			await userEvent.keyboard('{Escape}');
+
+			expect(reached).toEqual([]);
+			expect(dropdown()).toBeNull();
+		} finally {
+			document.removeEventListener('keydown', bootstrapHandler, true);
+		}
+	});
+
 	it('Enter in the e-mail dialog inserts the address', async () => {
 		createEditor();
 
