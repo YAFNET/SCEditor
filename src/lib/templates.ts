@@ -60,13 +60,13 @@ const _templates: Record<string, string> = {
 			'</div> ' +
 			'<div class="mb-3"><label for="txt" class="form-label">{labelText}</label> ' +
 			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</div></form>',
 
 	pastetext:
 		'<form class="m-3"><div class="mb-3"><label for="txt" class="form-label">{label}</label> ' +
 			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</div></form>',
 
 	image:
@@ -74,14 +74,14 @@ const _templates: Record<string, string> = {
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
 			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
 			'<input type="text" id="des" class="form-control" /></div>' +
-		'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" /></form>',
+		'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button></form>',
 
 	email:
 		'<form class="m-3"><div class="mb-3"><label for="email" class="form-label">{label}</label> ' +
 			'<input type="text" id="email" dir="ltr" class="form-control" /></div>' +
 			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
 			'<input type="text" id="des" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</form>',
 
 	link:
@@ -89,30 +89,30 @@ const _templates: Record<string, string> = {
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
 			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
 			'<input type="text" id="des" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{ins}" /></form>',
+			'<button type="submit" class="btn btn-sm btn-primary button">{ins}</button></form>',
 
 	mediaMenu:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
 			'<input type="url" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</form>',
 
 	youtubeMenu:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</form>',
 
 	instagramMenu:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</form>',
 
 	facebookMenu:
 		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
 			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<input type="button" class="btn btn-sm btn-primary button" value="{insert}" />' +
+			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
 			'</form>',
 
 	facebook:

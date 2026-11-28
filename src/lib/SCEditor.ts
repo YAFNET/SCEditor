@@ -1469,6 +1469,12 @@ export default function SCEditor(
 			// stop clicks within the dropdown from being handled
 			e.stopPropagation();
 		});
+		// A dropdown form is never sent: Enter in a field clicks the
+		// insert button (the submit button), a form without one would
+		// otherwise reload the page and lose the post
+		dom.on(dropdown, 'submit', function (e) {
+			e.preventDefault();
+		});
 
 		if (dropdown) {
 			const first = dom.find(dropdown, 'input,textarea')[0] as HTMLElement | undefined;
