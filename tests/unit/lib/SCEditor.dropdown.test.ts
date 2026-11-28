@@ -175,6 +175,67 @@ describe('lib/SCEditor - dropdowns', () => {
 		}
 	});
 
+	it('a dialog has a header with the name of the command and a close button', async () => {
+		createEditor();
+
+		const dialog = open('link');
+
+		expect(dialog.getAttribute('role')).toBe('dialog');
+		expect(dialog.querySelector('.sceditor-dropdown-title').textContent).toBe('Insert a link');
+		expect(dialog.getAttribute('aria-label')).toBe('Insert a link');
+		expect(container().classList.contains('sceditor-dropdown-open')).toBe(true);
+
+		await userEvent.click(dialog.querySelector('.sceditor-close'));
+
+		expect(dropdown()).toBeNull();
+		expect(container().classList.contains('sceditor-dropdown-open')).toBe(false);
+	});
+
+	it('Cancel closes the dialog without inserting', async () => {
+		createEditor();
+
+		const dialog = open('youtube');
+		dialog.querySelector('#link').value = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+
+		await userEvent.click(dialog.querySelector('.sceditor-cancel'));
+
+		expect(dropdown()).toBeNull();
+		expect(editor.getBody().querySelector('iframe')).toBeNull();
+	});
+
+	it('a URL that cannot be embedded is marked and the dialog stays open', async () => {
+		createEditor();
+
+		const input = open('youtube').querySelector('#link');
+		input.value = 'https://example.com/no-video';
+		input.focus();
+
+		await userEvent.keyboard('{Enter}');
+
+		expect(dropdown()).not.toBeNull();
+		expect(input.classList.contains('is-invalid')).toBe(true);
+		expect(dropdown().querySelector('.invalid-feedback').textContent).toBe('Not a valid URL!');
+		expect(editor.getBody().querySelector('iframe')).toBeNull();
+
+		// typing removes the mark
+		await userEvent.type(input, 'x');
+
+		expect(input.classList.contains('is-invalid')).toBe(false);
+	});
+
+	it('the media dialog marks a URL without http instead of showing an alert', async () => {
+		createEditor();
+
+		const input = open('media').querySelector('#link');
+		input.value = 'example.com/video';
+		input.focus();
+
+		await userEvent.keyboard('{Enter}');
+
+		expect(dropdown()).not.toBeNull();
+		expect(input.classList.contains('is-invalid')).toBe(true);
+	});
+
 	it('Enter in the e-mail dialog inserts the address', async () => {
 		createEditor();
 

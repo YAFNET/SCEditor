@@ -1478,8 +1478,32 @@ export default function SCEditor(
 		options.dropDownCss) as Record<string, string | number>;
 
 		dropdown = dom.createElement('div', {
-			className: 'dropdown-menu show sceditor-dropdown ' + dropDownClass
+			className: 'dropdown-menu show sceditor-dropdown ' + dropDownClass,
+			role: 'dialog'
 		}) as HTMLDivElement;
+
+		// Header with the name of the command and a close button (the
+		// way to close a dialog on a phone)
+		const command = base.commands[dom.attr(menuItem, 'data-sceditor-command') || ''];
+		const title = command && command.tooltip ? base._(command.tooltip) : '';
+		const header = dom.createElement('div', {
+			className: 'sceditor-dropdown-header'
+		});
+		const titleElement = dom.createElement('span', {
+			className: 'sceditor-dropdown-title'
+		});
+		const closeButton = dom.createElement('button', {
+			type: 'button',
+			className: 'btn-close sceditor-close',
+			'aria-label': base._('Close'),
+			title: base._('Close')
+		});
+
+		titleElement.textContent = title;
+		dom.attr(dropdown, 'aria-label', title);
+		dom.appendChild(header, titleElement);
+		dom.appendChild(header, closeButton);
+		dom.appendChild(dropdown, header);
 
 		dom.css(dropdown, dropDownCss);
 		dom.appendChild(dropdown, content);
@@ -1507,14 +1531,25 @@ export default function SCEditor(
 		// before the key handler of Bootstrap dropdowns, which listens on
 		// the document in the capture phase
 		dom.on(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
+		dom.on(dropdown, 'click', '.sceditor-close, .sceditor-cancel', function (e) {
+			e.preventDefault();
+			base.closeDropDown(true);
+		});
 
 		dropdownCaller = menuItem;
 
-		if (dropdown) {
-			const first = dom.find(dropdown, 'input,textarea')[0] as HTMLElement | undefined;
-			if (first) {
-				first.focus();
-			}
+		// above the content after the editor (e.g. a sticky button bar)
+		editorContainer.classList.add('sceditor-dropdown-open');
+
+		// On a small screen the dialog can open below the visible part
+		if (dropdown.getBoundingClientRect().bottom > window.innerHeight &&
+			dropdown.scrollIntoView) {
+			dropdown.scrollIntoView({ block: 'nearest' });
+		}
+
+		const first = dom.find(dropdown, 'input,textarea')[0] as HTMLElement | undefined;
+		if (first) {
+			first.focus({ preventScroll: true });
 		}
 	};
 
@@ -1752,6 +1787,7 @@ export default function SCEditor(
 
 		dom.off(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
 		dropdownCaller = null;
+		editorContainer.classList.remove('sceditor-dropdown-open');
 
 		if (focus === true) {
 			base.focus();

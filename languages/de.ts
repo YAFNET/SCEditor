@@ -56,6 +56,9 @@
 		'Insert an emoticon': 'Emoticon einfügen',
 		'Video URL:': 'Video URL',
 		'Insert': 'Einfügen',
+		'Cancel': 'Abbrechen',
+		'Close': 'Schließen',
+		'Not a valid URL!': 'Keine gültige URL!',
 		'Insert a YouTube video': 'YouTube Video einfügen',
 		'View source': 'Quelltext ansehen',
 		dateFormat: 'day.month.year'

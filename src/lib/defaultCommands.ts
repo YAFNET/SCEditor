@@ -60,6 +60,29 @@ function fixFirefoxListBug(editor: SCEditorLike): void {
 
 
 /**
+ * Marks the URL field of a dialog as invalid and keeps the dialog open
+ * (the message is the invalid-feedback below the field)
+ */
+function showInvalidUrl(content: HTMLElement, e: Event): void {
+	const input = dom.find(content, '#link')[0] as HTMLInputElement;
+
+	input.classList.add('is-invalid');
+	input.focus();
+	e.preventDefault();
+}
+
+/**
+ * Removes the invalid mark of the URL field when it is changed
+ */
+function resetInvalidUrl(content: HTMLElement): void {
+	const input = dom.find(content, '#link')[0] as HTMLInputElement;
+
+	dom.on(input, 'input', function () {
+		input.classList.remove('is-invalid');
+	});
+}
+
+/**
  * Map of all the commands for SCEditor
  * @name commands
  * @memberOf sceditor
@@ -381,7 +404,8 @@ const defaultCmds: Record<string, Command> = {
 						label: editor._(
 							'Paste your text inside the following box:'
 						),
-						insert: editor._('Insert')
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -434,7 +458,8 @@ const defaultCmds: Record<string, Command> = {
 					{
 						rows: editor._('Rows:'),
 						cols: editor._('Cols:'),
-						insert: editor._('Insert')
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -539,6 +564,7 @@ const defaultCmds: Record<string, Command> = {
 							'Enter the note inside the following box:'
 						),
 						insert: editor._('Insert'),
+						cancel: editor._('Cancel'),
 						values: options
 					},
 					true));
@@ -559,7 +585,7 @@ const defaultCmds: Record<string, Command> = {
 					e.preventDefault();
 				});
 
-			editor.createDropDown(caller as HTMLElement, 'pastetext', content);
+			editor.createDropDown(caller as HTMLElement, 'note', content);
 		},
 		tooltip: 'Note'
 	} as Command,
@@ -627,7 +653,8 @@ const defaultCmds: Record<string, Command> = {
 					{
 						url: editor._('URL:'),
 						desc: editor._('Description (optional):'),
-						insert: editor._('Insert')
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -644,16 +671,8 @@ const defaultCmds: Record<string, Command> = {
 				e.preventDefault();
 			}
 
+			// Enter in a field clicks the insert button (the submit button)
 			dom.on(content, 'click', '.button', insertUrl);
-			dom.on(content,
-				'keypress',
-				function (e: Event) {
-					// 13 = enter key
-					if ((e as KeyboardEvent).which === 13 && linkInput.value) {
-						insertUrl(e);
-					}
-				},
-				dom.EVENT_CAPTURE);
 
 			editor.createDropDown(caller, 'insertimage', content);
 		},
@@ -692,7 +711,8 @@ const defaultCmds: Record<string, Command> = {
 					{
 						label: editor._('E-mail:'),
 						desc: editor._('Description (optional):'),
-						insert: editor._('Insert')
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -743,7 +763,8 @@ const defaultCmds: Record<string, Command> = {
 					{
 						url: editor._('URL:'),
 						desc: editor._('Description (optional):'),
-						ins: editor._('Insert')
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -758,16 +779,8 @@ const defaultCmds: Record<string, Command> = {
 				e.preventDefault();
 			}
 
+			// Enter in a field clicks the insert button (the submit button)
 			dom.on(content, 'click', '.button', insertUrl);
-			dom.on(content,
-				'keypress',
-				function (e: Event) {
-					// 13 = enter key
-					if ((e as KeyboardEvent).which === 13 && linkInput.value) {
-						insertUrl(e);
-					}
-				},
-				dom.EVENT_CAPTURE);
 
 			editor.createDropDown(caller, 'insertlink', content);
 		},
@@ -847,7 +860,9 @@ const defaultCmds: Record<string, Command> = {
 				_tmpl('mediaMenu',
 					{
 						label: editor._('Media URL:'),
-						insert: editor._('Insert')
+						invalid: editor._('Not a valid URL!'),
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -857,17 +872,18 @@ const defaultCmds: Record<string, Command> = {
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
 
-					if (!url.startsWith('http')) {
-						alert('Not a valid URL!');
+					if (!/^https?:\/\/\S+$/i.test(url.trim())) {
+						showInvalidUrl(content, e);
 						return;
 					}
 
-					callback(url);
+					callback(url.trim());
 
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
+			resetInvalidUrl(content);
 			editor.createDropDown(caller, 'insertmedia', content);
 		},
 		exec: function (this: SCEditorLike, btn?: HTMLElement) {
@@ -892,7 +908,9 @@ const defaultCmds: Record<string, Command> = {
 				_tmpl('youtubeMenu',
 					{
 						label: editor._('Video URL:'),
-						insert: editor._('Insert')
+						invalid: editor._('Not a valid URL!'),
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -902,18 +920,20 @@ const defaultCmds: Record<string, Command> = {
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
 
-					if (url !== '') {
-						const matches = url.match(/vimeo\..*\/(\d+)(?:$|\/)/);
+					const matches = url.match(/vimeo\..*\/(\d+)(?:$|\/)/);
 
-						if (matches) {
-							callback(url, matches[1]);
-						}
+					if (!matches) {
+						showInvalidUrl(content, e);
+						return;
 					}
+
+					callback(url, matches[1]);
 
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
+			resetInvalidUrl(content);
 			editor.createDropDown(caller, 'insertlink', content);
 		},
 		exec: function (this: SCEditorLike, btn?: HTMLElement) {
@@ -942,7 +962,9 @@ const defaultCmds: Record<string, Command> = {
 				_tmpl('instagramMenu',
 					{
 						label: editor._('Instagram Post URL:'),
-						insert: editor._('Insert')
+						invalid: editor._('Not a valid URL!'),
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -951,21 +973,20 @@ const defaultCmds: Record<string, Command> = {
 				'.button',
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
-					let id = '';
+					const matches = url.match(/\/(p|tv|reel)\/(.*?)\//);
 
-					if (url !== '') {
-						const matches = url.match(/\/(p|tv|reel)\/(.*?)\//);
-
-						if (matches) {
-							id = matches[2];
-							callback(url, id);
-						}
+					if (!matches) {
+						showInvalidUrl(content, e);
+						return;
 					}
+
+					callback(url, matches[2]);
 
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
+			resetInvalidUrl(content);
 			editor.createDropDown(caller, 'insertlink', content);
 		},
 		exec: function (this: SCEditorLike, btn?: HTMLElement) {
@@ -994,7 +1015,9 @@ const defaultCmds: Record<string, Command> = {
 				_tmpl('facebookMenu',
 					{
 						label: editor._('Facebook post URL:'),
-						insert: editor._('Insert')
+						invalid: editor._('Not a valid URL!'),
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -1004,14 +1027,18 @@ const defaultCmds: Record<string, Command> = {
 				function (e: Event) {
 					const url = (dom.find(content, '#link')[0] as HTMLInputElement).value;
 
-					if (url !== '') {
-						callback(url);
+					if (!/^https?:\/\/\S+$/i.test(url.trim())) {
+						showInvalidUrl(content, e);
+						return;
 					}
+
+					callback(url.trim());
 
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
+			resetInvalidUrl(content);
 			editor.createDropDown(caller, 'insertlink', content);
 		},
 		exec: function (this: SCEditorLike, btn?: HTMLElement) {
@@ -1039,7 +1066,9 @@ const defaultCmds: Record<string, Command> = {
 				_tmpl('youtubeMenu',
 					{
 						label: editor._('Video URL:'),
-						insert: editor._('Insert')
+						invalid: editor._('Not a valid URL!'),
+						insert: editor._('Insert'),
+						cancel: editor._('Cancel')
 					},
 					true));
 
@@ -1053,14 +1082,18 @@ const defaultCmds: Record<string, Command> = {
 					);
 					const idMatch = urlMatch || (/^[a-zA-Z0-9_-]{11}$/.test(url.trim()) ? [url, url.trim()] : null);
 
-					if (idMatch) {
-						callback(url, idMatch[1]);
+					if (!idMatch) {
+						showInvalidUrl(content, e);
+						return;
 					}
+
+					callback(url, idMatch[1]);
 
 					editor.closeDropDown(true);
 					e.preventDefault();
 				});
 
+			resetInvalidUrl(content);
 			editor.createDropDown(caller, 'insertlink', content);
 		},
 		exec: function (this: SCEditorLike, btn?: HTMLElement) {

@@ -284,7 +284,8 @@ function openDropdown(editor: Any, caller: HTMLElement, sourceMode: boolean) {
 
 	const form = document.createElement('form');
 	// The dropdown itself gets the 'sceditor-markdown-insert' class
-	form.className = 'm-3';
+	form.className = 'sceditor-dropdown-form';
+	form.noValidate = true;
 	content.appendChild(form);
 
 	const group = document.createElement('div');
@@ -311,11 +312,21 @@ function openDropdown(editor: Any, caller: HTMLElement, sourceMode: boolean) {
 	hint.textContent = editor._('Ctrl+Enter to insert');
 	group.appendChild(hint);
 
+	const footer = document.createElement('div');
+	footer.className = 'sceditor-dropdown-footer';
+	form.appendChild(footer);
+
+	const cancelBtn = document.createElement('button');
+	cancelBtn.type = 'button';
+	cancelBtn.className = 'btn btn-sm btn-outline-secondary sceditor-cancel';
+	cancelBtn.textContent = editor._('Cancel');
+	footer.appendChild(cancelBtn);
+
 	const insertBtn = document.createElement('button');
 	insertBtn.type = 'button';
 	insertBtn.className = 'btn btn-sm btn-primary button';
 	insertBtn.textContent = editor._('Insert');
-	form.appendChild(insertBtn);
+	footer.appendChild(insertBtn);
 
 	function doInsert() {
 		const markdown = textarea.value;

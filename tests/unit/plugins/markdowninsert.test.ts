@@ -248,7 +248,7 @@ describe('plugins/markdowninsert - editor integration', () => {
 
 		expect(dropdown).not.toBeNull();
 		expect(dropdown.querySelector('textarea')).not.toBeNull();
-		expect(dropdown.querySelector('button').textContent).toBe('Insert');
+		expect(dropdown.querySelector('.button').textContent).toBe('Insert');
 		expect(dropdown.querySelector('.sceditor-markdown-insert-hint'))
 			.not.toBeNull();
 	});
@@ -258,7 +258,7 @@ describe('plugins/markdowninsert - editor integration', () => {
 
 		const dropdown = openDropdown();
 		dropdown.querySelector('textarea').value = '**bold** and *italic*';
-		dropdown.querySelector('button').click();
+		dropdown.querySelector('.button').click();
 
 		const body = editor.getBody();
 		expect(body.querySelector('strong').textContent).toBe('bold');
@@ -275,7 +275,7 @@ describe('plugins/markdowninsert - editor integration', () => {
 		const dropdown = openDropdown();
 		dropdown.querySelector('textarea').value =
 			'**bold** [link](http://example.com)\n\n- one\n- two';
-		dropdown.querySelector('button').click();
+		dropdown.querySelector('.button').click();
 
 		const value = editor.getSourceEditorValue(false);
 		expect(value).toContain('[b]bold[/b]');
@@ -327,7 +327,7 @@ describe('plugins/markdowninsert - editor integration', () => {
 
 		const dropdown = openDropdown();
 		dropdown.querySelector('textarea').value = '   \n  ';
-		dropdown.querySelector('button').click();
+		dropdown.querySelector('.button').click();
 
 		expect(editor.getSourceEditorValue(false)).toBe('');
 		expect(container()

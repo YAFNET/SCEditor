@@ -4,6 +4,35 @@ import * as escape from './escape.js';
 import DOMPurify from 'dompurify';
 
 /**
+ * The URL field of the dialogs: a URL keyboard on phones, no
+ * autocorrect or capital first letter
+ */
+const URL_INPUT =
+	'<input type="url" inputmode="url" id="link" dir="ltr" placeholder="https://" ' +
+	'class="form-control" autocomplete="off" autocapitalize="off" spellcheck="false" />';
+
+/**
+ * Cancel and Insert buttons of the dialogs (Insert is the submit
+ * button, so Enter in a field inserts)
+ */
+const FOOTER =
+	'<div class="sceditor-dropdown-footer">' +
+		'<button type="button" class="btn btn-sm btn-outline-secondary sceditor-cancel">{cancel}</button>' +
+		'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
+	'</div>';
+
+/**
+ * A dialog with one URL field
+ */
+const URL_FORM =
+	'<form class="sceditor-dropdown-form" novalidate>' +
+		'<div class="mb-3"><label for="link" class="form-label">{label}</label>' +
+		URL_INPUT +
+		'<div class="invalid-feedback">{invalid}</div></div>' +
+		FOOTER +
+	'</form>';
+
+/**
  * HTML templates used by the editor and default commands
  * @private
  */
@@ -52,68 +81,61 @@ const _templates: Record<string, string> = {
 		'</div></form>',
 
 	note:
-		'<form class="m-3">' +
-			'<div class="mb-3"><label for="type" class="form-label">{labelType}</label> ' +
-			'<select class="form-select" id="type" aria-label="note type">' +
+		'<form class="sceditor-dropdown-form" novalidate>' +
+			'<div class="mb-3"><label for="type" class="form-label">{labelType}</label>' +
+			'<select class="form-select" id="type">' +
 			'{values}' +
-			'</select> ' +
-			'</div> ' +
-			'<div class="mb-3"><label for="txt" class="form-label">{labelText}</label> ' +
-			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</div></form>',
+			'</select>' +
+			'</div>' +
+			'<div class="mb-3"><label for="txt" class="form-label">{labelText}</label>' +
+			'<textarea rows="5" id="txt" class="form-control textarea-input"></textarea></div>' +
+			FOOTER +
+		'</form>',
 
 	pastetext:
-		'<form class="m-3"><div class="mb-3"><label for="txt" class="form-label">{label}</label> ' +
-			'<textarea cols="20" rows="7" id="txt" class="form-control textarea-input"></textarea></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</div></form>',
+		'<form class="sceditor-dropdown-form" novalidate>' +
+			'<div class="mb-3"><label for="txt" class="form-label">{label}</label>' +
+			'<textarea rows="6" id="txt" class="form-control textarea-input"></textarea></div>' +
+			FOOTER +
+		'</form>',
 
 	image:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{url}</label> ' +
-			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
-			'<input type="text" id="des" class="form-control" /></div>' +
-		'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button></form>',
+		'<form class="sceditor-dropdown-form" novalidate>' +
+			'<div class="mb-3"><label for="link" class="form-label">{url}</label>' +
+			URL_INPUT + '</div>' +
+			'<div class="mb-3"><label for="des" class="form-label">{desc}</label>' +
+			'<input type="text" id="des" class="form-control" autocomplete="off" /></div>' +
+			FOOTER +
+		'</form>',
 
 	email:
-		'<form class="m-3"><div class="mb-3"><label for="email" class="form-label">{label}</label> ' +
-			'<input type="text" id="email" dir="ltr" class="form-control" /></div>' +
-			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
-			'<input type="text" id="des" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</form>',
+		'<form class="sceditor-dropdown-form" novalidate>' +
+			'<div class="mb-3"><label for="email" class="form-label">{label}</label>' +
+			'<input type="email" inputmode="email" id="email" dir="ltr" class="form-control" ' +
+			'autocomplete="off" autocapitalize="off" spellcheck="false" /></div>' +
+			'<div class="mb-3"><label for="des" class="form-label">{desc}</label>' +
+			'<input type="text" id="des" class="form-control" autocomplete="off" /></div>' +
+			FOOTER +
+		'</form>',
 
 	link:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{url}</label> ' +
-			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<div class="mb-3"><label for="des" class="form-label">{desc}</label> ' +
-			'<input type="text" id="des" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{ins}</button></form>',
+		'<form class="sceditor-dropdown-form" novalidate>' +
+			'<div class="mb-3"><label for="link" class="form-label">{url}</label>' +
+			URL_INPUT + '</div>' +
+			'<div class="mb-3"><label for="des" class="form-label">{desc}</label>' +
+			'<input type="text" id="des" class="form-control" autocomplete="off" /></div>' +
+			FOOTER +
+		'</form>',
 
-	mediaMenu:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
-			'<input type="url" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</form>',
+	// mediaMenu, youtubeMenu, instagramMenu and facebookMenu: one URL field
+	// with a message for a URL that cannot be embedded
+	mediaMenu: URL_FORM,
 
-	youtubeMenu:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
-			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</form>',
+	youtubeMenu: URL_FORM,
 
-	instagramMenu:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
-			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</form>',
+	instagramMenu: URL_FORM,
 
-	facebookMenu:
-		'<form class="m-3"><div class="mb-3"><label for="link" class="form-label">{label}</label> ' +
-			'<input type="text" id="link" dir="ltr" placeholder="https://" class="form-control" /></div>' +
-			'<button type="submit" class="btn btn-sm btn-primary button">{insert}</button>' +
-			'</form>',
+	facebookMenu: URL_FORM,
 
 	facebook:
 		'<div class="ratio ratio-1x1 border" data-oembed-url="{url}" data-facebook-url="{url}"><iframe src="https://www.facebook.com/plugins/post.php?href={url}"></iframe></div>',

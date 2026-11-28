@@ -53,6 +53,9 @@
 		'Insert an emoticon': 'Sisesta emotikon',
 		'Video URL:': 'Video link',
 		'Insert': 'Sisesta',
+		'Cancel': 'Tühista',
+		'Close': 'Sulge',
+		'Not a valid URL!': 'See pole kehtiv URL!',
 		'Insert a YouTube video': 'Sisesta YouTube video',
 		'View source': 'Vaata lähtekoodi',
 
