@@ -818,6 +818,11 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 			if (cite) {
 				author = cite && cite.textContent;
 
+				// the quote of a post: the post id is not shown, it is kept in the cite
+				if (attr(cite, 'data-post-id')) {
+					author = `${author.trim()};${attr(cite, 'data-post-id')}`;
+				}
+
 				if (cite) {
 					element.removeChild(cite);
 				}
@@ -835,9 +840,13 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 		},
 		html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
 			if (attrs.defaultattr) {
+				// [quote=name;post id] is the quote of a post: show the name, keep the id
+				const post = /^(.*);(\d+)$/.exec(attrs.defaultattr);
+				const postId = post ? ` data-post-id="${post[2]}"` : '';
+
 				content = content +
-					'<cite class="card-text text-end d-block text-body-secondary small">' +
-					escapeEntities(attrs.defaultattr) +
+					`<cite class="card-text text-end d-block text-body-secondary small"${postId}>` +
+					escapeEntities(post ? post[1] : attrs.defaultattr) +
 					'</cite>';
 			}
 
