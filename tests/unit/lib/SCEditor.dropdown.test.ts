@@ -82,6 +82,39 @@ describe('lib/SCEditor - dropdowns', () => {
 		expect(editor.getBody().innerHTML).toContain('[media]https://example.com/video[/media]');
 	});
 
+	it('a dialog opens below its button when the toolbar wraps and stays inside the editor', () => {
+		// The layout of a Bootstrap page: positioned card and button groups
+		const style = document.createElement('style');
+		style.textContent = '.sceditor-container{position:relative;width:240px!important}' +
+			'.btn-group{position:relative;display:inline-flex}' +
+			'.sceditor-button{display:inline-block;width:40px;height:30px}' +
+			'.dropdown-menu{position:absolute}';
+		document.head.append(style);
+
+		try {
+			createEditor({ toolbar: 'bold,italic,underline|strike,mark|youtube,email,link' });
+
+			const button = container().querySelector('.sceditor-button-link');
+			const firstButton = container().querySelector('.sceditor-button-bold');
+
+			// the link button is on a lower toolbar row
+			expect(button.getBoundingClientRect().top)
+				.toBeGreaterThan(firstButton.getBoundingClientRect().bottom - 1);
+
+			button.click();
+
+			const buttonRect = button.getBoundingClientRect();
+			const dropdownRect = dropdown().getBoundingClientRect();
+			const containerRect = container().getBoundingClientRect();
+
+			expect(Math.round(dropdownRect.top)).toBe(Math.round(buttonRect.bottom));
+			expect(dropdownRect.right).toBeLessThanOrEqual(containerRect.right);
+			expect(dropdownRect.left).toBeGreaterThanOrEqual(containerRect.left);
+		} finally {
+			style.remove();
+		}
+	});
+
 	it('Enter in the e-mail dialog inserts the address', async () => {
 		createEditor();
 

@@ -1451,10 +1451,15 @@ export default function SCEditor(
 			return;
 		}
 
+		// Below the button, also when the toolbar wraps into several rows
+		const containerRect = editorContainer.getBoundingClientRect();
+		const menuItemRect = menuItem.getBoundingClientRect();
+		const left = menuItemRect.left - containerRect.left - editorContainer.clientLeft;
+
 		const dropDownCss = utils.extend({
-			top: menuItem.offsetTop,
-			left: (menuItem.parentElement as HTMLElement).offsetLeft + menuItem.offsetLeft,
-			marginTop: menuItem.clientHeight
+			top: menuItemRect.bottom - containerRect.top - editorContainer.clientTop,
+			left: left,
+			marginTop: 0
 		},
 		options.dropDownCss) as Record<string, string | number>;
 
@@ -1465,6 +1470,16 @@ export default function SCEditor(
 		dom.css(dropdown, dropDownCss);
 		dom.appendChild(dropdown, content);
 		dom.appendChild(editorContainer, dropdown);
+
+		// Keep the dropdown inside the editor (a button on the right
+		// would push it out of a small screen)
+		if (!('left' in options.dropDownCss)) {
+			const maxLeft = editorContainer.clientWidth - dropdown.offsetWidth;
+
+			if (left > maxLeft) {
+				dom.css(dropdown, 'left', Math.max(0, maxLeft));
+			}
+		}
 		dom.on(dropdown, 'click focusin', function (e) {
 			// stop clicks within the dropdown from being handled
 			e.stopPropagation();
