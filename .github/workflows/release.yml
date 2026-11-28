@@ -73,6 +73,27 @@ jobs:
         if: steps.version.outputs.is_newer == 'true'
         run: npm run build
 
+      - name: Build release notes from commits
+        if: steps.version.outputs.should_release == 'true'
+        shell: pwsh
+        run: |
+          # Commits since the last release tag (tags are fetched, checkout uses fetch-depth: 0)
+          $previousTag = git describe --tags --abbrev=0 2>$null
+          $range = if ($previousTag) { "$previousTag..HEAD" } else { "HEAD" }
+          Write-Host "Commit range: $range"
+
+          # Subject lines without merge commits and without dependabot updates
+          $commits = git log $range --no-merges --pretty=format:"%an%x09- %s (%h)" |
+            Where-Object { $_ -and ($_.Split("`t")[0] -notmatch 'dependabot') } |
+            ForEach-Object { $_.Split("`t", 2)[1] }
+
+          $notes = "## Changes`n`n"
+          $notes += if ($commits) { ($commits -join "`n") } else { "- No changes" }
+          $notes += "`n"
+
+          Set-Content -Path release-notes.md -Value $notes -Encoding utf8
+          Get-Content release-notes.md
+
       - name: Create GitHub release
         if: steps.version.outputs.is_newer == 'true'
         env:
@@ -82,7 +103,7 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --target "${{ github.event.workflow_run.head_sha }}" \
             --title "v${{ steps.version.outputs.pkg_version }}" \
-            --generate-notes
+            --notes-file release-notes.md --generate-notes
 
       # Authenticates via OIDC using the job's id-token permission — no NPM_TOKEN secret needed.
       # Requires the "@w8tcha/bootbox" package to have this repo + workflow registered as a
