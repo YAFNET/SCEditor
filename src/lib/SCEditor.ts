@@ -348,6 +348,8 @@ export default function SCEditor(
 	let handleEvent: (e: Event) => void;
 	let handleDocumentClick: (e: MouseEvent) => void;
 	let handleDropDownKeyDown: (e: KeyboardEvent) => void;
+	let updateToolbarScroll: () => void;
+	let toolbarResizeObserver: ResizeObserver | null = null;
 	let loadScripts: () => void;
 	let updateToolBar: (disable?: boolean) => void;
 	let updateActiveButtons: () => void;
@@ -777,7 +779,7 @@ export default function SCEditor(
 		const groups = options.toolbar.split('|');
 
 		toolbar = dom.createElement('div', {
-			className: 'card-header btn-toolbar',
+			className: 'card-header btn-toolbar sceditor-toolbar',
 			unselectable: 'on'
 		}) as HTMLDivElement;
 
@@ -876,6 +878,31 @@ export default function SCEditor(
 
 		// Append the toolbar to the toolbarContainer option if given
 		dom.appendChild((options.toolbarContainer || editorContainer) as Node, toolbar);
+
+		// On a phone the toolbar is one row that scrolls sideways (see the
+		// stylesheet): mark the sides with more buttons
+		dom.on(toolbar, 'scroll', updateToolbarScroll);
+
+		if (typeof ResizeObserver !== 'undefined') {
+			toolbarResizeObserver = new ResizeObserver(updateToolbarScroll);
+			toolbarResizeObserver.observe(toolbar);
+		}
+
+		updateToolbarScroll();
+	};
+
+	/**
+	 * Marks the sides of a toolbar that scrolls sideways where more
+	 * buttons are (sceditor-toolbar-more-left / -right)
+	 * @private
+	 */
+	updateToolbarScroll = function () {
+		const max = toolbar.scrollWidth - toolbar.clientWidth;
+		// scrollLeft is 0 or negative in a right to left toolbar
+		const left = dom.css(toolbar, 'direction') === 'rtl' ? max + toolbar.scrollLeft : toolbar.scrollLeft;
+
+		dom.toggleClass(toolbar, 'sceditor-toolbar-more-left', max > 1 && left > 1);
+		dom.toggleClass(toolbar, 'sceditor-toolbar-more-right', max > 1 && left < max - 1);
 	};
 
 	/**
@@ -1423,6 +1450,11 @@ export default function SCEditor(
 
 		dom.off(window, 'keydown', handleDropDownKeyDown as EventListener, dom.EVENT_CAPTURE);
 		dom.off(globalDoc, 'click', handleDocumentClick as EventListener);
+
+		if (toolbarResizeObserver) {
+			toolbarResizeObserver.disconnect();
+			toolbarResizeObserver = null;
+		}
 
 		const form = original.form;
 		if (form) {

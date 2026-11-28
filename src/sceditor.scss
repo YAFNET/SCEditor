@@ -88,6 +88,25 @@ body.sceditor-placeholder::before {
     }
 }
 
+// Font color: an A with a bar in the color of the text at the cursor
+.sceditor-color-icon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.sceditor-color-bar {
+    display: block;
+    width: 1.1em;
+    height: .22em;
+    margin-top: .1em;
+    border-radius: 1px;
+    // also visible when the color is the color of the button
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .7);
+}
+
 .sceditor-button-reply {
      display:none!important
 }
@@ -250,5 +269,46 @@ div.sceditor-dropdown .sceditor-markdown-insert-hint {
 
     div.sceditor-color-picker > div:last-child {
         justify-content: center;
+    }
+}
+
+// ── Toolbar on phones: one row that scrolls sideways ──────────────────────
+
+@media (max-width: 575.98px) {
+    .sceditor-container .sceditor-toolbar {
+        flex-wrap: nowrap;
+        gap: .25rem;
+        padding: .375rem;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .btn-group {
+            flex-shrink: 0;
+            margin: 0 !important;
+        }
+
+        // a fade on the sides with more buttons
+        &.sceditor-toolbar-more-right {
+            mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+        }
+
+        &.sceditor-toolbar-more-left {
+            mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent);
+        }
+
+        &.sceditor-toolbar-more-left.sceditor-toolbar-more-right {
+            mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+        }
+    }
+}
+
+@media (max-width: 575.98px) and (pointer: coarse) {
+    .sceditor-container .sceditor-toolbar .btn {
+        padding: .4rem .65rem;
     }
 }

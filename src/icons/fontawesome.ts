@@ -17,14 +17,14 @@ type Any = any;
 
 /* eslint max-len: off*/
 const icons: Record<string, string> = {
-	'albums': '<i class="fa-solid fa-images"></i',
-	'attachments': '<i class="fa-solid fa-paperclip"></i',
+	'albums': '<i class="fa-solid fa-images"></i>',
+	'attachments': '<i class="fa-solid fa-paperclip"></i>',
 	'bold': '<i class="fa-solid fa-bold"></i>',
 	'bulletlist': '<i class="fa-solid fa-list-ul"></i>',
 	'center': '<i class="fa-solid fa-align-center"></i>',
 	'code': '<i class="fa-solid fa-code"></i>',
 	'color':
-		'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-palette sce-color fa-sceditor-badge"></i></span>',
+		'<span class="sceditor-color-icon"><i class="fa-solid fa-font"></i><span class="sce-color sceditor-color-bar"></span></span>',
 	'copy': '<i class="fa-solid fa-copy"></i>',
 	'cut': '<i class="fa-solid fa-scissors"></i>',
 	'email': '<i class="fa-solid fa-envelope"></i>',
@@ -95,7 +95,8 @@ SCEditor.icons.fontawesome = function () {
 						.queryCommandValue('forecolor');
 				}
 
-				dom.css(colorPath, 'color', color);
+				// the bar under the A shows the color of the text at the cursor
+				dom.css(colorPath, 'backgroundColor', color === 'inherit' ? 'currentColor' : color);
 			}
 		},
 		rtl: function (isRtl: boolean) {
