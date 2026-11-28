@@ -326,7 +326,8 @@ const defaultOptions: SCEditorOptions = {
 	onToggleMode: undefined,
 
 	/**
-	* Default path for the script files
+	* The folder that holds the languages folder (absolute or relative to
+	* the page). Empty: the folder of the SCEditor script.
 	*/
 	basePath: ''
 };

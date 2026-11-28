@@ -9,6 +9,7 @@ import type { RangeHelperInstance } from './RangeHelper.js';
 import _tmpl from './templates.js';
 import * as escape from './escape.js';
 import * as browser from './browser.js';
+import { getLocaleUrl, loadLocale } from './locale.js';
 import DOMPurify from 'dompurify';
 import type {
 	SCEditorInstance,
@@ -442,35 +443,22 @@ export default function SCEditor(
 	base.__UNSTABLE__sanitize = sanitize;
 
 	/**
-	* Loads a JavaScript file and returns a Promise for when it is loaded
-	*/
-	const loadScript = (src: string): Promise<void> => {
-		return new Promise((resolve, reject) => {
-			const script = document.createElement('script');
-			script.type = 'text/javascript';
-			script.onload = () => resolve();
-			script.onerror = reject;
-			script.src = src;
-			document.head.append(script);
-		});
-	};
-
-	/**
-	 * Loads all scripts
+	 * Loads the language file (if the locale is not registered yet), then
+	 * creates the editor. Without the language file the editor starts in
+	 * English.
 	 * @private
 	 */
 	loadScripts = function () {
-		if (options.locale && options.locale !== 'en') {
-			const promises = [];
-			promises.push(
-				loadScript(`../${options.basePath}languages/${options.locale}.js`));
+		const lang = options.locale;
 
-			Promise.all(promises).then(() => {
-				init();
-			}).catch(() => console.error('Something went wrong.'));
-		} else {
+		if (!lang || lang === 'en' || SCEditor.locale[lang]) {
 			init();
+			return;
 		}
+
+		loadLocale(getLocaleUrl(lang, options.basePath))
+			.catch((error: Error) => console.warn(error.message))
+			.then(() => init());
 	};
 
 	/**
