@@ -112,6 +112,9 @@ div.sceditor-dropdown {
 }
 
 div.sceditor-dropdown .sceditor-dropdown-header {
+    // the header does not make the dialog wider (a long title like the
+    // one of the media dialog wraps instead), the content sets the width
+    contain: inline-size;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -122,11 +125,11 @@ div.sceditor-dropdown .sceditor-dropdown-header {
 }
 
 .sceditor-dropdown-title {
-    overflow: hidden;
+    min-width: 0;
     font-size: .875rem;
     font-weight: 600;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
 .sceditor-dropdown .sceditor-close {
