@@ -33,6 +33,7 @@ import './plugins/undo.js';
 import './plugins/plaintext.js';
 import './plugins/mentions.js';
 import './plugins/markdowninsert.js';
+import './plugins/attachpreview.js';
 
 // SCEditor is a constructor function using a `this: SCEditorInstance`
 // parameter (not a real TS class), so `new SCEditor(...)` has no construct
