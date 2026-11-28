@@ -19,6 +19,7 @@ import SCEditor from '../lib/SCEditor.js';
 import PluginManager from '../lib/PluginManager.js';
 import defaultOptions from '../lib/defaultOptions.js';
 import { uriScheme as escapeUriScheme } from '../lib/escape.js';
+import { sizeToPercent } from '../lib/fontSizes.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
@@ -251,7 +252,7 @@ function markdownToHtml(source: string, isFragment = false): string {
  * (e.g. BBCode). Falls back to HTML if the editor has no format.
  */
 function markdownToSource(editor: Any, markdown: string): string {
-	const html = markdownToHtml(markdown);
+	const html = markdownToEditorHtml(editor, markdown);
 	const FormatCtor = SCEditor.formats[editor.opts.format];
 
 	if (!FormatCtor) {
@@ -273,6 +274,28 @@ function markdownToSource(editor: Any, markdown: string): string {
 	}
 
 	return targetFmt.fragmentToSource(html, document);
+}
+
+/**
+ * BBCode has no headings (the editor showed them, the post lost them):
+ * a heading becomes bold text, # and ## also larger ([size=7], [size=6])
+ */
+function headingsToBoldText(html: string): string {
+	return html.replace(/<h([1-6])>([\s\S]*?)<\/h\1>/g, function (_: string, level: string, content: string) {
+		const size = level === '1' ? 7 : level === '2' ? 6 : 0;
+		const text = size ? `<span style="font-size:${sizeToPercent(size)}%">${content}</span>` : content;
+
+		return `<p><strong>${text}</strong></p>`;
+	});
+}
+
+/**
+ * Converts Markdown to the HTML for the editor and its format
+ */
+function markdownToEditorHtml(editor: Any, markdown: string): string {
+	const html = markdownToHtml(markdown);
+
+	return editor.opts.format === 'bbcode' ? headingsToBoldText(html) : html;
 }
 
 /**
@@ -335,7 +358,7 @@ function openDropdown(editor: Any, caller: HTMLElement, sourceMode: boolean) {
 			if (sourceMode) {
 				editor.insertText(markdownToSource(editor, markdown));
 			} else {
-				editor.wysiwygEditorInsertHtml(markdownToHtml(markdown));
+				editor.wysiwygEditorInsertHtml(markdownToEditorHtml(editor, markdown));
 			}
 		}
 

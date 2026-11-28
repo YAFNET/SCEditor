@@ -288,6 +288,33 @@ describe('plugins/markdowninsert - editor integration', () => {
 			.querySelector('.sceditor-markdown-insert')).toBeNull();
 	});
 
+	it('inserts headings as bold (and larger) text, BBCode has no headings', () => {
+		createEditor({ toolbar: 'bold,markdowninsert' });
+
+		const dropdown = openDropdown();
+		dropdown.querySelector('textarea').value = '# Big\n\n## Medium\n\n### Small';
+		dropdown.querySelector('.button').click();
+
+		const value = editor.val();
+		expect(value).toContain('[b][size=7]Big[/size][/b]');
+		expect(value).toContain('[b][size=6]Medium[/size][/b]');
+		expect(value).toContain('[b]Small[/b]');
+		expect(editor.getBody().querySelector('h1, h2, h3')).toBeNull();
+	});
+
+	it('inserts headings as bold (and larger) text in source mode', () => {
+		createEditor({ toolbar: 'bold,markdowninsert' });
+		editor.sourceMode(true);
+
+		const dropdown = openDropdown();
+		dropdown.querySelector('textarea').value = '# Big\n\n### Small';
+		dropdown.querySelector('.button').click();
+
+		const value = editor.getSourceEditorValue(false);
+		expect(value).toContain('[b][size=7]Big[/size][/b]');
+		expect(value).toContain('[b]Small[/b]');
+	});
+
 	it('inserts on Ctrl+Enter', () => {
 		createEditor({ toolbar: 'bold,markdowninsert' });
 		editor.sourceMode(true);
