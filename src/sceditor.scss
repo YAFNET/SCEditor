@@ -109,3 +109,18 @@ body.sceditor-placeholder::before {
 .sourceMode textarea:not(.textarea-input) {
         background-color: var(--bs-tertiary-bg);
 }
+
+div.sceditor-dropdown.sceditor-markdown-insert {
+    width: 320px;
+    max-width: calc(100vw - 2rem);
+}
+
+div.sceditor-dropdown.sceditor-markdown-insert textarea {
+    resize: vertical;
+    font-family: var(--bs-font-monospace, monospace);
+    font-size: .875rem;
+}
+
+div.sceditor-dropdown .sceditor-markdown-insert-hint {
+    margin-top: .25rem;
+}

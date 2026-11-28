@@ -25,7 +25,8 @@ export default defineConfig({
 		setupFiles: ['tests/unit/setup.ts'],
 		include: [
 			'tests/unit/lib/*.test.ts',
-			'tests/unit/formats/**/*.test.ts'
+			'tests/unit/formats/**/*.test.ts',
+			'tests/unit/plugins/*.test.ts'
 		],
 		coverage: {
 			provider: 'v8',

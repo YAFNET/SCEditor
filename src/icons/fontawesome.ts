@@ -55,6 +55,7 @@ const icons: Record<string, string> = {
 	'right': '<i class="fa-solid fa-align-right"></i>',
 	'size':
 		'<span class="fa-stack me-2 pe-2"><i class="fas fa-font fa-stack-1x"></i><i class="fa fa-xs fa-up-down fa-sceditor-badge"></i></span>',
+	'markdowninsert': '<i class="fa-brands fa-markdown"></i>',
 	'source': '<i class="fa-solid fa-file-code"></i>',
 	'strike': '<i class="fa-solid fa-strikethrough"></i>',
 	'table': '<i class="fa-solid fa-table"></i>',
