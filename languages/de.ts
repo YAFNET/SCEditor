@@ -59,6 +59,9 @@
 		'Cancel': 'Abbrechen',
 		'Close': 'Schließen',
 		'Not a valid URL!': 'Keine gültige URL!',
+		'Insert Markdown': 'Markdown einfügen',
+		'Markdown:': 'Markdown:',
+		'Ctrl+Enter to insert': 'Strg+Enter fügt ein',
 		'Insert a YouTube video': 'YouTube Video einfügen',
 		'View source': 'Quelltext ansehen',
 		dateFormat: 'day.month.year'

@@ -56,6 +56,9 @@
 		'Cancel': 'Tühista',
 		'Close': 'Sulge',
 		'Not a valid URL!': 'See pole kehtiv URL!',
+		'Insert Markdown': 'Sisesta Markdown',
+		'Markdown:': 'Markdown:',
+		'Ctrl+Enter to insert': 'Ctrl+Enter sisestab',
 		'Insert a YouTube video': 'Sisesta YouTube video',
 		'View source': 'Vaata lähtekoodi',
 
