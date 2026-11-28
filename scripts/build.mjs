@@ -67,17 +67,25 @@ async function clean() {
 }
 
 async function buildCss() {
-	const compiled = sass.compile(path.join(rootDir, 'src/sceditor.scss'), {
-		sourceMap: false
-	});
+	// the editor (toolbar, dialogs) and the content inside the editor (styles option)
+	const files = {
+		'src/sceditor.scss': 'sceditor.min.css',
+		'src/sceditor.content.scss': 'sceditor.content.min.css'
+	};
 
-	const result = await postcss([
-		autoprefixer(),
-		cssnano(),
-		postcssHeader({ header: banner })
-	]).process(compiled.css, { from: undefined });
+	for (const [source, target] of Object.entries(files)) {
+		const compiled = sass.compile(path.join(rootDir, source), {
+			sourceMap: false
+		});
 
-	await writeFile(path.join(distDir, 'sceditor.min.css'), result.css);
+		const result = await postcss([
+			autoprefixer(),
+			cssnano(),
+			postcssHeader({ header: banner })
+		]).process(compiled.css, { from: undefined });
+
+		await writeFile(path.join(distDir, target), result.css);
+	}
 }
 
 async function copyContent() {
