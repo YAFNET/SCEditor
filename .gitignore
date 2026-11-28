@@ -14,3 +14,4 @@ Folder.DotSettings.user
 # Generated from tests/manual/**/*.ts by `npm run build:manual-tests` so the
 # static QA pages can load them via plain <script> tags.
 /tests/manual/**/*.js
+/.vitest
