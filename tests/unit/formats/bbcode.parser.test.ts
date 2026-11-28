@@ -185,7 +185,7 @@ describe('formats/bbcode#Parser', () => {
 		expect(parser.toHTML('\n\n[quote]test[/quote]\n\n\n\n')).toBe(
 			'<div><br /></div>\n' +
 			'<div><br /></div>\n' +
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test</div>' +
+			'<blockquote class="bbcode-quote">test</blockquote>' +
 			'<div><br /></div>\n' +
 			'<div><br /></div>\n' +
 			'<div><br /><br /></div>\n'
@@ -212,16 +212,16 @@ describe('formats/bbcode#Parser', () => {
 			parser.toHTML('[quote]test\nline\n[/quote]'),
 			'Quote test'
 		).toBeHtmlEqual(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test<br />line<br /></div>'
+			'<blockquote class="bbcode-quote">test<br />line<br /></blockquote>'
 		);
 
 		expect(
 			parser.toHTML('[quote][center]test[/center][/quote]'),
 			'Two block-level elements together'
 		).toBeHtmlEqual(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>' +
+			'<blockquote class="bbcode-quote">' +
 				'<div align="center">test</div>' +
-			'</div>'
+			'</blockquote>'
 		);
 	});
 
@@ -535,10 +535,10 @@ describe('formats/bbcode#Parser - To HTML', () => {
 
 	it('Quote', () => {
 		expect(parser.toHTML('[quote]Testing 1.2.3....[/quote]'), 'Normal').toBeHtmlEqual(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>Testing 1.2.3....</div>'
+			'<blockquote class="bbcode-quote">Testing 1.2.3....</blockquote>'
 		);
 		expect(parser.toHTML('[quote=admin]Testing 1.2.3....[/quote]'), 'With author').toBeHtmlEqual(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>Testing 1.2.3....<cite class="card-text text-end d-block text-body-secondary small">admin</cite></div>'
+			'<blockquote class="bbcode-quote"><cite class="bbcode-quote-header">admin</cite>Testing 1.2.3....</blockquote>'
 		);
 	});
 
@@ -719,8 +719,8 @@ describe('formats/bbcode#Parser - XSS', () => {
 			parser.toHTML('[quote=test<b>test</b>test]test[/quote]'),
 			'Inject HTML script'
 		).toBe(
-			'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>test<cite class="card-text text-end d-block text-body-secondary small">test&lt;b&gt;test&lt;/b&gt;test</cite>' +
-			'</div>'
+			'<blockquote class="bbcode-quote"><cite class="bbcode-quote-header">test&lt;b&gt;test&lt;/b&gt;test</cite>test' +
+			'</blockquote>'
 		);
 	});
 

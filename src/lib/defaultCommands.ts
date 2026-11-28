@@ -827,18 +827,17 @@ const defaultCmds: Record<string, Command> = {
 	// START_COMMAND: Quote
 	quote: {
 		exec: function (this: SCEditorLike, _caller?: HTMLElement, html?: string, author?: string) {
-			let before =
-				'<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>';
-			let end: string | null = '</div>';
+			let before = '<blockquote class="bbcode-quote">';
+			let end: string | null = '</blockquote>';
 
 			// if there is HTML passed set end to null so any selected
 			// text is replaced
 			if (html) {
+				// the author above the text, like in the post
 				const authorHtml = (author
-					? `<cite class="card-text text-end d-block text-body-secondary small">${
-						escape.entities(author)}</cite>`
+					? `<cite class="bbcode-quote-header">${escape.entities(author)}</cite>`
 					: '');
-				before = before + html + authorHtml + end;
+				before = before + authorHtml + html + end;
 				end = null;
 				// if not add a newline to the end of the inserted quote
 			} else if (this.getRangeHelper().selectedHtml() === '') {

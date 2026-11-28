@@ -798,6 +798,8 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 	// START_COMMAND: Quote
 	quote: {
 		tags: {
+			blockquote: null,
+			// the quotes of the editor before 3.2.22
 			div: {
 				class: 'border rounded mx-3 mb-3 p-3 border-secondary shadow-sm'
 			}
@@ -816,42 +818,39 @@ const bbcodeHandlers: Record<string, BBCodeHandler> = {
 			}
 
 			if (cite) {
-				author = cite && cite.textContent;
+				author = (cite.textContent || '').trim();
 
 				// the quote of a post: the post id is not shown, it is kept in the cite
-				if (attr(cite, 'data-post-id')) {
-					author = `${author.trim()};${attr(cite, 'data-post-id')}`;
+				if (author && attr(cite, 'data-post-id')) {
+					author = `${author};${attr(cite, 'data-post-id')}`;
 				}
 
-				if (cite) {
-					element.removeChild(cite);
-				}
-
+				// the cite is the header, not a part of the text
+				element.removeChild(cite);
 				content = this.elementToBbcode(element);
+				element.insertBefore(cite, element.firstChild);
 
-				author = `=${author.trim()}`;
-
-				if (cite) {
-					element.insertBefore(cite, element.firstChild);
-				}
+				// a name the user removed: a quote without a name
+				author = author ? `=${author}` : '';
 			}
 
 			return `[quote${author}]${content}[/quote]`;
 		},
 		html: function (token: BBCodeToken, attrs: BBCodeAttrs, content: string) {
+			let cite = '';
+
 			if (attrs.defaultattr) {
 				// [quote=name;post id] is the quote of a post: show the name, keep the id
 				const post = /^(.*);(\d+)$/.exec(attrs.defaultattr);
 				const postId = post ? ` data-post-id="${post[2]}"` : '';
 
-				content = content +
-					`<cite class="card-text text-end d-block text-body-secondary small"${postId}>` +
+				// the author above the text, like in the post
+				cite = `<cite class="bbcode-quote-header"${postId}>` +
 					escapeEntities(post ? post[1] : attrs.defaultattr) +
 					'</cite>';
 			}
 
-			return `<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm"><span contenteditable="false"><i class="fa fa-quote-left text-primary fs-4 me-2"></i></span>${
-				content}</div>`;
+			return `<blockquote class="bbcode-quote">${cite}${content}</blockquote>`;
 		}
 	},
 	// END_COMMAND

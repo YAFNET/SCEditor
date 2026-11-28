@@ -56,4 +56,34 @@ describe('formats/bbcode - quote', () => {
 			.toEqual(['Alice', 'admin']);
 		expect(editor.toBBCode(html).replace(/\n/g, '')).toBe(bbcode);
 	});
+
+	it('shows the author above the text, in a blockquote', () => {
+		const editor = createEditor();
+
+		const quote = toElement(editor.fromBBCode('[quote=Alice]hi[/quote]')).querySelector('blockquote');
+
+		expect(quote.className).toBe('bbcode-quote');
+		expect(quote.firstElementChild.tagName).toBe('CITE');
+	});
+
+	it('converts the quotes of the old editor', () => {
+		const editor = createEditor();
+		const html = '<div class="border rounded mx-3 mb-3 p-3 border-secondary shadow-sm">hi' +
+			'<cite class="card-text text-end d-block text-body-secondary small">Alice</cite></div>';
+
+		expect(editor.toBBCode(html).trim()).toBe('[quote=Alice]hi[/quote]');
+	});
+
+	it('a quote whose name was deleted has no name', () => {
+		const editor = createEditor();
+
+		expect(editor.toBBCode('<blockquote class="bbcode-quote"><cite class="bbcode-quote-header" data-post-id="3"> </cite>hi</blockquote>').trim())
+			.toBe('[quote]hi[/quote]');
+	});
+
+	it('a blockquote (e.g. a Markdown quote) is a quote', () => {
+		const editor = createEditor();
+
+		expect(editor.toBBCode('<blockquote>quoted</blockquote>').trim()).toBe('[quote]quoted[/quote]');
+	});
 });
